@@ -1,0 +1,65 @@
+# Build outputs
+output/
+build/
+*.o
+*.a
+*.so
+*.bin
+*.img
+*.elf
+
+# Buildroot
+buildroot/output/
+buildroot/dl/
+.buildroot-ccache/
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# KiCad
+*.bak
+*.kicad_pcb-bak
+*.sch-bak
+*-save.kicad_pcb
+*-save.pro
+*.net
+fp-info-cache
+*.xml
+*-cache.lib
+
+# FreeCAD
+*.FCStd1
+
+# Compiled Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Private notes
+notes.txt
+TODO.txt
+scratch/
+
+# Hardware manufacturing files (keep versioned copies in releases)
+gerbers/*.zip
+bom/*.csv
+
+# Large datasheets and PDFs (link instead)
+datasheets/*.pdf
