@@ -1,0 +1,21 @@
+# /etc/fstab: static file system information
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+
+# Root filesystem (read-only for stability)
+/dev/mmcblk0p2  /               ext4    ro,noatime      0       1
+
+# Boot partition
+/dev/mmcblk0p1  /boot           vfat    ro,noatime      0       2
+
+# Data partition (read-write for user books and settings)
+/dev/mmcblk0p3  /data           ext4    rw,noatime      0       2
+
+# tmpfs for temporary files (in RAM)
+tmpfs           /tmp            tmpfs   defaults,size=32M       0       0
+tmpfs           /var/log        tmpfs   defaults,size=8M        0       0
+tmpfs           /var/tmp        tmpfs   defaults,size=8M        0       0
+
+# proc, sys, and dev
+proc            /proc           proc    defaults                0       0
+sysfs           /sys            sysfs   defaults                0       0
+devpts          /dev/pts        devpts  defaults,gid=5,mode=620 0       0

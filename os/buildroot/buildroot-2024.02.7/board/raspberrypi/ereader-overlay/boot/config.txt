@@ -1,0 +1,35 @@
+# E-Reader Boot Configuration
+# Raspberry Pi config.txt for e-ink display support
+
+# Enable SPI interface
+dtparam=spi=on
+
+# Enable I2C interface (for some display controllers)
+dtparam=i2c_arm=on
+
+# GPIO configuration
+# Reserve GPIOs for e-ink display and buttons
+# (specific pins will be configured via device tree overlay)
+
+# Disable unnecessary hardware to save power
+dtoverlay=disable-bt
+dtoverlay=disable-wifi
+
+# Framebuffer configuration
+# Setting to 16-bit color depth (e-ink displays typically use less)
+framebuffer_width=800
+framebuffer_height=600
+framebuffer_depth=16
+
+# Reduce GPU memory (we don't need much for e-ink)
+gpu_mem=16
+
+# Enable UART for debugging (can disable in production)
+enable_uart=1
+
+# Power management - reduce power consumption
+arm_freq_min=600
+
+# Disable HDMI to save power (we're using e-ink display)
+# Uncomment for production:
+# hdmi_blanking=2

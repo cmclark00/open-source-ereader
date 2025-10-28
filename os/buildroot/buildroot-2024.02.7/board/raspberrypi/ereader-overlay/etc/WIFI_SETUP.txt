@@ -1,0 +1,124 @@
+===============================================
+E-READER OS - WiFi & SSH Setup Instructions
+===============================================
+
+FIRST BOOT QUICK START
+-----------------------
+
+1. FRAMEBUFFER TEST
+   The system will automatically display "Corey is awesome" and other
+   messages on the screen every few seconds. This confirms:
+   - System booted successfully
+   - Framebuffer is working
+   - Console output is visible
+
+2. CONNECT VIA UART (Optional)
+   Connect a USB-to-serial adapter:
+   - GND → Pin 6
+   - TX  → Pin 8 (GPIO 14)
+   - RX  → Pin 10 (GPIO 15)
+
+   Serial settings: 115200 baud, 8N1
+   Command: screen /dev/ttyUSB0 115200
+
+3. LOGIN
+   Username: root
+   Password: (just press Enter - no password by default)
+
+WIFI SETUP
+----------
+
+Method 1: Using the helper script (easiest)
+   # setup-wifi.sh "YourNetworkName" "YourPassword"
+
+   Examples:
+   # setup-wifi.sh "MyWiFi" "password123"      (WPA2)
+   # setup-wifi.sh "OpenNetwork"                (no password)
+
+Method 2: Manual configuration
+   Edit /etc/wpa_supplicant/wpa_supplicant.conf:
+
+   network={
+       ssid="YourNetworkName"
+       psk="YourPassword"
+       key_mgmt=WPA-PSK
+   }
+
+   Then restart:
+   # killall wpa_supplicant
+   # ifdown wlan0
+   # ifup wlan0
+
+Method 3: Get IP address (if WiFi already configured)
+   # ifconfig wlan0
+
+   Look for "inet addr" - this is your IP address
+
+SSH ACCESS
+----------
+
+Once WiFi is connected, you can SSH in:
+
+From your computer:
+$ ssh root@<IP_ADDRESS>
+
+Example:
+$ ssh root@192.168.1.100
+
+Note: No password required by default (for development only!)
+
+USEFUL COMMANDS
+---------------
+
+Check WiFi status:
+# ifconfig wlan0
+# iwconfig wlan0
+
+Scan for networks:
+# iw dev wlan0 scan | grep SSID
+
+Restart WiFi:
+# ifdown wlan0 && ifup wlan0
+
+Check framebuffer test:
+# ps | grep framebuffer_test
+# /etc/init.d/S98framebuffer_test stop   (to stop it)
+# /etc/init.d/S98framebuffer_test start  (to start it)
+
+Check SPI devices (for e-ink display):
+# ls -l /dev/spi*
+
+TROUBLESHOOTING
+---------------
+
+WiFi not working:
+1. Check if interface exists: ifconfig -a
+2. Check kernel messages: dmesg | grep -i wifi
+3. Try manual wpa_supplicant:
+   # wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+
+Can't SSH in:
+1. Verify SSH is running: ps | grep ssh
+2. Check firewall: iptables -L (should be empty/permissive)
+3. Verify IP address: ifconfig wlan0
+
+Framebuffer test not showing:
+1. Check if running: ps | grep framebuffer
+2. Check console output: cat /dev/console
+3. Try running manually: /usr/bin/framebuffer_test.py
+
+NEXT STEPS
+----------
+
+After confirming WiFi and SSH work:
+1. Test SPI devices: ls -l /dev/spi*
+2. Connect e-ink display when it arrives
+3. Start developing display driver integration
+
+For production, remember to:
+- Set a root password
+- Disable root SSH login
+- Remove the open network WiFi config
+- Disable the framebuffer test
+
+===============================================

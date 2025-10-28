@@ -1,0 +1,53 @@
+# E-Reader Configuration for Raspberry Pi 4 64-bit
+# Based on config_4_64bit.txt with customizations for e-ink display support
+
+start_file=start4.elf
+fixup_file=fixup4.dat
+
+kernel=Image
+
+# Disable overscan
+disable_overscan=1
+
+# Reduce GPU memory (e-ink doesn't need much)
+gpu_mem_256=16
+gpu_mem_512=16
+gpu_mem_1024=16
+
+# Enable 64-bit support
+arm_64bit=1
+
+# ========================================
+# E-Reader Specific Configuration
+# ========================================
+
+# Enable SPI interface for e-ink display
+dtparam=spi=on
+
+# Enable I2C interface (some display controllers use I2C)
+dtparam=i2c_arm=on
+dtparam=i2c1=on
+
+# Disable Bluetooth to save power (keep WiFi for debugging)
+dtoverlay=disable-bt
+# dtoverlay=disable-wifi  # Commented out for development/debugging
+
+# Enable UART for debugging (can disable in production)
+enable_uart=1
+
+# Framebuffer configuration for e-ink display
+# Typical e-ink display: 800x600 or 1024x758
+framebuffer_width=800
+framebuffer_height=600
+framebuffer_depth=16
+
+# Power management settings
+# Reduce idle frequency to save power
+arm_freq_min=600
+
+# Disable HDMI to save power (uncomment for production)
+# hdmi_blanking=2
+
+# GPIO setup - reserve pins for e-ink display
+# Specific GPIO assignments will be configured via device tree overlay
+# when we add the specific e-ink display driver
