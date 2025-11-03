@@ -1,0 +1,81 @@
+# E-Reader Configuration for Raspberry Pi Zero W
+# Based on config_0w.txt with customizations for e-ink display support
+
+# Boot configuration
+kernel=zImage
+disable_overscan=1
+
+# Reduce GPU memory to minimum (e-ink doesn't need GPU)
+# Pi Zero W has 512MB total, so we minimize GPU allocation
+gpu_mem=16
+
+# ========================================
+# E-Reader Specific Configuration
+# ========================================
+
+# Enable SPI interface for e-ink display
+dtparam=spi=on
+
+# Enable I2C interface (some display controllers use I2C)
+dtparam=i2c_arm=on
+dtparam=i2c1=on
+
+# Disable Bluetooth to save power (keep WiFi for debugging/downloads)
+dtoverlay=disable-bt
+
+# Enable UART for debugging (can disable in production)
+enable_uart=1
+
+# Framebuffer configuration for e-ink display
+# Standard 6" e-ink: 800x600
+framebuffer_width=800
+framebuffer_height=600
+framebuffer_depth=16
+
+# ========================================
+# Power Management Settings
+# ========================================
+
+# Reduce CPU frequency when idle to save power
+# Pi Zero W runs at 1GHz normally, reduce to 700MHz min
+arm_freq=1000
+arm_freq_min=700
+core_freq=400
+core_freq_min=250
+
+# Reduce voltage slightly for power savings
+# (conservative settings, test before reducing further)
+over_voltage=0
+
+# ========================================
+# Production Optimizations (Optional)
+# ========================================
+
+# Disable HDMI output to save ~25mA (uncomment for production)
+# hdmi_blanking=2
+
+# Disable camera (saves power, not used)
+start_x=0
+
+# Disable rainbow splash screen (faster boot)
+disable_splash=1
+
+# Reduce boot delay
+boot_delay=0
+
+# ========================================
+# GPIO Configuration
+# ========================================
+# GPIO pins are configured via device tree overlay
+# when the e-ink display driver loads
+# See ereader-kernel.fragment for GPIO driver settings
+
+# ========================================
+# WiFi/Bluetooth Configuration
+# ========================================
+# WiFi is kept enabled for book downloads and development
+# In production, consider disabling WiFi when not in use
+# to extend battery life significantly
+
+# Note: disable-bt overlay is already set above to save power
+# Bluetooth uses ~10-15mA even when idle

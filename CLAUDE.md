@@ -317,8 +317,10 @@ open-source-ereader/
 
 ### Testing Hardware
 - **Development**: Raspberry Pi 4B 1GB + Waveshare 4.2" display
-- **Testing**: Raspberry Pi Zero W (validate on slower hardware)
+- **Testing**: Raspberry Pi Zero W (validate on slower hardware) **[BUILDROOT CONFIG READY]**
 - **Production**: Orange Pi Zero LTS + 6" display
+
+**Pi Zero W Support**: Full Buildroot configuration available! The Pi Zero W can be used for both development and as a final device. See `PI_ZERO_W_QUICKSTART.md` for build instructions.
 
 ### Next Immediate Tasks
 1. Receive and test 4.2" display on Pi 4
@@ -326,6 +328,8 @@ open-source-ereader/
 3. Get basic display driver working
 4. Create minimal reading app prototype
 5. When Orange Pi arrives: Port software to final hardware
+
+**Alternative path**: Build for Pi Zero W immediately using `make ereader_rpizerow_defconfig`
 
 ### Key Context to Remember
 - User chose **standard resolution display** (167 PPI) to save $20
@@ -362,13 +366,18 @@ A: Yes! Once user gets basic system working, looking for help with:
 
 ## Version History
 
-- **v0.1** (Current): Planning phase complete, all design decisions documented
+- **v0.1**: Planning phase complete, all design decisions documented
+- **v0.1.1** (Current): Raspberry Pi Zero W Buildroot configuration added
+  - Full 32-bit ARM port from Pi 4 64-bit version
+  - New configs: `ereader_rpizerow_defconfig`, `config_ereader_zerow.txt`
+  - Complete documentation for building on Pi Zero W
+  - See `PI_ZERO_W_QUICKSTART.md` and `docs/software/PI_ZERO_W_BUILD.md`
 - **v0.2** (Next): Working proof of concept on dev hardware
 - **v1.0** (Target): Complete working prototype with custom PCB
 
 ## Last Updated
 
-2024-01-XX - Initial planning phase documentation complete
+2025-01-XX - Added Raspberry Pi Zero W support with complete Buildroot configuration
 
 ---
 

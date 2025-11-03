@@ -51,7 +51,7 @@ CONFIG_INPUT_KEYBOARD=y
 CONFIG_KEYBOARD_GPIO=y
 CONFIG_KEYBOARD_GPIO_POLLED=y
 
-# WiFi Support (Broadcom WiFi chip on Raspberry Pi 4)
+# WiFi Support (Broadcom WiFi chip on Raspberry Pi 4 and Pi Zero W)
 CONFIG_CFG80211=m
 CONFIG_MAC80211=m
 CONFIG_BRCMUTIL=m
