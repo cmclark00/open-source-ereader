@@ -1,0 +1,4 @@
+spidev
+RPi.GPIO
+Pillow
+waveshare-epaper
