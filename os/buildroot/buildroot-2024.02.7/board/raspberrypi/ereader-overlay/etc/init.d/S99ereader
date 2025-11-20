@@ -1,57 +1,25 @@
 #!/bin/sh
-#
-# E-Reader initialization script
-# This script sets up the e-ink display and reader application
-#
 
 case "$1" in
-    start)
-        echo "Starting E-Reader services..."
-
-        # Create data directory if it doesn't exist
-        mkdir -p /data/books
-        mkdir -p /data/config
-
-        # Set up SPI device permissions
-        if [ -e /dev/spidev0.0 ]; then
-            chmod 666 /dev/spidev0.0
-            echo "SPI device /dev/spidev0.0 configured"
-        fi
-
-        if [ -e /dev/spidev0.1 ]; then
-            chmod 666 /dev/spidev0.1
-            echo "SPI device /dev/spidev0.1 configured"
-        fi
-
-        # Set up GPIO permissions (for buttons)
-        if [ -d /sys/class/gpio ]; then
-            chmod -R 777 /sys/class/gpio
-            echo "GPIO configured"
-        fi
-
-        # TODO: Start e-reader application
-        # /usr/bin/ereader-app &
-
-        echo "E-Reader services started"
-        ;;
-
-    stop)
-        echo "Stopping E-Reader services..."
-        # TODO: Stop e-reader application
-        # killall ereader-app
-        echo "E-Reader services stopped"
-        ;;
-
-    restart)
-        $0 stop
-        sleep 1
-        $0 start
-        ;;
-
-    *)
-        echo "Usage: $0 {start|stop|restart}"
-        exit 1
-        ;;
+  start)
+    echo "Starting E-Reader Application..."
+    # Wait for drivers/modules if needed
+    sleep 2
+    # Run the application
+    cd /app
+    python3 main.py &
+    ;;
+  stop)
+    echo "Stopping E-Reader Application..."
+    killall python3
+    ;;
+  restart|reload)
+    "$0" stop
+    "$0" start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
 esac
 
-exit 0
+exit $?

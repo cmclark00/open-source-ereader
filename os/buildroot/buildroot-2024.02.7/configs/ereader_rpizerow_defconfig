@@ -47,7 +47,11 @@ BR2_PACKAGE_RPI_FIRMWARE_VARIANT_PI=y
 BR2_PACKAGE_RPI_FIRMWARE_CONFIG_FILE="board/raspberrypi/config_ereader_zerow.txt"
 
 # Python 3 (for reader application)
+# Python 3 (for reader application)
 BR2_PACKAGE_PYTHON3=y
+BR2_PACKAGE_PYTHON_PILLOW=y
+BR2_PACKAGE_PYTHON_RPI_GPIO=y
+BR2_PACKAGE_PYTHON_SPIDEV=y
 
 # Device Tree Compiler
 BR2_PACKAGE_DTC=y
