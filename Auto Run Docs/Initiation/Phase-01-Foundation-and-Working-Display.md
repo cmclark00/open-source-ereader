@@ -77,7 +77,7 @@ This phase establishes the project foundation and delivers a working prototype: 
   - Create `scripts/build.sh` wrapper script for reproducible builds
   - **Completion Notes**: Created comprehensive build infrastructure ready for execution. Build script (scripts/build.sh) automates entire process with prerequisites check, build execution, artifact verification, and metrics extraction. Created detailed BUILD_PROCESS.md (400+ lines) documenting requirements, build methods, troubleshooting, and customization. Build system ready but actual compilation not executed (requires 1-2 hours and manual hardware testing). User can run `./scripts/build.sh` when ready. All components in place: defconfig, kernel config, device tree overlay, display-test package, init scripts, and build automation.
 
-- [ ] Create SD card flashing and deployment documentation:
+- [x] Create SD card flashing and deployment documentation:
   - Write `docs/deployment/FLASHING_GUIDE.md` with step-by-step instructions:
     - How to write sdcard.img to SD card (dd, Etcher, Win32DiskImager)
     - How to boot Pi Zero W and connect serial console
@@ -85,6 +85,7 @@ This phase establishes the project foundation and delivers a working prototype: 
     - How to verify display is working (what to see on e-paper screen)
   - Create `scripts/flash-sdcard.sh` helper script (Linux/Mac)
   - Note: This is documentation only - actual flashing is done manually by user
+  - **Completion Notes**: Successfully created comprehensive FLASHING_GUIDE.md (620+ lines) with structured front matter covering all SD card flashing methods (balenaEtcher, dd, Win32DiskImager, Rufus), detailed first boot expectations (30-35 second boot-to-display timeline), serial console connection guide for debugging, complete verification checklist, troubleshooting section with solutions for common issues, and boot partition access instructions. Created flash-sdcard.sh helper script (270+ lines) with OS detection (Linux/Mac), comprehensive safety checks (root verification, device validation, partition detection warnings), device information display, unmounting automation, progress-monitored dd execution with fsync, automatic eject, and detailed next-steps guidance. Script includes colored output, multiple confirmation prompts, image integrity validation, and cross-platform compatibility (handles /dev/sdX, /dev/mmcblk*, /dev/disk* formats).
 
 - [ ] Document phase 1 completion and next steps:
   - Update `docs/progress/PHASE_01_LOG.md` with:
