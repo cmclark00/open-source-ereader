@@ -1,65 +1,157 @@
-# Build outputs
-output/
-build/
+# Buildroot build artifacts
+buildroot/dl/
+buildroot/output/
+buildroot/.config
+buildroot/.config.old
+buildroot/.auto.deps
+buildroot/.br-external.mk
+
+# Buildroot downloads cache
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.zip
+*.tgz
+
+# Compiled binaries
 *.o
 *.a
 *.so
+*.so.*
+*.ko
+*.elf
 *.bin
 *.img
-*.elf
+*.dtb
+*.dtbo
 
-# Buildroot
-buildroot/output/
-buildroot/dl/
-.buildroot-ccache/
+# Linux kernel build artifacts
+*.cmd
+.tmp_versions/
+modules.order
+Module.symvers
 
-# Editor files
+# C/C++ development
+*.d
+*.out
+*.exe
 *.swp
 *.swo
 *~
+.*.sw?
+
+# IDE and editor files
 .vscode/
 .idea/
-*.sublime-*
+*.sublime-project
+*.sublime-workspace
+.project
+.cproject
+.settings/
 
-# OS files
+# OS-specific files
 .DS_Store
 Thumbs.db
-
-# KiCad
-*.bak
-*.kicad_pcb-bak
-*.sch-bak
-*-save.kicad_pcb
-*-save.pro
-*.net
-fp-info-cache
-*.xml
-*-cache.lib
-
-# FreeCAD
-*.FCStd1
-
-# Compiled Python
-__pycache__/
-*.pyc
-*.pyo
-
-# Logs
-*.log
+desktop.ini
+.Spotlight-V100
+.Trashes
+._*
 
 # Temporary files
 tmp/
 temp/
 *.tmp
+*.temp
+*.log
+*.cache
 
-# Private notes
-notes.txt
-TODO.txt
-scratch/
+# SD card images and boot files
+*.img
+zImage
+*.dtb
+rootfs.tar
+rootfs.ext2
+rootfs.ext4
+sdcard.img
+boot.scr
+uboot.env
 
-# Hardware manufacturing files (keep versioned copies in releases)
-gerbers/*.zip
-bom/*.csv
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.pytest_cache/
 
-# Large datasheets and PDFs (link instead)
-datasheets/*.pdf
+# Documentation build artifacts
+docs/_build/
+docs/.doctrees/
+
+# Local development
+.env
+.env.local
+*.local
+
+# Claude/Maestro temporary files
+tmpclaude-*-cwd
+Auto Run Docs/Working/*
+!Auto Run Docs/Working/.gitkeep
+
+# Git-related
+*.orig
+*.rej
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Output and generated files
+output/
+*.map
+*.lst
+
+# Cross-compilation toolchain (if external)
+toolchain/
+sysroot/
+
+# Package source directories
+package/*/build-*/
+package/*/stamp-*/
+
+# U-Boot
+u-boot.bin
+u-boot.img
+MLO
+SPL
+
+# Device tree compiler output
+*.dts.tmp
+*.dtb.tmp
+
+# Test artifacts
+test-results/
+*.test
+
+# Core dumps
+core
+core.*
+vgcore.*
+
+# Credentials and secrets
+*.pem
+*.key
+*.crt
+*.p12
+credentials.json
+secrets.env
+
+# Local configuration overrides
+config.local
+*.local.mk
+
+# Build timestamps
+.build-timestamp
+.compile-timestamp

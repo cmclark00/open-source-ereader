@@ -1,0 +1,111 @@
+# Phase 05: Polish and Advanced Features
+
+This phase adds essential quality-of-life features that make the e-reader truly usable: persistent bookmarks, adjustable settings, power management, and a polished user experience. By the end of this phase, the device feels like a complete product.
+
+## Tasks
+
+- [ ] Implement persistent bookmark system:
+  - Create `src/ereader/bookmarks/bookmark_manager.c` with functions:
+    - Save current reading position (book path, page/position, timestamp)
+    - Load last reading position for a book
+    - Store bookmarks in `/etc/ereader/bookmarks.json` or SQLite database
+    - Auto-save position every N pages or on book close
+    - Manual bookmark creation (MENU button → Save Bookmark)
+  - Write `src/ereader/bookmarks/bookmark_manager.h`
+  - Integrate with reader.c to auto-load last position when opening book
+  - Update menu to show reading progress (e.g., "Page 45 of 200, 23%")
+
+- [ ] Create settings system:
+  - Create `src/ereader/settings/settings_manager.c` with functions:
+    - Load settings from `/etc/ereader/settings.conf` (key=value format)
+    - Save settings persistently
+    - Provide getters/setters for each setting
+  - Write `src/ereader/settings/settings_manager.h`
+  - Define settings:
+    - font_size (small, medium, large)
+    - line_spacing (single, 1.5, double)
+    - margins (narrow, normal, wide)
+    - display_mode (normal, dark - for future inverted rendering)
+    - auto_sleep_minutes (5, 10, 15, 30, never)
+  - Apply settings to text_renderer and reader components
+
+- [ ] Build settings menu UI:
+  - Create `src/ereader/ui/settings_menu.c` with:
+    - Scrollable list of settings
+    - Toggle/cycle through values (UP/DOWN to navigate, SELECT to change)
+    - Visual indicator of current value
+    - Save and return to main menu
+  - Write `src/ereader/ui/settings_menu.h`
+  - Add SETTINGS state to main application state machine
+  - Add "Settings" option to main menu (alongside book list)
+
+- [ ] Implement dynamic font size rendering:
+  - Update `src/ereader/rendering/text_renderer.c` to:
+    - Support multiple font sizes (embed 3 bitmap fonts or scale one font)
+    - Recalculate lines-per-page and chars-per-line based on font size
+    - Re-paginate current book when font size changes
+    - Handle memory efficiently (don't store all pages, calculate on demand)
+  - Test with small/medium/large fonts to verify readability on 4.2" screen
+
+- [ ] Add power management and sleep mode:
+  - Create `src/ereader/power/power_manager.c` with:
+    - Idle timer tracking (reset on any button press)
+    - Trigger sleep mode after configured timeout
+    - In sleep mode: clear screen, disable display, wait for button press
+    - Wake on any button press
+    - Consider: disable WiFi chip to save power (for future WiFi features)
+  - Write `src/ereader/power/power_manager.h`
+  - Integrate with main event loop
+  - Display sleep countdown warning ("Sleeping in 30 seconds...")
+
+- [ ] Implement battery monitoring (if hardware supports):
+  - Research Pi Zero W battery monitoring options:
+    - If using battery HAT: read voltage via I2C or ADC
+    - If no HAT: document that battery monitoring requires additional hardware
+  - If feasible: create `src/ereader/power/battery_monitor.c`
+  - Display battery icon in status bar (optional, may skip if too complex)
+  - Document battery setup in `docs/hardware/POWER_SUPPLY.md`
+
+- [ ] Add search functionality:
+  - Create `src/ereader/search/search_engine.c` with:
+    - Simple text search within current book
+    - Find all occurrences of search term
+    - Navigate to next/previous match
+    - Highlight match on screen (invert colors)
+  - Create search UI: text input via button presses (slow but functional)
+  - Or: defer text input to Phase 6 (WiFi keyboard), make search read-only for now
+  - Document search limitations in `docs/USER_GUIDE.md`
+
+- [ ] Improve UI polish and visual feedback:
+  - Add loading spinners or progress indicators for slow operations (opening large PDF)
+  - Add confirmation dialogs (e.g., "Exit book? Progress saved.")
+  - Improve menu aesthetics: better alignment, borders, icons
+  - Add header/footer to all screens with consistent branding
+  - Smooth transitions between screens (optional: fade effects if display refresh allows)
+
+- [ ] Optimize performance and memory usage:
+  - Profile memory usage with `top` or `smem` during operation
+  - Identify memory leaks (use valgrind in cross-compiled testing)
+  - Optimize frequent operations: page rendering, file I/O
+  - Consider memory-mapped files for large books
+  - Document performance benchmarks in `docs/testing/PERFORMANCE.md`:
+    - Boot time, menu load time, page turn latency
+    - Memory usage (idle, reading TXT, reading EPUB, reading PDF)
+
+- [ ] Create comprehensive testing suite:
+  - Create `docs/testing/TEST_PLAN.md` with:
+    - Test cases for each feature (bookmarks, settings, search, sleep)
+    - Edge cases: empty library, corrupt files, out-of-memory
+    - Usability tests: can a new user navigate without instructions?
+  - Document test results in `docs/testing/TEST_RESULTS.md`
+  - Create regression test checklist for future changes
+
+- [ ] Update all documentation for Phase 5 features:
+  - Update `docs/USER_GUIDE.md` with:
+    - How to use bookmarks (auto and manual)
+    - How to access and change settings
+    - How sleep mode works
+    - How to search within a book
+  - Update `docs/architecture/EREADER_DESIGN.md` with new components
+  - Update `docs/progress/PHASE_05_LOG.md` with completion notes
+  - Create `docs/progress/PHASE_06_PLANNING.md` for WiFi features
