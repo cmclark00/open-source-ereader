@@ -74,6 +74,8 @@ BR2_PACKAGE_GDB_SERVER=y
 
 # E-Reader custom packages
 BR2_PACKAGE_DISPLAY_TEST=y
+BR2_PACKAGE_BUTTON_TEST=y
+BR2_PACKAGE_EREADER=y
 
 # Post-build and post-image scripts
 BR2_ROOTFS_POST_BUILD_SCRIPT="board/ereader/post-build.sh"

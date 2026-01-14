@@ -1,0 +1,46 @@
+config BR2_PACKAGE_EREADER
+	bool "ereader"
+	select BR2_PACKAGE_DISPLAY_TEST
+	select BR2_PACKAGE_BUTTON_TEST
+	help
+	  E-Reader Application - Full-featured e-reader for Raspberry Pi Zero W.
+
+	  This is the main e-reader application that provides a complete
+	  reading experience on the Waveshare 4.2" e-paper display. It includes:
+
+	  Features:
+	    - Boot-to-reader: Automatic startup with menu display
+	    - Library management: Browse and select books from /books/ directory
+	    - Text rendering: Word-wrapped text display with pagination
+	    - Page navigation: Turn pages with UP/DOWN buttons
+	    - Bookmark support: Automatic position saving to /etc/ereader/bookmarks.txt
+	    - Status display: Shows current page, total pages, and book title
+
+	  Hardware Requirements:
+	    - Raspberry Pi Zero W (512MB RAM)
+	    - Waveshare 4.2" E-Paper Display (400x300, SPI interface)
+	    - 5 GPIO buttons (UP, DOWN, SELECT, BACK, MENU)
+
+	  Supported Formats:
+	    - Plain text files (.txt)
+	    - UTF-8 and ASCII encoding
+	    - Maximum file size: 10MB per book
+
+	  Display Specifications:
+	    - 400x300 pixel display
+	    - 8x16 bitmap font
+	    - 14 lines per page
+	    - 47 characters per line
+
+	  Usage:
+	    - Copy .txt files to /books/ directory
+	    - Power on device - boots directly to library menu
+	    - Navigate with UP/DOWN buttons
+	    - Press SELECT to open a book
+	    - Press BACK to return to menu
+	    - Reading position is saved automatically
+
+	  This package depends on display-test (EPD driver) and button-test
+	  (input system) and integrates them into a cohesive application.
+
+	  https://github.com/yourusername/open-source-ereader
