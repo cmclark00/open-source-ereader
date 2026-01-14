@@ -1,0 +1,23 @@
+config BR2_PACKAGE_BUTTON_TEST
+	bool "button-test"
+	help
+	  GPIO Button Input Test Application for E-Reader.
+
+	  This application tests the GPIO button input system by reading
+	  button events from the Linux input subsystem (/dev/input/eventX)
+	  and displaying them to the console. It verifies that the button
+	  hardware and device tree configuration are working correctly.
+
+	  The application uses the Linux input event interface (evdev) to
+	  read button presses from the gpio-keys driver. It implements
+	  software debouncing and provides color-coded console output for
+	  easy verification.
+
+	  Button Layout:
+	    - UP (GPIO 5)     - Navigate up
+	    - DOWN (GPIO 6)   - Navigate down
+	    - SELECT (GPIO 13) - Confirm/Enter
+	    - BACK (GPIO 19)   - Go back/Cancel
+	    - MENU (GPIO 26)   - Open menu
+
+	  https://github.com/yourusername/open-source-ereader

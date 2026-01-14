@@ -1,0 +1,167 @@
+/dts-v1/;
+/plugin/;
+
+/*
+ * Device Tree Overlay for E-Reader GPIO Buttons
+ *
+ * This overlay configures 5 GPIO buttons for e-reader navigation using
+ * the Linux gpio-keys driver. Buttons appear as /dev/input/eventX devices.
+ *
+ * Hardware Requirements:
+ * - 5x tactile push buttons (6x6mm or 12x12mm)
+ * - Raspberry Pi Zero W
+ *
+ * Button Layout:
+ * - UP:     GPIO 5  (Pin 29) - Navigate up
+ * - DOWN:   GPIO 6  (Pin 31) - Navigate down
+ * - SELECT: GPIO 13 (Pin 33) - Confirm/Enter
+ * - BACK:   GPIO 19 (Pin 35) - Go back/Cancel
+ * - MENU:   GPIO 26 (Pin 37) - Open menu
+ *
+ * Wiring (Active-Low Configuration):
+ * Each button connects GPIO pin to GND. Internal pull-up resistors are enabled.
+ * - Button not pressed: GPIO reads HIGH (1)
+ * - Button pressed:     GPIO reads LOW (0)
+ *
+ * References:
+ * - Documentation/devicetree/bindings/input/gpio-keys.txt
+ * - include/uapi/linux/input-event-codes.h
+ */
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+/ {
+	compatible = "brcm,bcm2835";
+
+	fragment@0 {
+		target-path = "/";
+		__overlay__ {
+			/*
+			 * gpio-keys device for button input
+			 * Creates /dev/input/eventX device for userspace access
+			 */
+			gpio_keys {
+				compatible = "gpio-keys";
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				/*
+				 * Set poll interval for non-interrupt GPIO reads
+				 * 10ms provides responsive input without excessive CPU usage
+				 */
+				poll-interval = <10>;
+
+				/*
+				 * UP Button - Navigate up in menus, scroll up in text
+				 * GPIO 5, Pin 29
+				 * Maps to Linux KEY_UP (arrow up)
+				 */
+				button_up {
+					label = "UP";
+					linux,code = <KEY_UP>;
+					gpios = <&gpio 5 GPIO_ACTIVE_LOW>;
+					debounce-interval = <20>;
+				};
+
+				/*
+				 * DOWN Button - Navigate down in menus, scroll down in text
+				 * GPIO 6, Pin 31
+				 * Maps to Linux KEY_DOWN (arrow down)
+				 */
+				button_down {
+					label = "DOWN";
+					linux,code = <KEY_DOWN>;
+					gpios = <&gpio 6 GPIO_ACTIVE_LOW>;
+					debounce-interval = <20>;
+				};
+
+				/*
+				 * SELECT Button - Confirm/Enter, open selected item
+				 * GPIO 13, Pin 33
+				 * Maps to Linux KEY_ENTER (return/enter key)
+				 */
+				button_select {
+					label = "SELECT";
+					linux,code = <KEY_ENTER>;
+					gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
+					debounce-interval = <20>;
+				};
+
+				/*
+				 * BACK Button - Go back, cancel, close menu
+				 * GPIO 19, Pin 35
+				 * Maps to Linux KEY_ESC (escape key)
+				 */
+				button_back {
+					label = "BACK";
+					linux,code = <KEY_ESC>;
+					gpios = <&gpio 19 GPIO_ACTIVE_LOW>;
+					debounce-interval = <20>;
+				};
+
+				/*
+				 * MENU Button - Open main menu, context menu
+				 * GPIO 26, Pin 37
+				 * Maps to Linux KEY_MENU
+				 */
+				button_menu {
+					label = "MENU";
+					linux,code = <KEY_MENU>;
+					gpios = <&gpio 26 GPIO_ACTIVE_LOW>;
+					debounce-interval = <20>;
+				};
+			};
+		};
+	};
+
+	/*
+	 * Configure GPIO pins for button input
+	 * - Function: Input (0)
+	 * - Pull: Pull-up (2) for active-low buttons
+	 */
+	fragment@1 {
+		target = <&gpio>;
+		__overlay__ {
+			button_pins: button_pins {
+				brcm,pins = <5 6 13 19 26>;      /* Button GPIOs */
+				brcm,function = <0 0 0 0 0>;     /* All inputs */
+				brcm,pull = <2 2 2 2 2>;         /* All pull-up */
+			};
+		};
+	};
+
+	/*
+	 * Apply pinctrl configuration to gpio-keys device
+	 */
+	fragment@2 {
+		target-path = "/";
+		__overlay__ {
+			gpio_keys {
+				pinctrl-names = "default";
+				pinctrl-0 = <&button_pins>;
+			};
+		};
+	};
+
+	/*
+	 * Device tree overlay parameters
+	 * Allow customization via config.txt
+	 *
+	 * Example: dtoverlay=ereader-buttons,debounce=50
+	 */
+	__overrides__ {
+		/* Adjust debounce interval (default 20ms) */
+		debounce = <&gpio_keys>, "debounce-interval:0";
+
+		/* Adjust poll interval (default 10ms) */
+		poll = <&gpio_keys>, "poll-interval:0";
+
+		/* Remap individual button GPIOs if needed */
+		up_gpio = <&button_pins>, "brcm,pins:0";
+		down_gpio = <&button_pins>, "brcm,pins:4";
+		select_gpio = <&button_pins>, "brcm,pins:8";
+		back_gpio = <&button_pins>, "brcm,pins:12";
+		menu_gpio = <&button_pins>, "brcm,pins:16";
+	};
+};

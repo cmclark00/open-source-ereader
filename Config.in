@@ -1,1 +1,2 @@
 source "$BR2_EXTERNAL_EREADER_PATH/package/display-test/Config.in"
+source "$BR2_EXTERNAL_EREADER_PATH/package/button-test/Config.in"

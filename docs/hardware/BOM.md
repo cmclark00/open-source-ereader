@@ -48,10 +48,12 @@ These components will be needed in future phases.
 
 | Item | Description | Quantity | Est. Price | Suppliers |
 |------|-------------|----------|------------|-----------|
-| Tactile Push Buttons | 6x6mm or 12x12mm, through-hole | 6 | $3-5 | Amazon, DigiKey, Mouser |
-| 10kΩ Resistors | Pull-up/pull-down resistors for buttons | 6 | $1-2 | DigiKey, Mouser, Amazon |
+| Tactile Push Buttons | 6x6mm or 12x12mm, through-hole | 5 | $3-5 | Amazon, DigiKey, Mouser |
 | Breadboard (optional) | For prototyping button connections | 1 | $5-8 | Amazon, Adafruit |
 | Perfboard (optional) | For permanent button mounting | 1 | $3-5 | Amazon, Adafruit |
+| 0.1µF Capacitors (optional) | Ceramic capacitor for hardware debouncing | 5 | $1-2 | DigiKey, Mouser, Amazon |
+
+**Note:** Pull-up resistors are NOT required - the Raspberry Pi's internal pull-up resistors (enabled via device tree) are used instead.
 
 ### Phase 3-4: Enclosure and Power
 
@@ -242,6 +244,43 @@ If Pi Zero W is unavailable:
 
 **Note:** Pi 4 and newer use different GPIO voltage levels (still 3.3V but different implementation).
 
+## Detailed Button Specifications (Phase 2)
+
+### Tactile Push Buttons
+
+**Recommended Part Numbers:**
+
+| Size | Part Number | Manufacturer | Description | Price (ea) | Supplier Link |
+|------|-------------|--------------|-------------|------------|---------------|
+| 6x6mm | B3F-1000 | Omron | 6x6x4.3mm, 100gf, through-hole | $0.30 | DigiKey, Mouser |
+| 6x6mm | TL1105 | E-Switch | 6x6x5mm, 160gf, through-hole | $0.25 | DigiKey, Mouser |
+| 12x12mm | B3F-4055 | Omron | 12x12x7.3mm, 260gf, through-hole | $0.50 | DigiKey, Mouser |
+| 12x12mm | PTS645 | C&K | 12x12x7.3mm, 260gf, through-hole | $0.45 | DigiKey, Mouser |
+
+**Specifications:**
+- **Type:** Momentary, normally open (NO)
+- **Actuation Force:** 100-260gf (gram-force)
+- **Contact Resistance:** <100mΩ
+- **Bounce Time:** <5ms
+- **Mounting:** Through-hole (THT)
+- **Lifetime:** 100,000 cycles minimum (500,000+ recommended for SELECT button)
+
+**Purchase Tips:**
+- Buy 6-10 buttons (5 needed + spares)
+- 12x12mm buttons are easier to press and more durable
+- 6x6mm buttons are more compact for smaller enclosures
+- Get assorted packs if experimenting with different sizes
+
+### Optional: 0.1µF Ceramic Capacitors (Hardware Debouncing)
+
+| Value | Voltage | Package | Part Number | Price (ea) |
+|-------|---------|---------|-------------|------------|
+| 0.1µF (100nF) | 50V | Through-hole | RDER71H104K0P1H03B | $0.10 |
+| 0.1µF (100nF) | 50V | Through-hole | K104K15X7RF5TL2 | $0.08 |
+
+**Note:** Hardware debouncing capacitors are optional. Software debouncing (device tree + application) is usually sufficient.
+
 ## Revision History
 
+- 2026-01-13: Updated with detailed Phase 2 button specifications
 - 2026-01-13: Initial BOM created for Phase 1

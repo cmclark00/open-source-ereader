@@ -29,3 +29,6 @@ dtoverlay=disable-bt
 
 # E-paper display device tree overlay
 dtoverlay=waveshare-epd-4_2
+
+# GPIO button input device tree overlay (Phase 2)
+dtoverlay=ereader-buttons
