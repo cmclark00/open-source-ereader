@@ -1,10 +1,8 @@
-# Buildroot build artifacts
-buildroot/dl/
-buildroot/output/
-buildroot/.config
-buildroot/.config.old
-buildroot/.auto.deps
-buildroot/.br-external.mk
+# Buildroot source and build artifacts
+# The entire buildroot directory should be downloaded separately
+# Only our custom configs (in configs/ and board/) are tracked
+buildroot/
+!buildroot/.gitkeep
 
 # Buildroot downloads cache
 *.tar.gz

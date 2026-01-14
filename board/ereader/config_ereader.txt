@@ -1,0 +1,31 @@
+# E-Reader Raspberry Pi Zero W Configuration
+# See http://elinux.org/RPiconfig for a description of config.txt syntax
+
+start_file=start.elf
+fixup_file=fixup.dat
+
+kernel=zImage
+
+# Disable overscan - the e-paper display needs full resolution
+disable_overscan=1
+
+# Minimal GPU memory allocation - we don't need graphics acceleration
+# Pi Zero W has 512MB total memory, allocate minimal amount to GPU
+gpu_mem=16
+
+# Enable SPI interface for e-paper display
+dtparam=spi=on
+
+# Fixes Pi Zero W ttyAMA0 serial console (moves Bluetooth to mini UART)
+dtoverlay=miniuart-bt
+
+# Enable autoprobing of Bluetooth driver
+dtparam=krnbt=on
+
+# Disable WiFi and Bluetooth power management for stable operation
+# Can be re-enabled in later phases for power optimization
+dtoverlay=disable-wifi
+dtoverlay=disable-bt
+
+# E-paper display device tree overlay (to be created in later task)
+# dtoverlay=waveshare-epd-4_2

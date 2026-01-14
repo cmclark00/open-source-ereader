@@ -19,7 +19,7 @@ This phase establishes the project foundation and delivers a working prototype: 
   - Document power requirements and any special initialization sequences
   - **Completion Notes**: Comprehensive research completed. Display uses UC8176/IL0398 controller, 400×300 resolution, 4 grayscale levels. Recommended approach: userspace SPI driver (no suitable kernel driver exists). All specifications, pinouts, initialization sequences, and official resources documented in DISPLAY_SPECS.md with proper front matter and cross-references.
 
-- [ ] Set up Buildroot configuration for Raspberry Pi Zero W:
+- [x] Set up Buildroot configuration for Raspberry Pi Zero W:
   - Download Buildroot 2024.02.x (latest stable) to `buildroot/` directory
   - Create custom defconfig at `configs/ereader_rpi0w_defconfig` with:
     - Target architecture: ARM, ARM1176JZF-S (Pi Zero W CPU)
@@ -29,6 +29,7 @@ This phase establishes the project foundation and delivers a working prototype: 
     - System hostname: "ereader", root password: "ereader" (dev only)
     - Enable getty on ttyAMA0 (serial console for debugging)
   - Create `buildroot/Makefile` wrapper for common build commands
+  - **Completion Notes**: Successfully downloaded Buildroot 2024.02.2, created custom defconfig with all required settings (ARM1176JZF-S, Linux 6.1 LTS, ext4 256MB root filesystem, hostname "ereader", serial console on ttyAMA0 at 115200 baud, debug tools included). Created board/ereader/ configuration files (config_ereader.txt with SPI enabled and minimal GPU memory, post-build.sh for filesystem customization, post-image.sh for SD card image generation). Created Makefile wrapper at project root with targets: config, build, menuconfig, savedefconfig, clean, distclean, show-info. Configuration ready for kernel customization in next task.
 
 - [ ] Configure kernel for SPI and framebuffer support:
   - Create `configs/linux_ereader.fragment` with kernel config fragments:

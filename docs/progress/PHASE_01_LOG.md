@@ -35,10 +35,29 @@ Create a Buildroot-based minimal Linux system that boots on the Raspberry Pi Zer
   - docs/hardware/BOM.md with complete parts list and pricing
   - docs/progress/PHASE_01_LOG.md (this file)
 
+- [x] 2026-01-13: Researched Waveshare 4.2" display technical requirements
+  - Created docs/hardware/DISPLAY_SPECS.md with comprehensive specifications
+  - Documented UC8176/IL0398 controller, 400×300 resolution, 4 grayscale levels
+  - Determined userspace SPI driver approach (no suitable kernel driver)
+  - Documented initialization sequences and official resources
+
+- [x] 2026-01-13: Set up Buildroot configuration for Raspberry Pi Zero W
+  - Downloaded Buildroot 2024.02.2 (latest stable in 2024.02.x series)
+  - Created configs/ereader_rpi0w_defconfig with custom configuration:
+    * Target: ARM1176JZF-S (Pi Zero W CPU)
+    * Kernel: 6.1 LTS series
+    * Root filesystem: ext4 (256MB)
+    * Hostname: "ereader", root password: "ereader" (dev only)
+    * Serial console on ttyAMA0 (115200 baud)
+    * Debug tools: strace, ltrace, gdb, gdbserver
+  - Created board/ereader/ directory with board-specific configuration files:
+    * config_ereader.txt (boot config with SPI enabled, minimal GPU memory)
+    * post-build.sh (creates directories, sets hostname, adds welcome message)
+    * post-image.sh (generates SD card image with genimage)
+  - Created Makefile wrapper for common build commands (config, build, menuconfig, etc.)
+
 ### In Progress
 
-- [ ] Research Waveshare 4.2" display technical requirements
-- [ ] Set up Buildroot configuration for Raspberry Pi Zero W
 - [ ] Configure kernel for SPI and framebuffer support
 - [ ] Create device tree overlay for e-paper display
 - [ ] Write minimal C test application for display verification
@@ -92,6 +111,27 @@ related:
   - "[[Other-Document]]"
 ---
 ```
+
+#### 2026-01-13: Buildroot Version Selection
+
+**Decision:** Use Buildroot 2024.02.2 (latest stable in 2024.02.x series)
+
+**Rationale:**
+- Latest stable release with security fixes and bug fixes
+- Released May 7, 2024 - mature and well-tested
+- LTS kernel 6.1.x support built-in
+- Well-documented and widely used
+- Active community support
+
+**Alternatives Considered:**
+- Buildroot 2024.11.x (rejected: too new, prefer proven stable release)
+- Buildroot 2023.x (rejected: older, missing recent improvements)
+
+**Configuration Choices:**
+- **Init System:** BusyBox init (minimal, fast boot, low overhead)
+- **Root Filesystem:** ext4 (journaling, reliability, 256MB size)
+- **GPU Memory:** 16MB (minimal allocation, maximizes RAM for applications)
+- **Debug Tools:** Included strace, ltrace, gdb for development phase
 
 #### 2026-01-13: Pin Mapping for E-Paper Display
 
@@ -319,3 +359,5 @@ Comparison:
 - 2026-01-13: Initial log created
 - 2026-01-13: Added project structure and documentation completion
 - 2026-01-13: Documented technical decisions (project structure, pin mapping, documentation format)
+- 2026-01-13: Completed Buildroot setup - downloaded 2024.02.2, created custom defconfig and board files
+- 2026-01-13: Added Buildroot version selection decision and configuration details
