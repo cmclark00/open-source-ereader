@@ -4,13 +4,14 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
 
 ## Tasks
 
-- [ ] Research EPUB and PDF libraries for embedded Linux:
+- [x] Research EPUB and PDF libraries for embedded Linux:
   - Create `docs/research/EBOOK_LIBRARIES.md` with front matter (type: research, tags: [libraries, epub, pdf]):
     - Evaluate libraries: libepub, epub2txt, poppler (PDF), mupdf
     - Compare: memory footprint, dependencies, rendering quality, license
     - Consider Pi Zero W constraints (ARM, 512MB RAM, no GPU acceleration)
     - Document recommended choices with rationale
   - Link to performance benchmarks if available
+  - **Completed:** Created comprehensive research document evaluating all major EPUB and PDF libraries. Recommended libzip+libxml2 for EPUB (custom parser, 1.6MB footprint) and MuPDF for PDF (2MB footprint, text extraction mode). Full comparison matrix, memory budgets, and implementation strategy documented.
 
 - [ ] Add EPUB library to Buildroot:
   - Research if chosen EPUB library already has Buildroot package (check package/*)
