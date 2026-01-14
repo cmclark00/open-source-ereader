@@ -56,9 +56,17 @@ Create a Buildroot-based minimal Linux system that boots on the Raspberry Pi Zer
     * post-image.sh (generates SD card image with genimage)
   - Created Makefile wrapper for common build commands (config, build, menuconfig, etc.)
 
+- [x] 2026-01-13: Configure kernel for SPI and framebuffer support
+  - Created configs/linux_ereader.fragment with kernel configuration options
+  - Enabled SPI support (CONFIG_SPI, CONFIG_SPI_BCM2835, CONFIG_SPI_SPIDEV)
+  - Enabled GPIO support (CONFIG_GPIO_CDEV, CONFIG_GPIO_SYSFS)
+  - Enabled framebuffer support (CONFIG_FB, CONFIG_FB_DEFERRED_IO)
+  - Enabled input event support (CONFIG_INPUT_EVDEV, CONFIG_KEYBOARD_GPIO)
+  - Updated ereader_rpi0w_defconfig to reference the kernel fragment
+  - Documented all kernel configuration choices and rationale in decision log
+
 ### In Progress
 
-- [ ] Configure kernel for SPI and framebuffer support
 - [ ] Create device tree overlay for e-paper display
 - [ ] Write minimal C test application for display verification
 - [ ] Integrate test application into Buildroot
@@ -156,6 +164,80 @@ related:
 **Trade-offs:**
 - Locks in SPI0 (SPI1 still available for expansion)
 - GPIOs 17, 24, 25 unavailable for other uses
+
+#### 2026-01-13: Kernel Configuration for E-Paper Display Support
+
+**Decision:** Enable comprehensive SPI, GPIO, and framebuffer kernel support via configuration fragment
+
+**Configuration File:** configs/linux_ereader.fragment
+
+**Kernel Options Enabled and Rationale:**
+
+**SPI Support (Required):**
+- `CONFIG_SPI=y` - Core SPI subsystem support (foundation for all SPI functionality)
+- `CONFIG_SPI_MASTER=y` - Pi Zero W acts as SPI master, e-paper display as slave
+- `CONFIG_SPI_BCM2835=y` - BCM2835 SPI controller driver (hardware SPI on GPIO 10/11)
+- `CONFIG_SPI_BCM2835_AUX=y` - Auxiliary SPI controller support
+- `CONFIG_SPI_SPIDEV=y` - Userspace SPI device driver (creates /dev/spidev0.0)
+
+**Rationale:** E-paper display communicates via 4-wire SPI. The userspace driver approach requires direct SPI access via /dev/spidev, which is provided by CONFIG_SPI_SPIDEV. Hardware SPI (BCM2835) is essential for reliable, fast communication at up to 10 MHz.
+
+**GPIO Support (Required):**
+- `CONFIG_GPIOLIB=y` - Base GPIO library infrastructure
+- `CONFIG_GPIO_BCM2835=y` - Raspberry Pi Zero W GPIO controller driver
+- `CONFIG_GPIO_CDEV=y` - Modern GPIO character device interface (/dev/gpiochip0)
+- `CONFIG_GPIO_SYSFS=y` - Legacy GPIO sysfs interface (/sys/class/gpio)
+
+**Rationale:** E-paper display requires 3 control GPIOs beyond SPI:
+- DC (Data/Command select) - GPIO 25
+- RST (Reset) - GPIO 17
+- BUSY (Status output) - GPIO 24
+
+Both character device (modern) and sysfs (legacy) interfaces are enabled for maximum compatibility with different libraries and debugging tools.
+
+**Framebuffer Support (Future-proofing):**
+- `CONFIG_FB=y` - Framebuffer device support
+- `CONFIG_FB_DEFERRED_IO=y` - Deferred I/O for slow-refresh displays
+- `CONFIG_FRAMEBUFFER_CONSOLE=y` - Text console on framebuffer
+- `CONFIG_FB_SIMPLE=y` - Simple framebuffer support
+
+**Rationale:** While Phase 1 uses userspace SPI driver, framebuffer support enables:
+- Future kernel-space display driver integration
+- Deferred I/O batching for efficient e-paper updates (avoid excessive refreshes)
+- Boot console messages on e-paper display (nice-to-have)
+- Standard Linux framebuffer API compatibility
+
+**Input Device Support (Phase 2 Preparation):**
+- `CONFIG_INPUT_EVDEV=y` - Input event interface (creates /dev/input/eventX)
+- `CONFIG_KEYBOARD_GPIO=y` - GPIO-based button/key support
+- `CONFIG_KEYBOARD_GPIO_POLLED=y` - Polling mode for buttons without interrupts
+
+**Rationale:** Phase 2 will add physical GPIO buttons for navigation (next, previous, select, menu). Enabling now avoids kernel rebuild later. Buttons defined in device tree will appear as standard Linux input events, allowing use of standard input libraries.
+
+**Device Tree Support:**
+- `CONFIG_OF_OVERLAY=y` - Device tree overlay support (runtime configuration)
+- `CONFIG_OF_CONFIGFS=y` - Apply overlays via configfs
+
+**Rationale:** Device tree overlays allow hardware configuration without kernel recompilation. Essential for defining SPI device, GPIO pins, and future peripherals.
+
+**Additional Features (Nice-to-have):**
+- `CONFIG_I2C=y`, `CONFIG_I2C_BCM2835=y` - I2C support for future sensors/RTC
+- `CONFIG_PWM=y`, `CONFIG_PWM_BCM2835=y` - PWM for future backlight or peripherals
+- `CONFIG_WATCHDOG=y`, `CONFIG_BCM2835_WDT=y` - System reliability (auto-reboot on hang)
+- `CONFIG_HW_RANDOM=y`, `CONFIG_HW_RANDOM_BCM2835=y` - Hardware RNG for entropy
+- `CONFIG_DYNAMIC_DEBUG=y` - Enable debug messages at runtime (development)
+
+**Implementation Approach:**
+Kernel fragment file applied via BR2_LINUX_KERNEL_CONFIG_FRAGMENT_FILES in Buildroot. This approach:
+- Keeps custom options separate from base bcmrpi_defconfig
+- Makes it easy to track e-reader-specific requirements
+- Allows updating base kernel config independently
+- Documents each option with inline comments
+
+**Alternatives Considered:**
+- Full custom kernel config (rejected: harder to maintain, loses Pi-specific optimizations)
+- Compile drivers as modules (rejected: adds boot complexity, minimal size benefit)
+- Skip framebuffer support (rejected: needed for future driver integration)
 
 ## Research Notes
 

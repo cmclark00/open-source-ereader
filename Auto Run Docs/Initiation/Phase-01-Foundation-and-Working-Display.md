@@ -31,13 +31,14 @@ This phase establishes the project foundation and delivers a working prototype: 
   - Create `buildroot/Makefile` wrapper for common build commands
   - **Completion Notes**: Successfully downloaded Buildroot 2024.02.2, created custom defconfig with all required settings (ARM1176JZF-S, Linux 6.1 LTS, ext4 256MB root filesystem, hostname "ereader", serial console on ttyAMA0 at 115200 baud, debug tools included). Created board/ereader/ configuration files (config_ereader.txt with SPI enabled and minimal GPU memory, post-build.sh for filesystem customization, post-image.sh for SD card image generation). Created Makefile wrapper at project root with targets: config, build, menuconfig, savedefconfig, clean, distclean, show-info. Configuration ready for kernel customization in next task.
 
-- [ ] Configure kernel for SPI and framebuffer support:
+- [x] Configure kernel for SPI and framebuffer support:
   - Create `configs/linux_ereader.fragment` with kernel config fragments:
     - Enable SPI support (CONFIG_SPI=y, CONFIG_SPI_BCM2835=y)
     - Enable framebuffer support (CONFIG_FB=y, CONFIG_FB_DEFERRED_IO=y)
     - Enable generic SPI device drivers
     - Enable input event interface (CONFIG_INPUT_EVDEV=y for future GPIO buttons)
   - Document why each option is needed in `docs/progress/PHASE_01_LOG.md`
+  - **Completion Notes**: Successfully created configs/linux_ereader.fragment with comprehensive kernel configuration including SPI support (CONFIG_SPI, CONFIG_SPI_BCM2835, CONFIG_SPI_SPIDEV), GPIO support (CONFIG_GPIO_CDEV, CONFIG_GPIO_SYSFS), framebuffer support (CONFIG_FB, CONFIG_FB_DEFERRED_IO, CONFIG_FRAMEBUFFER_CONSOLE), input device support (CONFIG_INPUT_EVDEV, CONFIG_KEYBOARD_GPIO), device tree overlay support, and additional features (I2C, PWM, watchdog, HW RNG). Updated ereader_rpi0w_defconfig to reference the kernel fragment. All options documented with detailed rationale in PHASE_01_LOG.md decision log including why each option is required, alternatives considered, and implementation approach.
 
 - [ ] Create device tree overlay for e-paper display:
   - Research the correct device tree bindings for Waveshare 4.2" display

@@ -1,0 +1,120 @@
+#
+# Linux kernel configuration fragment for E-Reader project
+# This file contains additional kernel config options beyond the bcmrpi_defconfig
+# that are required for SPI e-paper display support and GPIO button input.
+#
+# Usage: This file is automatically applied by Buildroot during kernel build
+#
+
+#
+# SPI Support - Required for e-paper display communication
+#
+
+# Core SPI subsystem support
+CONFIG_SPI=y
+
+# BCM2835 SPI controller driver (Raspberry Pi Zero W SPI hardware)
+# This enables the hardware SPI interface on GPIO 10 (MOSI) and GPIO 11 (SCLK)
+CONFIG_SPI_BCM2835=y
+CONFIG_SPI_BCM2835_AUX=y
+
+# Userspace SPI device driver - allows /dev/spidev0.0 access
+# This is needed for our userspace e-paper driver to communicate via SPI
+CONFIG_SPI_SPIDEV=y
+
+# Enable SPI master mode (Pi Zero W acts as SPI master, display as slave)
+CONFIG_SPI_MASTER=y
+
+#
+# GPIO Support - Required for display control signals (DC, RST, BUSY)
+#
+
+# GPIO library support (base GPIO infrastructure)
+CONFIG_GPIOLIB=y
+
+# GPIO character device interface - modern GPIO access via /dev/gpiochip0
+# Recommended for new applications
+CONFIG_GPIO_CDEV=y
+
+# GPIO sysfs interface - legacy GPIO access via /sys/class/gpio
+# Deprecated but still widely used and easier for simple scripts
+CONFIG_GPIO_SYSFS=y
+
+# BCM2835 GPIO driver (Raspberry Pi Zero W GPIO controller)
+# This driver is typically enabled by bcmrpi_defconfig, but explicitly enable it
+CONFIG_GPIO_BCM2835=y
+
+#
+# Framebuffer Support - For future display driver integration
+#
+
+# Framebuffer device support
+CONFIG_FB=y
+
+# Framebuffer console - allows text console on framebuffer devices
+CONFIG_FRAMEBUFFER_CONSOLE=y
+
+# Deferred I/O support - required for slow-refresh displays like e-paper
+# Allows framebuffer writes to be batched and deferred for efficiency
+CONFIG_FB_DEFERRED_IO=y
+
+# Simple framebuffer support - may be useful for boot splash or debugging
+CONFIG_FB_SIMPLE=y
+
+#
+# Input Device Support - For GPIO buttons (Phase 2+)
+#
+
+# Input event interface - creates /dev/input/eventX devices
+# Required for reading button presses from userspace applications
+CONFIG_INPUT_EVDEV=y
+
+# GPIO-based buttons/keys support
+# Allows defining buttons in device tree that appear as input events
+CONFIG_KEYBOARD_GPIO=y
+
+# Polling GPIO-based keys (for buttons without interrupt capability)
+CONFIG_KEYBOARD_GPIO_POLLED=y
+
+#
+# Device Tree Support
+#
+
+# Enable device tree overlay support for runtime configuration
+CONFIG_OF_OVERLAY=y
+
+# Configfs support for applying overlays at runtime
+CONFIG_OF_CONFIGFS=y
+
+#
+# Debugging and Development Features
+#
+
+# SPI debug messages - useful during development
+# CONFIG_SPI_DEBUG is not set
+
+# GPIO debug messages - can be enabled for troubleshooting
+# CONFIG_DEBUG_GPIO is not set
+
+# Dynamic debug support - allows enabling debug messages at runtime
+CONFIG_DYNAMIC_DEBUG=y
+
+#
+# Additional useful features
+#
+
+# I2C support - not required for e-paper but useful for future sensors/RTC
+CONFIG_I2C=y
+CONFIG_I2C_BCM2835=y
+
+# PWM support - useful for future backlight control or other PWM peripherals
+CONFIG_PWM=y
+CONFIG_PWM_BCM2835=y
+
+# Watchdog timer support - improve system reliability
+CONFIG_WATCHDOG=y
+CONFIG_BCM2835_WDT=y
+
+# Hardware Random Number Generator - improve security and entropy
+CONFIG_HW_RANDOM=y
+CONFIG_HW_RANDOM_BCM2835=y
