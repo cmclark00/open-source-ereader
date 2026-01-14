@@ -31,7 +31,7 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
   - Document decision in `docs/research/EBOOK_LIBRARIES.md`
   - **Completed:** Added `BR2_PACKAGE_POPPLER=y` and `BR2_PACKAGE_POPPLER_UTILS=y` to defconfig. Chose Poppler over MuPDF because MuPDF's Buildroot package requires X11 (unsuitable for embedded). Poppler only requires fontconfig and provides pdftotext utility for text extraction. Footprint: ~5-7MB. Decision documented in EBOOK_LIBRARIES.md and CUSTOM_PACKAGES.md.
 
-- [ ] Implement EPUB parser and renderer:
+- [x] Implement EPUB parser and renderer:
   - Create `src/ereader/formats/epub_reader.c` with functions:
     - Open and validate EPUB file (ZIP container)
     - Parse META-INF/container.xml and content.opf
@@ -41,6 +41,7 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
   - Write `src/ereader/formats/epub_reader.h`
   - Integrate with existing text_renderer from Phase 3
   - Handle errors gracefully (corrupt EPUB, missing files)
+  - **Completed:** Created complete EPUB parser using libzip and libxml2. Implemented ZIP validation, container.xml parsing, OPF metadata/spine parsing, HTML tag stripping, and entity decoding. Supports EPUB 2 and basic EPUB 3 formats. Extracts plain text from all chapters with proper error handling for corrupt files. Updated Makefile with libzip and libxml2 linking. Total implementation: ~850 lines of C code in formats/epub_reader.c and formats/epub_reader.h
 
 - [ ] Implement PDF renderer:
   - Create `src/ereader/formats/pdf_reader.c` with functions:

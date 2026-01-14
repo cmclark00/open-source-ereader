@@ -7,7 +7,7 @@
 # Compiler and flags
 CC := gcc
 CFLAGS := -Wall -Wextra -O2 -g -std=gnu99
-LDFLAGS := -lm
+LDFLAGS := -lm -lzip -lxml2
 
 # Target binary
 TARGET := ereader
@@ -16,18 +16,19 @@ TARGET := ereader
 SRC_MAIN := main.c
 SRC_RENDERING := rendering/framebuffer.c rendering/text_renderer.c
 SRC_BOOKS := books/book_manager.c
+SRC_FORMATS := formats/epub_reader.c
 SRC_UI := ui/menu.c ui/reader.c
 SRC_DISPLAY := ../display-test/epd_driver.c
 SRC_BUTTON := ../button-test/button_input.c
 
 # All source files
-SOURCES := $(SRC_MAIN) $(SRC_RENDERING) $(SRC_BOOKS) $(SRC_UI) $(SRC_DISPLAY) $(SRC_BUTTON)
+SOURCES := $(SRC_MAIN) $(SRC_RENDERING) $(SRC_BOOKS) $(SRC_FORMATS) $(SRC_UI) $(SRC_DISPLAY) $(SRC_BUTTON)
 
 # Object files (derived from sources)
 OBJECTS := $(SOURCES:.c=.o)
 
 # Include directories
-INCLUDES := -I. -I../display-test -I../button-test
+INCLUDES := -I. -I../display-test -I../button-test -I/usr/include/libxml2
 
 # Default target
 all: $(TARGET)
@@ -64,6 +65,7 @@ main.o: ereader.h rendering/framebuffer.h rendering/text_renderer.h books/book_m
 rendering/framebuffer.o: rendering/framebuffer.h
 rendering/text_renderer.o: rendering/text_renderer.h rendering/framebuffer.h
 books/book_manager.o: books/book_manager.h
+formats/epub_reader.o: formats/epub_reader.h
 ui/menu.o: ui/menu.h rendering/framebuffer.h rendering/text_renderer.h books/book_manager.h
 ui/reader.o: ui/reader.h rendering/framebuffer.h rendering/text_renderer.h books/book_manager.h
 ../display-test/epd_driver.o: ../display-test/epd_driver.h
