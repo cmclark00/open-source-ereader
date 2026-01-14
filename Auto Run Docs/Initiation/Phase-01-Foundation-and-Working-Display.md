@@ -40,7 +40,7 @@ This phase establishes the project foundation and delivers a working prototype: 
   - Document why each option is needed in `docs/progress/PHASE_01_LOG.md`
   - **Completion Notes**: Successfully created configs/linux_ereader.fragment with comprehensive kernel configuration including SPI support (CONFIG_SPI, CONFIG_SPI_BCM2835, CONFIG_SPI_SPIDEV), GPIO support (CONFIG_GPIO_CDEV, CONFIG_GPIO_SYSFS), framebuffer support (CONFIG_FB, CONFIG_FB_DEFERRED_IO, CONFIG_FRAMEBUFFER_CONSOLE), input device support (CONFIG_INPUT_EVDEV, CONFIG_KEYBOARD_GPIO), device tree overlay support, and additional features (I2C, PWM, watchdog, HW RNG). Updated ereader_rpi0w_defconfig to reference the kernel fragment. All options documented with detailed rationale in PHASE_01_LOG.md decision log including why each option is required, alternatives considered, and implementation approach.
 
-- [ ] Create device tree overlay for e-paper display:
+- [x] Create device tree overlay for e-paper display:
   - Research the correct device tree bindings for Waveshare 4.2" display
   - Create `board/ereader/overlays/waveshare-epd-4_2.dts` defining:
     - SPI bus configuration (speed, mode, CS pin)
@@ -48,6 +48,7 @@ This phase establishes the project foundation and delivers a working prototype: 
     - Framebuffer device registration
   - Add compilation instructions in `board/ereader/post-build.sh`
   - Document the overlay in `docs/hardware/DEVICE_TREE.md`
+  - **Completion Notes**: Successfully created comprehensive device tree overlay with four fragments: (1) SPI0 device configuration using spidev for userspace access at 4MHz in Mode 0, (2) GPIO pin configuration for RST/BUSY/DC with proper function and pull settings, (3) GPIO labels using gpio-leds subsystem for DC and RST control signals, (4) BUSY pin input configuration with pull-down. Updated post-build.sh to automatically compile all .dts files in overlays directory using host dtc with -@ flag, placing compiled .dtbo files in rpi-firmware/overlays/. Updated config_ereader.txt to load overlay at boot. Created comprehensive DEVICE_TREE.md documentation (150+ lines) covering overlay structure, hardware configuration, kernel requirements, compilation process, verification procedures, userspace access methods, troubleshooting guide, and design rationale. Overlay supports runtime parameter customization for SPI speed and GPIO pin assignments via config.txt overrides.
 
 - [ ] Write minimal C test application for display verification:
   - Create `src/display-test/` directory structure

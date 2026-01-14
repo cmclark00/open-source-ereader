@@ -65,9 +65,19 @@ Create a Buildroot-based minimal Linux system that boots on the Raspberry Pi Zer
   - Updated ereader_rpi0w_defconfig to reference the kernel fragment
   - Documented all kernel configuration choices and rationale in decision log
 
+- [x] 2026-01-13: Create device tree overlay for e-paper display
+  - Created board/ereader/overlays/waveshare-epd-4_2.dts with comprehensive overlay
+  - Fragment 0: SPI0 device configuration (spidev@0 at 4MHz, SPI Mode 0)
+  - Fragment 1: GPIO pin configuration (RST/BUSY/DC function and pull settings)
+  - Fragment 2: GPIO labels for DC and RST using gpio-leds subsystem
+  - Fragment 3: BUSY pin input configuration with pull-down
+  - Updated board/ereader/post-build.sh to automatically compile .dts files
+  - Updated board/ereader/config_ereader.txt to load overlay at boot
+  - Created docs/hardware/DEVICE_TREE.md with comprehensive documentation
+  - Overlay supports runtime parameter customization (speed, pin assignments)
+
 ### In Progress
 
-- [ ] Create device tree overlay for e-paper display
 - [ ] Write minimal C test application for display verification
 - [ ] Integrate test application into Buildroot
 - [ ] Build complete system image

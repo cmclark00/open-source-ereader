@@ -27,5 +27,5 @@ dtparam=krnbt=on
 dtoverlay=disable-wifi
 dtoverlay=disable-bt
 
-# E-paper display device tree overlay (to be created in later task)
-# dtoverlay=waveshare-epd-4_2
+# E-paper display device tree overlay
+dtoverlay=waveshare-epd-4_2
