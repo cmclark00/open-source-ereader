@@ -4,13 +4,14 @@ This phase implements the core e-reader application with a simple menu system an
 
 ## Tasks
 
-- [ ] Design e-reader application architecture:
+- [x] Design e-reader application architecture:
   - Create `docs/architecture/EREADER_DESIGN.md` with front matter (type: architecture, tags: [software, design]):
     - Application state machine (boot → menu → reading → menu)
     - Screen rendering pipeline (text layout → framebuffer → e-paper refresh)
     - File system structure for storing books (/books/ directory)
     - Memory constraints and optimization strategies for Pi Zero W (512MB RAM)
   - Link to `[[Input-System]]` and `[[Display-Specs]]` documents
+  - **Completion Notes**: Successfully created comprehensive EREADER_DESIGN.md (850+ lines) with structured YAML front matter (type: architecture, tags: [software, design, ereader, phase-03]) and complete architecture documentation including: (1) Four-state application state machine (STARTUP, MENU_LIBRARY, READING, EMPTY) with detailed state definitions, button handling tables, and transition diagram, (2) Complete screen rendering pipeline from application state → text layout → framebuffer → display driver with detailed algorithms for word wrapping and pagination, (3) File system structure with /books/ directory for content, /etc/ereader/bookmarks.txt for reading positions, detailed format specifications and error handling, (4) Memory constraints analysis for Pi Zero W (512MB RAM, ~200MB userspace available) with three optimization strategies: full file loading (Phase 03 approach, max 10MB books), chunked reading (future), and memory-mapped files (future), (5) Detailed rendering specifications: 400×300 pixel display, 8×16 font yielding 18 lines × 50 chars, framebuffer structure (15KB 1-bit buffer), pixel operations, text rendering, and UI elements (status bar, hints), (6) Performance targets (< 10s boot, < 100ms button response, < 6s page turn), error handling strategy, testing approach, and future enhancement roadmap. Document includes wiki-link cross-references to [[INPUT_SYSTEM]], [[DISPLAY_SPECS]], [[BUTTON_LAYOUT]], and [[PHASE_02_LOG]]. All required sub-items completed: state machine, rendering pipeline, file system structure, memory optimization, and cross-references.
 
 - [ ] Create text rendering engine:
   - Create `src/ereader/rendering/` directory
