@@ -43,7 +43,7 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
   - Handle errors gracefully (corrupt EPUB, missing files)
   - **Completed:** Created complete EPUB parser using libzip and libxml2. Implemented ZIP validation, container.xml parsing, OPF metadata/spine parsing, HTML tag stripping, and entity decoding. Supports EPUB 2 and basic EPUB 3 formats. Extracts plain text from all chapters with proper error handling for corrupt files. Updated Makefile with libzip and libxml2 linking. Total implementation: ~850 lines of C code in formats/epub_reader.c and formats/epub_reader.h
 
-- [ ] Implement PDF renderer:
+- [x] Implement PDF renderer:
   - Create `src/ereader/formats/pdf_reader.c` with functions:
     - Open PDF file and get page count
     - Render PDF page to text (extract text content)
@@ -53,6 +53,7 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
   - If rendering to bitmap: integrate with framebuffer code
   - If extracting text: integrate with text_renderer
   - Note: Phase 4 focuses on basic PDF support, not perfect fidelity
+  - **Completed:** Created complete PDF reader using Poppler's pdftotext and pdfinfo utilities. Implemented PDF validation, metadata extraction (title, author, subject, creator), page counting, single-page extraction, and full-text extraction. Uses command-line utilities via system() calls with temporary files. Supports lazy loading (extract pages on demand) and full extraction modes. Error handling for corrupt PDFs, missing content, and extraction failures. Updated Makefile to include pdf_reader.c. Total implementation: ~650 lines of C code in formats/pdf_reader.c and formats/pdf_reader.h
 
 - [ ] Create format detection and abstraction layer:
   - Update `src/ereader/books/book_manager.c` to:
