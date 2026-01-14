@@ -1,0 +1,14 @@
+config BR2_PACKAGE_DISPLAY_TEST
+	bool "display-test"
+	help
+	  E-Paper Display Test Application for Waveshare 4.2" display.
+
+	  This application tests the Waveshare 4.2" e-paper display
+	  by initializing the display via SPI and drawing "Hello E-Reader"
+	  text using a basic bitmap font. It verifies that the hardware
+	  and software stack are working correctly.
+
+	  The application uses SPI device interface (/dev/spidev0.0) and
+	  GPIO sysfs interface for display control signals (RST, DC, BUSY).
+
+	  https://github.com/yourusername/open-source-ereader

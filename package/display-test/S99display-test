@@ -1,0 +1,59 @@
+#!/bin/sh
+#
+# S99display-test - Run E-Paper Display Test on boot
+#
+# This script runs the display-test application once during system startup
+# to verify that the e-paper display is working correctly.
+#
+
+DAEMON="display-test"
+EXEC="/usr/bin/$DAEMON"
+LOGFILE="/var/log/display-test.log"
+
+start() {
+	printf 'Running E-Paper Display Test: '
+
+	# Check if executable exists
+	if [ ! -x "$EXEC" ]; then
+		echo "FAIL (executable not found)"
+		return 1
+	fi
+
+	# Run the display test application
+	# Redirect output to log file for debugging
+	$EXEC > "$LOGFILE" 2>&1
+	status=$?
+
+	if [ "$status" -eq 0 ]; then
+		echo "OK"
+		echo "Display test completed successfully at $(date)" >> "$LOGFILE"
+	else
+		echo "FAIL (exit code: $status)"
+		echo "Display test failed with exit code $status at $(date)" >> "$LOGFILE"
+	fi
+
+	return "$status"
+}
+
+stop() {
+	# Nothing to stop - this is a one-shot test
+	echo "Display test is a one-shot application, nothing to stop"
+	return 0
+}
+
+restart() {
+	echo "Re-running display test..."
+	start
+}
+
+case "$1" in
+	start)
+		start;;
+	stop)
+		stop;;
+	restart|reload)
+		restart;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac
