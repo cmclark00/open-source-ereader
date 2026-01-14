@@ -73,27 +73,27 @@ setup: download-buildroot config
 .PHONY: config
 config:
 	@echo "Loading e-reader configuration..."
-	$(MAKE) -C $(BUILDROOT_DIR) BR2_DEFCONFIG=../$(CONFIG_DIR)/$(DEFCONFIG) defconfig
+	$(MAKE) -C $(BUILDROOT_DIR) BR2_EXTERNAL=.. BR2_DEFCONFIG=../$(CONFIG_DIR)/$(DEFCONFIG) defconfig
 	@echo "Configuration loaded. Run 'make build' to build the system."
 
 # Interactive configuration
 .PHONY: menuconfig
 menuconfig:
 	@echo "Opening Buildroot menuconfig..."
-	$(MAKE) -C $(BUILDROOT_DIR) menuconfig
+	$(MAKE) -C $(BUILDROOT_DIR) BR2_EXTERNAL=.. menuconfig
 
 # Save current configuration
 .PHONY: savedefconfig
 savedefconfig:
 	@echo "Saving configuration to $(CONFIG_DIR)/$(DEFCONFIG)..."
-	$(MAKE) -C $(BUILDROOT_DIR) BR2_DEFCONFIG=../$(CONFIG_DIR)/$(DEFCONFIG) savedefconfig
+	$(MAKE) -C $(BUILDROOT_DIR) BR2_EXTERNAL=.. BR2_DEFCONFIG=../$(CONFIG_DIR)/$(DEFCONFIG) savedefconfig
 
 # Build the complete system
 .PHONY: build
 build:
 	@echo "Building e-reader system..."
 	@echo "This may take 1-2 hours on first build..."
-	$(MAKE) -C $(BUILDROOT_DIR)
+	$(MAKE) -C $(BUILDROOT_DIR) BR2_EXTERNAL=..
 	@echo ""
 	@echo "Build complete!"
 	@echo "SD card image: $(OUTPUT_DIR)/images/sdcard.img"
@@ -107,26 +107,26 @@ build:
 .PHONY: linux-rebuild
 linux-rebuild:
 	@echo "Rebuilding Linux kernel..."
-	$(MAKE) -C $(BUILDROOT_DIR) linux-rebuild
+	$(MAKE) -C $(BUILDROOT_DIR) BR2_EXTERNAL=.. linux-rebuild
 
 # Clean build artifacts
 .PHONY: clean
 clean:
 	@echo "Cleaning build artifacts..."
-	$(MAKE) -C $(BUILDROOT_DIR) clean
+	$(MAKE) -C $(BUILDROOT_DIR) BR2_EXTERNAL=.. clean
 
 # Complete clean
 .PHONY: distclean
 distclean:
 	@echo "Removing all build files..."
-	$(MAKE) -C $(BUILDROOT_DIR) distclean
+	$(MAKE) -C $(BUILDROOT_DIR) BR2_EXTERNAL=.. distclean
 
 # Show build information
 .PHONY: show-info
 show-info:
 	@echo "Buildroot Information"
 	@echo "===================="
-	$(MAKE) -C $(BUILDROOT_DIR) show-info
+	$(MAKE) -C $(BUILDROOT_DIR) BR2_EXTERNAL=.. show-info
 
 # List available packages
 .PHONY: list-packages
