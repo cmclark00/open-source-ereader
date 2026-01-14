@@ -10,6 +10,10 @@ OUTPUT_DIR := $(BUILDROOT_DIR)/output
 # Configuration
 DEFCONFIG := ereader_rpi0w_defconfig
 
+# Buildroot version
+BUILDROOT_VERSION := 2024.02.2
+BUILDROOT_URL := https://buildroot.org/downloads/buildroot-$(BUILDROOT_VERSION).tar.gz
+
 # Default target
 .PHONY: all
 all: help
@@ -19,6 +23,10 @@ all: help
 help:
 	@echo "E-Reader Build System"
 	@echo "====================="
+	@echo ""
+	@echo "Setup targets:"
+	@echo "  download-buildroot - Download Buildroot $(BUILDROOT_VERSION)"
+	@echo "  setup              - Download and configure Buildroot"
 	@echo ""
 	@echo "Configuration targets:"
 	@echo "  config          - Load e-reader defconfig"
@@ -37,6 +45,29 @@ help:
 	@echo ""
 	@echo "Output will be in: $(OUTPUT_DIR)/images/sdcard.img"
 	@echo ""
+
+# Download Buildroot
+.PHONY: download-buildroot
+download-buildroot:
+	@echo "Downloading Buildroot $(BUILDROOT_VERSION)..."
+	@if [ -f "$(BUILDROOT_DIR)/Makefile" ]; then \
+		echo "Buildroot already exists in $(BUILDROOT_DIR)/"; \
+		echo "Remove it first if you want to re-download."; \
+		exit 1; \
+	fi
+	@mkdir -p $(BUILDROOT_DIR)
+	@cd $(BUILDROOT_DIR) && \
+		curl -L -o buildroot.tar.gz "$(BUILDROOT_URL)" && \
+		tar -xzf buildroot.tar.gz --strip-components=1 && \
+		rm buildroot.tar.gz
+	@echo "Buildroot $(BUILDROOT_VERSION) downloaded successfully!"
+	@echo "Run 'make config' to load the e-reader configuration."
+
+# Setup: download and configure
+.PHONY: setup
+setup: download-buildroot config
+	@echo ""
+	@echo "Setup complete! You can now run 'make build' to build the system."
 
 # Load the e-reader configuration
 .PHONY: config
