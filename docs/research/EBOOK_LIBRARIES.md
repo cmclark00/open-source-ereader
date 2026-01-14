@@ -25,9 +25,10 @@ This document evaluates EPUB and PDF libraries suitable for the Raspberry Pi Zer
    - Rationale: Minimal dependencies, full control, lightweight
    - Alternative: EPUB3Processor (if full validation needed)
 
-2. **PDF:** **MuPDF** (with text extraction mode)
-   - Rationale: Smallest footprint (~2MB), fastest, optimized for embedded systems
-   - Alternative: Poppler (if broader format support needed)
+2. **PDF:** **Poppler** (with pdftotext utility) ✅ **SELECTED**
+   - Rationale: No X11 dependency, broader format support, available in Buildroot
+   - Note: MuPDF was originally considered but requires X11 (unsuitable for embedded)
+   - Alternative: MuPDF (if X11 dependency can be removed)
 
 ## Platform Constraints
 
@@ -394,10 +395,10 @@ Simple text extraction tools.
 ## Next Steps
 
 1. ✅ Research complete (this document)
-2. ⬜ Add libzip and libxml2 to Buildroot config
-3. ⬜ Add MuPDF to Buildroot config
+2. ✅ Add libzip and libxml2 to Buildroot config
+3. ✅ Add Poppler (instead of MuPDF) to Buildroot config
 4. ⬜ Implement EPUB parser (`src/ereader/formats/epub_reader.c`)
-5. ⬜ Implement PDF text extractor (`src/ereader/formats/pdf_reader.c`)
+5. ⬜ Implement PDF text extractor (`src/ereader/formats/pdf_reader.c`) using pdftotext
 6. ⬜ Create format abstraction layer (`src/ereader/formats/format_interface.h`)
 7. ⬜ Update menu system for multi-format support
 8. ⬜ Test with sample e-books
@@ -408,12 +409,12 @@ Simple text extraction tools.
 For the Raspberry Pi Zero W e-reader project:
 
 - **EPUB:** Use libzip + libxml2 with custom parser (lightweight, full control)
-- **PDF:** Use MuPDF in text extraction mode (smallest footprint, fastest)
+- **PDF:** Use Poppler with pdftotext utility (no X11 dependency, broad format support)
 
 This approach balances memory constraints, performance, and implementation complexity while staying within the 512MB RAM budget and maintaining fast boot times.
 
-Total estimated memory usage: ~145MB (28% of available RAM), leaving 367MB for system overhead and future features.
+**Decision Update:** Poppler was chosen over MuPDF because the Buildroot MuPDF package requires X11 (heavyweight for embedded systems). Poppler only requires fontconfig and provides excellent PDF text extraction capabilities through the pdftotext utility.
 
-**Implementation complexity:** Medium (custom EPUB parser requires ~500-800 lines of C code, but we get full control and minimal footprint).
+Total estimated memory usage: ~150MB (29% of available RAM), leaving 362MB for system overhead and future features.
 
-**Alternative if needed:** If MuPDF proves insufficient, Poppler is a solid fallback with broader format support at the cost of ~3MB additional footprint and ~20% slower performance.
+**Implementation complexity:** Medium (custom EPUB parser requires ~500-800 lines of C code, but we get full control and minimal footprint. PDF support uses pdftotext utility via system calls).

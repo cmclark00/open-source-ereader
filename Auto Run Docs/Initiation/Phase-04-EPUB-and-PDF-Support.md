@@ -13,7 +13,7 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
   - Link to performance benchmarks if available
   - **Completed:** Created comprehensive research document evaluating all major EPUB and PDF libraries. Recommended libzip+libxml2 for EPUB (custom parser, 1.6MB footprint) and MuPDF for PDF (2MB footprint, text extraction mode). Full comparison matrix, memory budgets, and implementation strategy documented.
 
-- [ ] Add EPUB library to Buildroot:
+- [x] Add EPUB library to Buildroot:
   - Research if chosen EPUB library already has Buildroot package (check package/*)
   - If not, create `package/libepub/libepub.mk` (or similar) package:
     - Download source, configure, compile, install
@@ -21,13 +21,15 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
   - If yes, simply enable existing package in defconfig
   - Add to `configs/ereader_rpi0w_defconfig`
   - Document in `docs/buildroot/CUSTOM_PACKAGES.md`
+  - **Completed:** Added `BR2_PACKAGE_LIBZIP=y` and `BR2_PACKAGE_LIBXML2=y` to defconfig. Both packages already exist in Buildroot. libzip handles ZIP archives (EPUB is a ZIP container), libxml2 handles XML parsing for EPUB metadata. Total footprint: ~1.6MB. Documented in CUSTOM_PACKAGES.md.
 
-- [ ] Add PDF library to Buildroot:
+- [x] Add PDF library to Buildroot:
   - Evaluate mupdf vs poppler trade-offs (size vs features)
   - Add chosen library to Buildroot (create package or enable existing)
   - Consider lightweight alternatives if full PDF is too heavy (pdf2txt → render as text)
   - Add to `configs/ereader_rpi0w_defconfig`
   - Document decision in `docs/research/EBOOK_LIBRARIES.md`
+  - **Completed:** Added `BR2_PACKAGE_POPPLER=y` and `BR2_PACKAGE_POPPLER_UTILS=y` to defconfig. Chose Poppler over MuPDF because MuPDF's Buildroot package requires X11 (unsuitable for embedded). Poppler only requires fontconfig and provides pdftotext utility for text extraction. Footprint: ~5-7MB. Decision documented in EBOOK_LIBRARIES.md and CUSTOM_PACKAGES.md.
 
 - [ ] Implement EPUB parser and renderer:
   - Create `src/ereader/formats/epub_reader.c` with functions:

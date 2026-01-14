@@ -72,6 +72,15 @@ BR2_PACKAGE_LTRACE=y
 BR2_PACKAGE_GDB=y
 BR2_PACKAGE_GDB_SERVER=y
 
+# Libraries for EPUB support (Phase 4)
+BR2_PACKAGE_LIBZIP=y
+BR2_PACKAGE_LIBXML2=y
+
+# Libraries for PDF support (Phase 4)
+# Using Poppler instead of MuPDF to avoid X11 dependency
+BR2_PACKAGE_POPPLER=y
+BR2_PACKAGE_POPPLER_UTILS=y
+
 # E-Reader custom packages
 BR2_PACKAGE_DISPLAY_TEST=y
 BR2_PACKAGE_BUTTON_TEST=y
