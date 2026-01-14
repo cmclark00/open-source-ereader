@@ -20,6 +20,14 @@ fi
 
 # Create directory for e-books
 mkdir -p "${TARGET_DIR}/home/ereader/books"
+mkdir -p "${TARGET_DIR}/books"
+mkdir -p "${TARGET_DIR}/etc/ereader"
+
+# Make init script executable
+if [ -f "${TARGET_DIR}/etc/init.d/S99ereader" ]; then
+    chmod +x "${TARGET_DIR}/etc/init.d/S99ereader"
+    echo "Made S99ereader init script executable"
+fi
 
 # Set hostname
 echo "ereader" > "${TARGET_DIR}/etc/hostname"

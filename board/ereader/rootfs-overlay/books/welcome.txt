@@ -1,0 +1,101 @@
+Welcome to Your Open Source E-Reader!
+
+Thank you for choosing this open-source e-reader project. This device is built on a Raspberry Pi Zero W with a Waveshare 4.2" e-paper display, running a custom Linux system built with Buildroot.
+
+GETTING STARTED
+
+This e-reader is designed for reading plain text (.txt) files. When you power on the device, you'll see a menu listing all available books. Use the buttons on the right side of the display to navigate and read.
+
+BUTTON CONTROLS
+
+In the Menu (Library View):
+  UP button     - Move selection up (wraps to bottom)
+  DOWN button   - Move selection down (wraps to top)
+  SELECT button - Open the selected book
+  BACK button   - Exit the application (not recommended during normal use)
+
+In the Reading View:
+  UP button     - Previous page
+  DOWN button   - Next page
+  SELECT button - Save bookmark at current page
+  BACK button   - Return to library menu
+
+ADDING BOOKS
+
+To add your own books to the e-reader:
+
+1. Power off the device
+2. Remove the microSD card
+3. Insert the card into your computer
+4. Mount the Linux partition (the larger one, not the boot partition)
+5. Navigate to the /books directory
+6. Copy your .txt files into this directory
+7. Safely eject the SD card
+8. Insert it back into the Raspberry Pi
+9. Power on the device
+
+SUPPORTED FORMATS
+
+Currently, only plain text (.txt) files are supported. The files should be:
+  - Encoded in UTF-8 or ASCII
+  - Maximum file size: 10 MB
+  - Use standard line breaks (LF or CRLF)
+
+Books with special characters, formatting, or non-standard encodings may not display correctly.
+
+BOOKMARKS
+
+The e-reader automatically remembers where you left off in each book. When you open a book you've read before, it will start at your last reading position. You can also explicitly save a bookmark by pressing the SELECT button while reading.
+
+Bookmarks are saved to /etc/ereader/bookmarks.txt and persist across reboots.
+
+TIPS FOR BEST EXPERIENCE
+
+1. Text files with paragraph breaks display better than continuous text
+2. Keep book titles short and descriptive (max 47 characters for clean display)
+3. The display shows approximately 14 lines of text per page
+4. Each line can display approximately 47 characters
+5. E-paper displays are designed for low power consumption and are easy on the eyes
+
+TECHNICAL SPECIFICATIONS
+
+Display: 400x300 pixels, 1-bit (black and white)
+Font: 8x16 pixel fixed-width font
+Visible text area: 18 lines × 50 characters (with margins)
+Reading area: 14 lines (excluding status bar and hints)
+Memory: Loads entire book into RAM (10 MB maximum per book)
+
+CURRENT LIMITATIONS
+
+This is Phase 3 of the e-reader development. Current limitations include:
+  - Only .txt files are supported (no EPUB, PDF, or other formats yet)
+  - No WiFi connectivity or online features
+  - No text search or table of contents
+  - No font size adjustment
+  - No backlight control (display has no backlight)
+
+These features are planned for future phases of development.
+
+TROUBLESHOOTING
+
+Problem: No books appear in the menu
+Solution: Ensure .txt files are in the /books directory. Files must have the .txt extension and be readable.
+
+Problem: Book won't open
+Solution: Check file size (must be under 10 MB) and encoding (should be UTF-8 or ASCII).
+
+Problem: Text displays incorrectly
+Solution: Ensure the file uses standard text encoding. Try re-saving the file as UTF-8 plain text.
+
+Problem: Device won't turn on
+Solution: Check power supply and ensure the microSD card is properly inserted.
+
+PROJECT INFORMATION
+
+This open-source e-reader project is designed to be hackable, educational, and accessible. The entire system is built from source code using Buildroot, and all components are open source.
+
+For more information, source code, and documentation, visit the project repository or check the /home/ereader directory on the device.
+
+ENJOY READING!
+
+We hope you enjoy using this e-reader. Happy reading!

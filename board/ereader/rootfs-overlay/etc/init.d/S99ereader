@@ -1,0 +1,188 @@
+#!/bin/sh
+#
+# E-Reader Application Startup Script
+#
+# This init script starts the e-reader application on boot
+# It includes a simple watchdog mechanism to restart on crash
+#
+
+DAEMON="ereader"
+PIDFILE="/var/run/$DAEMON.pid"
+LOGFILE="/var/log/ereader.log"
+EREADER_BIN="/usr/bin/ereader"
+MAX_RESTARTS=5
+RESTART_DELAY=3
+
+# Ensure directories exist
+mkdir -p /var/log
+mkdir -p /var/run
+mkdir -p /books
+mkdir -p /etc/ereader
+
+# Logging function
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOGFILE"
+}
+
+# Check if daemon is running
+is_running() {
+    [ -f "$PIDFILE" ] && kill -0 $(cat "$PIDFILE") 2>/dev/null
+    return $?
+}
+
+# Start the e-reader application
+start() {
+    if is_running; then
+        log_message "E-Reader is already running (PID: $(cat $PIDFILE))"
+        echo "E-Reader is already running"
+        return 1
+    fi
+
+    log_message "Starting E-Reader application..."
+    echo "Starting E-Reader..."
+
+    # Start the application in background and redirect output to log
+    # Use nohup to ensure it continues running after script exits
+    nohup "$EREADER_BIN" >> "$LOGFILE" 2>&1 &
+
+    # Save the PID
+    echo $! > "$PIDFILE"
+
+    # Wait a moment and check if it's still running
+    sleep 1
+    if is_running; then
+        log_message "E-Reader started successfully (PID: $(cat $PIDFILE))"
+        echo "E-Reader started (PID: $(cat $PIDFILE))"
+        return 0
+    else
+        log_message "ERROR: E-Reader failed to start"
+        echo "ERROR: E-Reader failed to start"
+        rm -f "$PIDFILE"
+        return 1
+    fi
+}
+
+# Stop the e-reader application
+stop() {
+    if ! is_running; then
+        log_message "E-Reader is not running"
+        echo "E-Reader is not running"
+        rm -f "$PIDFILE"
+        return 0
+    fi
+
+    log_message "Stopping E-Reader application..."
+    echo "Stopping E-Reader..."
+
+    PID=$(cat "$PIDFILE")
+
+    # Send SIGTERM to allow graceful shutdown
+    kill -TERM "$PID" 2>/dev/null
+
+    # Wait for process to terminate (max 10 seconds)
+    for i in 1 2 3 4 5 6 7 8 9 10; do
+        if ! is_running; then
+            log_message "E-Reader stopped gracefully"
+            echo "E-Reader stopped"
+            rm -f "$PIDFILE"
+            return 0
+        fi
+        sleep 1
+    done
+
+    # If still running, force kill
+    if is_running; then
+        log_message "E-Reader did not stop gracefully, forcing shutdown..."
+        echo "Forcing shutdown..."
+        kill -KILL "$PID" 2>/dev/null
+        sleep 1
+        rm -f "$PIDFILE"
+        log_message "E-Reader forcefully stopped"
+        echo "E-Reader forcefully stopped"
+    fi
+
+    return 0
+}
+
+# Restart the application
+restart() {
+    log_message "Restarting E-Reader application..."
+    stop
+    sleep 2
+    start
+}
+
+# Status check
+status() {
+    if is_running; then
+        PID=$(cat "$PIDFILE")
+        echo "E-Reader is running (PID: $PID)"
+        return 0
+    else
+        echo "E-Reader is not running"
+        return 1
+    fi
+}
+
+# Watchdog function - monitors and restarts on crash
+watchdog() {
+    log_message "Starting E-Reader watchdog..."
+    echo "Starting E-Reader watchdog..."
+
+    restart_count=0
+
+    while [ $restart_count -lt $MAX_RESTARTS ]; do
+        # Start the application if not running
+        if ! is_running; then
+            log_message "Watchdog detected E-Reader is not running (restart count: $restart_count/$MAX_RESTARTS)"
+
+            # Clear old PID file
+            rm -f "$PIDFILE"
+
+            # Start the application
+            if start; then
+                restart_count=0  # Reset counter on successful start
+            else
+                restart_count=$((restart_count + 1))
+                log_message "Failed to start E-Reader (attempt $restart_count/$MAX_RESTARTS)"
+
+                if [ $restart_count -ge $MAX_RESTARTS ]; then
+                    log_message "ERROR: E-Reader failed to start after $MAX_RESTARTS attempts, giving up"
+                    echo "ERROR: E-Reader failed to start after $MAX_RESTARTS attempts"
+                    return 1
+                fi
+            fi
+
+            # Wait before next check
+            sleep $RESTART_DELAY
+        fi
+
+        # Check every 5 seconds
+        sleep 5
+    done
+}
+
+# Main command processing
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        status
+        ;;
+    watchdog)
+        watchdog
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status|watchdog}"
+        exit 1
+        ;;
+esac
+
+exit $?
