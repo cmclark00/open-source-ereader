@@ -577,3 +577,111 @@ int pdf_is_pdf_file(const char *filename) {
 
     return (strcasecmp(ext, ".pdf") == 0);
 }
+
+/*
+ * Format Interface Implementation
+ */
+
+#include "format_interface.h"
+
+/* Convert PDF error codes to format error codes */
+static format_error_t pdf_to_format_error(pdf_error_t error) {
+    switch (error) {
+        case PDF_SUCCESS:
+            return FORMAT_SUCCESS;
+        case PDF_ERROR_NOT_FOUND:
+            return FORMAT_ERROR_NOT_FOUND;
+        case PDF_ERROR_INVALID_FORMAT:
+            return FORMAT_ERROR_INVALID_FORMAT;
+        case PDF_ERROR_CORRUPT_FILE:
+        case PDF_ERROR_EXTRACTION_FAILED:
+            return FORMAT_ERROR_CORRUPT_FILE;
+        case PDF_ERROR_OUT_OF_MEMORY:
+            return FORMAT_ERROR_OUT_OF_MEMORY;
+        case PDF_ERROR_TOO_LARGE:
+            return FORMAT_ERROR_TOO_LARGE;
+        case PDF_ERROR_READ_FAILED:
+            return FORMAT_ERROR_READ_FAILED;
+        case PDF_ERROR_NO_CONTENT:
+            return FORMAT_ERROR_NO_CONTENT;
+        case PDF_ERROR_UNSUPPORTED:
+            return FORMAT_ERROR_UNSUPPORTED;
+        default:
+            return FORMAT_ERROR_INVALID_FORMAT;
+    }
+}
+
+static int pdf_interface_validate(const char *filepath) {
+    int result = pdf_validate(filepath);
+    return pdf_to_format_error(result);
+}
+
+static format_handle_t pdf_interface_open(const char *filepath) {
+    return (format_handle_t)pdf_open(filepath);
+}
+
+static void pdf_interface_close(format_handle_t handle) {
+    pdf_close((pdf_document_t*)handle);
+}
+
+static int pdf_interface_extract_text(format_handle_t handle) {
+    int result = pdf_extract_text((pdf_document_t*)handle);
+    return pdf_to_format_error(result);
+}
+
+static int pdf_interface_get_text(format_handle_t handle, const char **out_text, size_t *out_length) {
+    int result = pdf_get_text((pdf_document_t*)handle, out_text, out_length);
+    return pdf_to_format_error(result);
+}
+
+static int pdf_interface_get_metadata(format_handle_t handle, format_metadata_t *metadata) {
+    pdf_document_t *doc = (pdf_document_t*)handle;
+
+    if (!doc || !metadata) {
+        return FORMAT_ERROR_INVALID_FORMAT;
+    }
+
+    memset(metadata, 0, sizeof(format_metadata_t));
+
+    /* Copy metadata from PDF */
+    strncpy(metadata->title, doc->metadata.title, sizeof(metadata->title) - 1);
+    metadata->title[sizeof(metadata->title) - 1] = '\0';
+
+    strncpy(metadata->author, doc->metadata.author, sizeof(metadata->author) - 1);
+    metadata->author[sizeof(metadata->author) - 1] = '\0';
+
+    /* PDFs don't typically have language metadata */
+    metadata->language[0] = '\0';
+
+    /* Page count from PDF */
+    metadata->page_count = doc->page_count;
+
+    /* File size - approximate from full text length */
+    metadata->file_size = doc->full_text_length;
+
+    return FORMAT_SUCCESS;
+}
+
+static int pdf_interface_get_page_count(format_handle_t handle) {
+    pdf_document_t *doc = (pdf_document_t*)handle;
+    if (!doc) {
+        return -1;
+    }
+    return doc->page_count;
+}
+
+/*
+ * Format Interface Definition
+ */
+const book_format_interface_t pdf_format_interface = {
+    .type = BOOK_FORMAT_PDF,
+    .name = "PDF",
+    .extension = ".pdf",
+    .validate = pdf_interface_validate,
+    .open = pdf_interface_open,
+    .close = pdf_interface_close,
+    .extract_text = pdf_interface_extract_text,
+    .get_text = pdf_interface_get_text,
+    .get_metadata = pdf_interface_get_metadata,
+    .get_page_count = pdf_interface_get_page_count
+};

@@ -796,3 +796,109 @@ int epub_get_text(epub_book_t *book, const char **out_text, size_t *out_length) 
     *out_length = book->full_text_length;
     return EPUB_SUCCESS;
 }
+
+/*
+ * Format Interface Implementation
+ */
+
+#include "format_interface.h"
+
+/* Convert EPUB error codes to format error codes */
+static format_error_t epub_to_format_error(epub_error_t error) {
+    switch (error) {
+        case EPUB_SUCCESS:
+            return FORMAT_SUCCESS;
+        case EPUB_ERROR_NOT_FOUND:
+            return FORMAT_ERROR_NOT_FOUND;
+        case EPUB_ERROR_INVALID_FORMAT:
+        case EPUB_ERROR_MISSING_CONTAINER:
+        case EPUB_ERROR_MISSING_OPF:
+            return FORMAT_ERROR_INVALID_FORMAT;
+        case EPUB_ERROR_CORRUPT_ZIP:
+        case EPUB_ERROR_PARSE_ERROR:
+            return FORMAT_ERROR_CORRUPT_FILE;
+        case EPUB_ERROR_OUT_OF_MEMORY:
+            return FORMAT_ERROR_OUT_OF_MEMORY;
+        case EPUB_ERROR_TOO_LARGE:
+            return FORMAT_ERROR_TOO_LARGE;
+        case EPUB_ERROR_READ_FAILED:
+            return FORMAT_ERROR_READ_FAILED;
+        case EPUB_ERROR_NO_CONTENT:
+            return FORMAT_ERROR_NO_CONTENT;
+        default:
+            return FORMAT_ERROR_INVALID_FORMAT;
+    }
+}
+
+static int epub_interface_validate(const char *filepath) {
+    int result = epub_validate(filepath);
+    return epub_to_format_error(result);
+}
+
+static format_handle_t epub_interface_open(const char *filepath) {
+    return (format_handle_t)epub_open(filepath);
+}
+
+static void epub_interface_close(format_handle_t handle) {
+    epub_close((epub_book_t*)handle);
+}
+
+static int epub_interface_extract_text(format_handle_t handle) {
+    int result = epub_extract_text((epub_book_t*)handle);
+    return epub_to_format_error(result);
+}
+
+static int epub_interface_get_text(format_handle_t handle, const char **out_text, size_t *out_length) {
+    int result = epub_get_text((epub_book_t*)handle, out_text, out_length);
+    return epub_to_format_error(result);
+}
+
+static int epub_interface_get_metadata(format_handle_t handle, format_metadata_t *metadata) {
+    epub_book_t *book = (epub_book_t*)handle;
+
+    if (!book || !metadata) {
+        return FORMAT_ERROR_INVALID_FORMAT;
+    }
+
+    memset(metadata, 0, sizeof(format_metadata_t));
+
+    /* Copy metadata from EPUB */
+    strncpy(metadata->title, book->metadata.title, sizeof(metadata->title) - 1);
+    metadata->title[sizeof(metadata->title) - 1] = '\0';
+
+    strncpy(metadata->author, book->metadata.author, sizeof(metadata->author) - 1);
+    metadata->author[sizeof(metadata->author) - 1] = '\0';
+
+    strncpy(metadata->language, book->metadata.language, sizeof(metadata->language) - 1);
+    metadata->language[sizeof(metadata->language) - 1] = '\0';
+
+    /* Page count not available until pagination */
+    metadata->page_count = 0;
+
+    /* File size - approximate from full text length */
+    metadata->file_size = book->full_text_length;
+
+    return FORMAT_SUCCESS;
+}
+
+static int epub_interface_get_page_count(format_handle_t handle) {
+    /* Page count not available until pagination */
+    (void)handle;
+    return -1;
+}
+
+/*
+ * Format Interface Definition
+ */
+const book_format_interface_t epub_format_interface = {
+    .type = BOOK_FORMAT_EPUB,
+    .name = "EPUB",
+    .extension = ".epub",
+    .validate = epub_interface_validate,
+    .open = epub_interface_open,
+    .close = epub_interface_close,
+    .extract_text = epub_interface_extract_text,
+    .get_text = epub_interface_get_text,
+    .get_metadata = epub_interface_get_metadata,
+    .get_page_count = epub_interface_get_page_count
+};

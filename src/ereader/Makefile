@@ -16,7 +16,7 @@ TARGET := ereader
 SRC_MAIN := main.c
 SRC_RENDERING := rendering/framebuffer.c rendering/text_renderer.c
 SRC_BOOKS := books/book_manager.c
-SRC_FORMATS := formats/epub_reader.c formats/pdf_reader.c
+SRC_FORMATS := formats/format_interface.c formats/txt_reader.c formats/epub_reader.c formats/pdf_reader.c
 SRC_UI := ui/menu.c ui/reader.c
 SRC_DISPLAY := ../display-test/epd_driver.c
 SRC_BUTTON := ../button-test/button_input.c
@@ -64,9 +64,11 @@ install:
 main.o: ereader.h rendering/framebuffer.h rendering/text_renderer.h books/book_manager.h ui/menu.h ui/reader.h
 rendering/framebuffer.o: rendering/framebuffer.h
 rendering/text_renderer.o: rendering/text_renderer.h rendering/framebuffer.h
-books/book_manager.o: books/book_manager.h
-formats/epub_reader.o: formats/epub_reader.h
-formats/pdf_reader.o: formats/pdf_reader.h
+books/book_manager.o: books/book_manager.h formats/format_interface.h
+formats/format_interface.o: formats/format_interface.h formats/txt_reader.h formats/epub_reader.h formats/pdf_reader.h
+formats/txt_reader.o: formats/txt_reader.h formats/format_interface.h
+formats/epub_reader.o: formats/epub_reader.h formats/format_interface.h
+formats/pdf_reader.o: formats/pdf_reader.h formats/format_interface.h
 ui/menu.o: ui/menu.h rendering/framebuffer.h rendering/text_renderer.h books/book_manager.h
 ui/reader.o: ui/reader.h rendering/framebuffer.h rendering/text_renderer.h books/book_manager.h
 ../display-test/epd_driver.o: ../display-test/epd_driver.h

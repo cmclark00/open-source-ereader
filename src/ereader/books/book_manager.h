@@ -24,6 +24,16 @@
 #define BOOKMARKS_FILE "/etc/ereader/bookmarks.txt"
 
 /*
+ * Book format type (forward declaration from format_interface.h)
+ */
+typedef enum {
+    BOOK_FORMAT_UNKNOWN = 0,
+    BOOK_FORMAT_TXT,
+    BOOK_FORMAT_EPUB,
+    BOOK_FORMAT_PDF
+} book_format_type_t;
+
+/*
  * Book metadata structure
  * Stores information about a single book file without loading the full content
  */
@@ -33,6 +43,7 @@ typedef struct {
     long size;                           /* File size in bytes */
     time_t modified;                     /* Last modification time */
     int bookmark_page;                   /* Last read page (0 if never read) */
+    book_format_type_t format;           /* File format (TXT, EPUB, PDF) */
 } book_metadata_t;
 
 /*

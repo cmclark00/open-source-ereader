@@ -55,7 +55,7 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
   - Note: Phase 4 focuses on basic PDF support, not perfect fidelity
   - **Completed:** Created complete PDF reader using Poppler's pdftotext and pdfinfo utilities. Implemented PDF validation, metadata extraction (title, author, subject, creator), page counting, single-page extraction, and full-text extraction. Uses command-line utilities via system() calls with temporary files. Supports lazy loading (extract pages on demand) and full extraction modes. Error handling for corrupt PDFs, missing content, and extraction failures. Updated Makefile to include pdf_reader.c. Total implementation: ~650 lines of C code in formats/pdf_reader.c and formats/pdf_reader.h
 
-- [ ] Create format detection and abstraction layer:
+- [x] Create format detection and abstraction layer:
   - Update `src/ereader/books/book_manager.c` to:
     - Detect file format by extension (.txt, .epub, .pdf)
     - Load appropriate reader (text, EPUB, PDF)
@@ -64,6 +64,7 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
     - Generic book format interface (function pointers)
     - Common functions: open, close, get_page_count, render_page, get_metadata
   - Implement interface for each format (txt_reader, epub_reader, pdf_reader)
+  - **Completed:** Created comprehensive format abstraction layer with format_interface.h/c defining unified interface. Implemented txt_reader.h/c for plain text, added format interface implementations to epub_reader.c and pdf_reader.c. Updated book_manager.c to scan for all supported formats (.txt, .epub, .pdf) and store format type in metadata. Updated Makefile to include new format files. All formats now accessible through common interface with functions: validate, open, close, extract_text, get_text, get_metadata, get_page_count. Format detection by file extension automatically routes to appropriate reader implementation.
 
 - [ ] Update menu system to handle all formats:
   - Extend `src/ereader/ui/menu.c` to:

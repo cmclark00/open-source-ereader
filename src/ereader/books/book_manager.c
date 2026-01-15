@@ -7,6 +7,7 @@
  */
 
 #include "book_manager.h"
+#include "../formats/format_interface.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -104,15 +105,18 @@ int book_list_scan(book_list_t *list, const char *books_dir) {
         return BOOK_ERROR_INVALID_PATH;
     }
 
-    /* Scan for .txt files */
+    /* Scan for supported book files (.txt, .epub, .pdf) */
     while ((entry = readdir(dir)) != NULL) {
+        book_format_type_t format;
+
         /* Skip hidden files and directories */
         if (entry->d_name[0] == '.') {
             continue;
         }
 
-        /* Check for .txt extension */
-        if (!book_is_txt_file(entry->d_name)) {
+        /* Check if file is a supported format */
+        format = format_detect_type(entry->d_name);
+        if (format == BOOK_FORMAT_UNKNOWN) {
             continue;
         }
 
@@ -163,6 +167,7 @@ int book_list_scan(book_list_t *list, const char *books_dir) {
         book->size = st.st_size;
         book->modified = st.st_mtime;
         book->bookmark_page = 0;  /* Will be updated from bookmarks */
+        book->format = format;    /* Store detected format */
 
         list->count++;
     }
