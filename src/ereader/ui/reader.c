@@ -299,6 +299,13 @@ bool reader_next_page(reader_state_t *reader) {
 
     reader->current_page++;
     reader->needs_redraw = true;
+
+    /* Auto-save bookmark on page change */
+    if (reader->bookmarks && reader->book) {
+        bookmark_update(reader->bookmarks, reader->book->filename, reader->current_page);
+        bookmark_list_save(reader->bookmarks, BOOKMARKS_FILE);
+    }
+
     return true;
 }
 
@@ -314,6 +321,13 @@ bool reader_prev_page(reader_state_t *reader) {
 
     reader->current_page--;
     reader->needs_redraw = true;
+
+    /* Auto-save bookmark on page change */
+    if (reader->bookmarks && reader->book) {
+        bookmark_update(reader->bookmarks, reader->book->filename, reader->current_page);
+        bookmark_list_save(reader->bookmarks, BOOKMARKS_FILE);
+    }
+
     return true;
 }
 
@@ -334,6 +348,13 @@ bool reader_goto_page(reader_state_t *reader, int page) {
 
     reader->current_page = page;
     reader->needs_redraw = true;
+
+    /* Auto-save bookmark on page change */
+    if (reader->bookmarks && reader->book) {
+        bookmark_update(reader->bookmarks, reader->book->filename, reader->current_page);
+        bookmark_list_save(reader->bookmarks, BOOKMARKS_FILE);
+    }
+
     return true;
 }
 
@@ -440,8 +461,18 @@ void reader_format_page_indicator(int current_page, int total_pages, char *buffe
         return;
     }
 
-    /* Format as [current/total] */
-    snprintf(buffer, buffer_size, "[%d/%d]", current_page, total_pages);
+    /* Calculate percentage */
+    int percentage = 0;
+    if (total_pages > 0) {
+        percentage = (current_page * 100) / total_pages;
+        /* Ensure we don't show 100% unless we're actually on the last page */
+        if (percentage == 100 && current_page < total_pages) {
+            percentage = 99;
+        }
+    }
+
+    /* Format as [current/total, percentage%] */
+    snprintf(buffer, buffer_size, "[%d/%d,%d%%]", current_page, total_pages, percentage);
 }
 
 const char* reader_error_string(reader_error_t error) {

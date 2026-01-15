@@ -4,16 +4,16 @@ This phase adds essential quality-of-life features that make the e-reader truly 
 
 ## Tasks
 
-- [ ] Implement persistent bookmark system:
-  - Create `src/ereader/bookmarks/bookmark_manager.c` with functions:
-    - Save current reading position (book path, page/position, timestamp)
-    - Load last reading position for a book
-    - Store bookmarks in `/etc/ereader/bookmarks.json` or SQLite database
-    - Auto-save position every N pages or on book close
-    - Manual bookmark creation (MENU button → Save Bookmark)
-  - Write `src/ereader/bookmarks/bookmark_manager.h`
-  - Integrate with reader.c to auto-load last position when opening book
-  - Update menu to show reading progress (e.g., "Page 45 of 200, 23%")
+- [x] Implement persistent bookmark system:
+  - ✅ Bookmark system already existed in `src/ereader/books/book_manager.c`
+  - ✅ Save current reading position (book path, page/position, timestamp)
+  - ✅ Load last reading position for a book
+  - ✅ Store bookmarks in `/etc/ereader/bookmarks.txt` (CSV format)
+  - ✅ Auto-save position on every page turn (implemented in reader.c)
+  - ✅ Manual bookmark creation (SELECT button → Save Bookmark)
+  - ✅ Bookmarks fully integrated with reader.c - auto-loads last position when opening book
+  - ✅ Updated reader status bar to show reading progress with percentage (e.g., "[45/200,23%]")
+  - **Note**: Implementation completed. Auto-save now occurs on every page turn (UP/DOWN buttons). Percentage display added to page indicator.
 
 - [ ] Create settings system:
   - Create `src/ereader/settings/settings_manager.c` with functions:
