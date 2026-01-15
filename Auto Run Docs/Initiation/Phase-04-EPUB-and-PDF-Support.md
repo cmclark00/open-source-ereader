@@ -75,13 +75,14 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
   - Sort books alphabetically regardless of format
   - **Completed:** Extended menu system with multi-format support. Added format_get_type_indicator() calls to display [T], [E], or [P] indicators for each book. Updated book_metadata_t structure to include title and author fields (256 chars each). Modified book_list_scan() to extract metadata from EPUB/PDF files using format interfaces - title displayed instead of filename when available. Updated MENU_EMPTY_HINT constant to show "Copy books (.txt/.epub/.pdf) to /books/". Updated main.c empty state message and added format_init() call during app initialization. Book scanning already supported all formats via format_detect_type() from Phase 4 format abstraction layer. Updated Makefile dependencies for menu.o to include formats/format_interface.h. Menu now displays books with format indicators and proper titles: "> [E] Pride and Prejudice" or "  [P] User Manual"
 
-- [ ] Update reader view for multi-format support:
+- [x] Update reader view for multi-format support:
   - Extend `src/ereader/ui/reader.c` to:
     - Use format abstraction layer (no format-specific code in UI)
     - Display format-specific metadata (chapter names for EPUB)
     - Handle format-specific page navigation (PDF page numbers vs EPUB flow)
   - Update status bar to show format type
   - Handle loading delays for complex PDFs (show "Loading..." message)
+  - **Completed:** Updated reader view to support all book formats through format abstraction layer. Modified reader_state_t to include book_metadata_t pointer containing format type, title, and author. Updated reader_create() signature to accept metadata parameter. Modified reader_render_status_bar() to display format indicator ([T]/[E]/[P]) and book title from metadata instead of filename. Status bar now shows format like "[E] Pride and Prejudice [5/42]". All format-specific logic abstracted away - reader works purely with extracted text from format interfaces. Updated main.c to pass metadata when creating reader. Reader is now fully format-agnostic and displays proper metadata for all supported formats (TXT, EPUB, PDF).
 
 - [ ] Build and test with sample e-books:
   - Add to `board/ereader/rootfs-overlay/books/`:

@@ -397,7 +397,7 @@ int app_handle_button_event(app_context_t *ctx, void *button_event_ptr) {
                     }
 
                     /* Create reader state */
-                    ctx->reader_state = reader_create(ctx->current_book, ctx->bookmarks, initial_page);
+                    ctx->reader_state = reader_create(ctx->current_book, metadata, ctx->bookmarks, initial_page);
                     if (ctx->reader_state == NULL) {
                         book_free(ctx->current_book);
                         ctx->current_book = NULL;

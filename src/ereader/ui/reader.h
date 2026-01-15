@@ -5,6 +5,7 @@
  * Handles page turning, status bar display, and reading state management.
  *
  * Phase 03: Basic E-Reader Application
+ * Phase 04: Multi-format support (TXT, EPUB, PDF)
  */
 
 #ifndef READER_H
@@ -15,6 +16,7 @@
 #include "../rendering/framebuffer.h"
 #include "../rendering/text_renderer.h"
 #include "../books/book_manager.h"
+#include "../formats/format_interface.h"
 #include "../../button-test/button_input.h"
 
 /*
@@ -60,6 +62,7 @@ typedef struct {
     book_t *book;                   /* Currently loaded book (not owned by reader) */
     pagination_t *pagination;       /* Pagination context for current book (owned) */
     bookmark_list_t *bookmarks;     /* Pointer to bookmarks (not owned by reader) */
+    book_metadata_t *metadata;      /* Book metadata (not owned by reader) */
 
     int current_page;               /* Current page number (0-based) */
     int total_pages;                /* Total number of pages in book */
@@ -80,7 +83,7 @@ typedef struct {
  * @param initial_page: Page to start reading at (0-based, -1 = use bookmark)
  * @return: Pointer to reader state, or NULL on error
  */
-reader_state_t* reader_create(book_t *book, bookmark_list_t *bookmarks, int initial_page);
+reader_state_t* reader_create(book_t *book, book_metadata_t *metadata, bookmark_list_t *bookmarks, int initial_page);
 
 /**
  * Free reader state and associated resources

@@ -4,10 +4,12 @@
  * Implements the reading view UI for displaying book pages with navigation.
  *
  * Phase 03: Basic E-Reader Application
+ * Phase 04: Multi-format support (TXT, EPUB, PDF)
  */
 
 #include "reader.h"
 #include "../rendering/text_renderer.h"
+#include "../formats/format_interface.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +21,7 @@ static void reader_draw_separator_line(framebuffer_t *fb, int line_number);
  * Reader Initialization and Cleanup
  */
 
-reader_state_t* reader_create(book_t *book, bookmark_list_t *bookmarks, int initial_page) {
+reader_state_t* reader_create(book_t *book, book_metadata_t *metadata, bookmark_list_t *bookmarks, int initial_page) {
     if (!book || !book->text) {
         return NULL;
     }
@@ -30,6 +32,7 @@ reader_state_t* reader_create(book_t *book, bookmark_list_t *bookmarks, int init
     }
 
     reader->book = book;
+    reader->metadata = metadata;
     reader->bookmarks = bookmarks;
     reader->needs_redraw = true;
     reader->refresh_counter = 0;
@@ -131,20 +134,34 @@ int reader_render(reader_state_t *reader, framebuffer_t *fb) {
 }
 
 int reader_render_status_bar(reader_state_t *reader, framebuffer_t *fb) {
-    if (!reader || !fb || !reader->book) {
+    if (!reader || !fb || !reader->book || !reader->metadata) {
         return READER_ERROR_NULL_POINTER;
     }
 
     char status_bar[MAX_LINE_LENGTH];
     char page_indicator[32];
+    char title_with_format[MAX_LINE_LENGTH];
     char title_buffer[MAX_LINE_LENGTH];
+    char format_indicator;
+
+    /* Get format indicator character */
+    format_indicator = format_get_type_indicator(reader->metadata->format);
 
     /* Format page indicator [current/total] - 1-based for user display */
     reader_format_page_indicator(reader->current_page + 1, reader->total_pages,
                                   page_indicator, sizeof(page_indicator));
 
-    /* Truncate book title if needed */
-    reader_truncate_title(reader->book->filename, CHARS_PER_LINE - 10,
+    /* Use book title from metadata (or filename if title is empty) */
+    const char *display_title = (reader->metadata->title[0] != '\0') 
+                                 ? reader->metadata->title 
+                                 : reader->book->filename;
+
+    /* Create title with format indicator: [F] Title */
+    snprintf(title_with_format, sizeof(title_with_format), "[%c] %s",
+             format_indicator, display_title);
+
+    /* Truncate if needed (account for format indicator: "[F] ") */
+    reader_truncate_title(title_with_format, CHARS_PER_LINE - 10,
                           title_buffer, sizeof(title_buffer));
 
     /* Create status bar with title on left, page on right */
