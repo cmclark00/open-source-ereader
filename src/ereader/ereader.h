@@ -52,6 +52,7 @@
  * - STARTUP: Initial boot state, display splash screen
  * - MENU_LIBRARY: Display book list, handle navigation
  * - READING: Display book content, handle page navigation
+ * - SETTINGS: Display settings menu, configure preferences
  * - EMPTY: Display empty library message
  * - ERROR: Display error message
  * - SHUTDOWN: Graceful shutdown in progress
@@ -60,6 +61,7 @@ typedef enum {
     STATE_STARTUP,          /* Initial boot, loading resources */
     STATE_MENU_LIBRARY,     /* Book library menu */
     STATE_READING,          /* Reading a book */
+    STATE_SETTINGS,         /* Settings menu */
     STATE_EMPTY,            /* Empty library (no books found) */
     STATE_ERROR,            /* Error state */
     STATE_SHUTDOWN          /* Shutting down */
@@ -106,6 +108,10 @@ typedef struct {
     /* UI state */
     void *menu_state;       /* menu_state_t* from menu.h */
     void *reader_state;     /* reader_state_t* from reader.h */
+    void *settings_menu_state; /* settings_menu_state_t* from settings_menu.h */
+
+    /* Settings */
+    void *settings;         /* settings_t* from settings_manager.h */
 
     /* Framebuffer */
     void *framebuffer;      /* framebuffer_t* from framebuffer.h */

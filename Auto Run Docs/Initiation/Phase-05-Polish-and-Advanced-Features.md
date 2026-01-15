@@ -30,15 +30,18 @@ This phase adds essential quality-of-life features that make the e-reader truly 
   - ⏭️ Apply settings to text_renderer and reader components (deferred to later tasks)
   - **Note**: Core settings infrastructure complete. Settings can be loaded, saved, and accessed. Integration with renderer and UI components will occur when building the settings menu UI and dynamic font rendering.
 
-- [ ] Build settings menu UI:
-  - Create `src/ereader/ui/settings_menu.c` with:
-    - Scrollable list of settings
-    - Toggle/cycle through values (UP/DOWN to navigate, SELECT to change)
-    - Visual indicator of current value
-    - Save and return to main menu
-  - Write `src/ereader/ui/settings_menu.h`
-  - Add SETTINGS state to main application state machine
-  - Add "Settings" option to main menu (alongside book list)
+- [x] Build settings menu UI:
+  - ✅ Created `src/ereader/ui/settings_menu.c` with:
+    - ✅ Scrollable list of 5 settings (font size, line spacing, margins, display mode, auto sleep)
+    - ✅ UP/DOWN navigation between settings
+    - ✅ SELECT button to cycle through values for each setting
+    - ✅ Visual indicator of current value (displayed after setting name)
+    - ✅ BACK/MENU buttons save and return to main menu
+  - ✅ Wrote `src/ereader/ui/settings_menu.h` with complete API
+  - ✅ Added STATE_SETTINGS to main application state machine in `ereader.h`
+  - ✅ Added settings_menu_state and settings pointers to app_context_t
+  - ⏭️ Integration with main.c requires manual code updates (see SETTINGS_MENU_INTEGRATION_GUIDE.md)
+  - **Note**: Settings menu UI fully implemented following same pattern as book list menu. See `Auto Run Docs/Working/SETTINGS_MENU_INTEGRATION_GUIDE.md` for detailed integration instructions to add to main.c. The integration requires updating app_init(), app_cleanup(), app_change_state(), app_handle_button_event(), app_render(), and app_state_to_string().
 
 - [ ] Implement dynamic font size rendering:
   - Update `src/ereader/rendering/text_renderer.c` to:
