@@ -95,7 +95,8 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
     - Performance notes (EPUB vs PDF rendering time)
   - **Completed:** Added three sample files to rootfs overlay: alice-in-wonderland.epub (185 KB, EPUB3 from Project Gutenberg), test-document.pdf (13 KB, single-page PDF), and sample-readme.txt (744 bytes, plain text test). Created comprehensive FORMAT_TESTING.md documentation covering testing procedures for all three formats (TXT, EPUB, PDF), known limitations for each format, performance characteristics, corrupt file handling, and regression testing guidelines. Documentation includes detailed test steps, expected behaviors, performance notes (EPUB loads in ~1-3 seconds, PDF in ~2-5 seconds), memory usage patterns, and a test results template. Note: Buildroot rebuild not performed in this iteration as it requires ~1-2 hours and should be done when user is ready to deploy.
 
-- [ ] Document format support and limitations:
+- [x] Document format support and limitations:
+  - **Completed:** Updated USER_GUIDE.md with phase-04 tags and format support references. Created comprehensive FORMAT_SUPPORT.md architecture documentation and PHASE_04_LOG.md completion notes. All Phase 4 documentation complete.
   - Update `docs/USER_GUIDE.md` with:
     - Supported formats: TXT, EPUB, PDF
     - How to add books in each format

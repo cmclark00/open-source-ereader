@@ -5,11 +5,12 @@ created: 2026-01-14
 tags:
   - user-guide
   - documentation
-  - phase-03
+  - phase-04
 related:
   - "[[EREADER_DESIGN]]"
   - "[[DISPLAY_SPECS]]"
   - "[[BUTTON_LAYOUT]]"
+  - "[[FORMAT_SUPPORT]]"
 ---
 
 # E-Reader User Guide
@@ -188,7 +189,7 @@ If no books are found, you'll see:
 ┌────────────────────────────────────────┐
 │          No books found.               │
 │                                        │
-│   Copy .txt files to /books/           │
+│   Copy books (.txt/.epub/.pdf) to /books/           │
 │                                        │
 │         BACK: Rescan library           │
 └────────────────────────────────────────┘
@@ -293,12 +294,12 @@ Pride and Prejudice.txt,156,1736839200
 
 ## Current Limitations
 
-This is Phase 3 of the project. Some features are not yet implemented:
+This is Phase 4 of the project, with multi-format support! Some features are not yet implemented:
 
 ### File Format Limitations
 - ✅ Supports: Plain text files (`.txt`)
-- ❌ Not yet: EPUB, PDF, MOBI, HTML (planned for Phase 4+)
-- ❌ Not yet: Images, diagrams, or formatted text
+- ✅ Supports: EPUB 2.0/3.0 and PDF (with text extraction)
+- ❌ Images are not displayed in any format (text-only rendering)
 
 ### Size Limitations
 - ✅ Books up to 10 MB are supported
@@ -396,7 +397,7 @@ iconv -f ISO-8859-1 -t UTF-8 input.txt -o output.txt
 
 **Solutions**:
 1. Verify books are in `/books/` directory (not a subdirectory)
-2. Ensure filenames end with `.txt` (case-insensitive)
+2. Ensure filenames end with `.txt`, `.epub`, or `.pdf` (case-insensitive)
 3. Check that files are not hidden (don't start with `.`)
 4. Press **BACK** button in empty library screen to rescan
 5. Reboot the device if files are still not detected
@@ -555,6 +556,7 @@ iconv -f ISO-8859-1 -t UTF-8 input.txt -o output.txt
 | MENU   | GPIO 24  | Pull-Up      | Active Low   |
 
 See `[[BUTTON_LAYOUT]]` for complete wiring information.
+  - "[[FORMAT_SUPPORT]]"
 
 ---
 
@@ -584,9 +586,13 @@ See `[[BUTTON_LAYOUT]]` for complete wiring information.
 
 ## What's Next?
 
-This is Phase 3 of the e-reader project. Future phases will add:
+This is Phase 4 of the e-reader project. Completed phases:
 
-- **Phase 4**: EPUB and PDF support
+- ✅ **Phase 1-2**: Hardware setup, display drivers, button input
+- ✅ **Phase 3**: Text rendering, bookmarks, library management
+- ✅ **Phase 4**: EPUB and PDF support with metadata extraction
+
+Future phases will add:
 - **Phase 5**: Enhanced UI, font selection, margins, reading statistics
 - **Phase 6**: WiFi features, online library sync, web interface
 - **Phase 7**: Final polish, documentation, release preparation
@@ -601,4 +607,4 @@ This e-reader is an open-source project built with love for book enthusiasts and
 
 ---
 
-*Last updated: 2026-01-14 (Phase 03)*
+*Last updated: 2026-01-14 (Phase 04 - Multi-format support)*
