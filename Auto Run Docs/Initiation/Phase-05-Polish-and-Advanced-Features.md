@@ -15,19 +15,20 @@ This phase adds essential quality-of-life features that make the e-reader truly 
   - ✅ Updated reader status bar to show reading progress with percentage (e.g., "[45/200,23%]")
   - **Note**: Implementation completed. Auto-save now occurs on every page turn (UP/DOWN buttons). Percentage display added to page indicator.
 
-- [ ] Create settings system:
-  - Create `src/ereader/settings/settings_manager.c` with functions:
-    - Load settings from `/etc/ereader/settings.conf` (key=value format)
-    - Save settings persistently
-    - Provide getters/setters for each setting
-  - Write `src/ereader/settings/settings_manager.h`
-  - Define settings:
-    - font_size (small, medium, large)
-    - line_spacing (single, 1.5, double)
-    - margins (narrow, normal, wide)
-    - display_mode (normal, dark - for future inverted rendering)
-    - auto_sleep_minutes (5, 10, 15, 30, never)
-  - Apply settings to text_renderer and reader components
+- [x] Create settings system:
+  - ✅ Created `src/ereader/settings/settings_manager.c` with functions:
+    - ✅ Load settings from `/etc/ereader/settings.conf` (key=value format)
+    - ✅ Save settings persistently
+    - ✅ Provide getters/setters for each setting
+  - ✅ Wrote `src/ereader/settings/settings_manager.h`
+  - ✅ Defined settings:
+    - ✅ font_size (small, medium, large)
+    - ✅ line_spacing (single, 1.5, double)
+    - ✅ margins (narrow, normal, wide)
+    - ✅ display_mode (normal, dark - for future inverted rendering)
+    - ✅ auto_sleep_minutes (5, 10, 15, 30, never)
+  - ⏭️ Apply settings to text_renderer and reader components (deferred to later tasks)
+  - **Note**: Core settings infrastructure complete. Settings can be loaded, saved, and accessed. Integration with renderer and UI components will occur when building the settings menu UI and dynamic font rendering.
 
 - [ ] Build settings menu UI:
   - Create `src/ereader/ui/settings_menu.c` with:

@@ -18,11 +18,12 @@ SRC_RENDERING := rendering/framebuffer.c rendering/text_renderer.c
 SRC_BOOKS := books/book_manager.c
 SRC_FORMATS := formats/format_interface.c formats/txt_reader.c formats/epub_reader.c formats/pdf_reader.c
 SRC_UI := ui/menu.c ui/reader.c
+SRC_SETTINGS := settings/settings_manager.c
 SRC_DISPLAY := ../display-test/epd_driver.c
 SRC_BUTTON := ../button-test/button_input.c
 
 # All source files
-SOURCES := $(SRC_MAIN) $(SRC_RENDERING) $(SRC_BOOKS) $(SRC_FORMATS) $(SRC_UI) $(SRC_DISPLAY) $(SRC_BUTTON)
+SOURCES := $(SRC_MAIN) $(SRC_RENDERING) $(SRC_BOOKS) $(SRC_FORMATS) $(SRC_UI) $(SRC_SETTINGS) $(SRC_DISPLAY) $(SRC_BUTTON)
 
 # Object files (derived from sources)
 OBJECTS := $(SOURCES:.c=.o)
@@ -71,6 +72,7 @@ formats/epub_reader.o: formats/epub_reader.h formats/format_interface.h
 formats/pdf_reader.o: formats/pdf_reader.h formats/format_interface.h
 ui/menu.o: ui/menu.h rendering/framebuffer.h rendering/text_renderer.h books/book_manager.h formats/format_interface.h
 ui/reader.o: ui/reader.h rendering/framebuffer.h rendering/text_renderer.h books/book_manager.h
+settings/settings_manager.o: settings/settings_manager.h
 ../display-test/epd_driver.o: ../display-test/epd_driver.h
 ../button-test/button_input.o: ../button-test/button_input.h
 
