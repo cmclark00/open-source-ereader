@@ -107,8 +107,9 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
     - Format abstraction layer design
   - Update `docs/progress/PHASE_04_LOG.md` with completion notes
 
-- [ ] Plan Phase 5 features:
+- [x] Plan Phase 5 features:
   - Create `docs/progress/PHASE_05_PLANNING.md` outlining:
     - Advanced features: bookmarks, annotations, search
     - Settings menu: font size, margins, display mode
     - Sleep mode and power management
+  - **Completed:** Created comprehensive Phase 5 planning document (5,300+ lines). Detailed planning for: (1) Enhanced bookmarks & annotations system with multiple bookmarks per book, text notes, and bookmark management UI; (2) In-book search with result navigation and context display; (3) Comprehensive settings system with font sizes (8×16, 12×24, 16×32), line spacing, inverted display, refresh modes, and reading preferences; (4) Power management with auto-sleep (configurable 5-60 min timeout), deep sleep mode, and battery optimization targeting 2-5x battery life improvement; (5) Enhanced reading statistics with time tracking, reading speed, progress estimates, and reading streaks; (6) UX polish including loading indicators, improved error messages, and comprehensive help system. Document includes architecture changes, implementation plan (80 tasks across 3 sub-phases), technical challenges, success criteria, testing plan, and risk assessment. Estimated 100-120 hours total development effort split into phased rollout (5.1: Core features, 5.2: Enhanced features, 5.3: Polish).
