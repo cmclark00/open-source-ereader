@@ -5,6 +5,7 @@
  * Handles scrolling, selection highlighting, and rendering to framebuffer.
  *
  * Phase 03: Basic E-Reader Application
+ * Phase 04: EPUB and PDF Support - Multi-format display with indicators
  */
 
 #ifndef MENU_H
@@ -22,7 +23,7 @@
 #define MENU_TITLE              "E-Reader Library"
 #define MENU_CONTROL_HINTS      "UP/DOWN:Select  ENTER:Open"
 #define MENU_EMPTY_MESSAGE      "No books found."
-#define MENU_EMPTY_HINT         "Copy .txt files to /books/"
+#define MENU_EMPTY_HINT         "Copy books (.txt/.epub/.pdf) to /books/"
 
 /* Layout Constants (based on 400x300 display, 8x16 font) */
 #define MENU_STATUS_BAR_LINE    0       /* Line 0: Status bar with title and page indicator */

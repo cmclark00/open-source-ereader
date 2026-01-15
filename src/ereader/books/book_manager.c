@@ -169,6 +169,35 @@ int book_list_scan(book_list_t *list, const char *books_dir) {
         book->bookmark_page = 0;  /* Will be updated from bookmarks */
         book->format = format;    /* Store detected format */
 
+        /* Initialize metadata fields with defaults */
+        strncpy(book->title, entry->d_name, 255);
+        book->title[255] = '\0';
+        book->author[0] = '\0';
+
+        /* Try to extract metadata for EPUB/PDF formats */
+        if (format == BOOK_FORMAT_EPUB || format == BOOK_FORMAT_PDF) {
+            const book_format_interface_t *interface = format_get_interface(format);
+            if (interface && interface->open && interface->get_metadata && interface->close) {
+                format_handle_t handle = interface->open(filepath);
+                if (handle) {
+                    format_metadata_t metadata;
+                    if (interface->get_metadata(handle, &metadata) == FORMAT_SUCCESS) {
+                        /* Copy title if available and non-empty */
+                        if (metadata.title[0] != '\0') {
+                            strncpy(book->title, metadata.title, 255);
+                            book->title[255] = '\0';
+                        }
+                        /* Copy author if available */
+                        if (metadata.author[0] != '\0') {
+                            strncpy(book->author, metadata.author, 255);
+                            book->author[255] = '\0';
+                        }
+                    }
+                    interface->close(handle);
+                }
+            }
+        }
+
         list->count++;
     }
 

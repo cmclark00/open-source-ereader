@@ -44,6 +44,8 @@ typedef struct {
     time_t modified;                     /* Last modification time */
     int bookmark_page;                   /* Last read page (0 if never read) */
     book_format_type_t format;           /* File format (TXT, EPUB, PDF) */
+    char title[256];                     /* Book title (extracted from metadata, or filename) */
+    char author[256];                    /* Author name (extracted from metadata, empty if N/A) */
 } book_metadata_t;
 
 /*

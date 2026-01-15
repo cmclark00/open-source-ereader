@@ -4,10 +4,12 @@
  * Implements the menu UI for browsing and selecting books.
  *
  * Phase 03: Basic E-Reader Application
+ * Phase 04: EPUB and PDF Support - Multi-format display
  */
 
 #include "menu.h"
 #include "../rendering/text_renderer.h"
+#include "../formats/format_interface.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -175,15 +177,22 @@ int menu_render_items(menu_state_t *menu, framebuffer_t *fb) {
         char display_text[MAX_LINE_LENGTH];
         char truncated_title[MENU_MAX_TITLE_LENGTH + 1];
 
-        /* Truncate title to fit (accounting for selection marker) */
-        int max_title_chars = CHARS_PER_LINE - MENU_SELECTION_MARKER_LEN - 2;
-        menu_truncate_title(book->filename, max_title_chars,
+        /* Get format indicator character */
+        char format_indicator = format_get_type_indicator(book->format);
+
+        /* Use title if available, otherwise use filename */
+        const char *display_name = (book->title[0] != '\0') ? book->title : book->filename;
+
+        /* Truncate title to fit (accounting for selection marker and format indicator) */
+        /* Format: "> [F] title" or "  [F] title" where F is format indicator */
+        int max_title_chars = CHARS_PER_LINE - MENU_SELECTION_MARKER_LEN - 5;  /* 5 = "[F] " + space */
+        menu_truncate_title(display_name, max_title_chars,
                           truncated_title, sizeof(truncated_title));
 
         /* Format with or without selection marker */
         if (is_selected) {
-            snprintf(display_text, sizeof(display_text), "%s%s",
-                    MENU_SELECTION_MARKER, truncated_title);
+            snprintf(display_text, sizeof(display_text), "%s[%c] %s",
+                    MENU_SELECTION_MARKER, format_indicator, truncated_title);
 
             /* Optional: Invert the region for highlighting */
             /* Calculate region to invert */
@@ -196,7 +205,7 @@ int menu_render_items(menu_state_t *menu, framebuffer_t *fb) {
             fb_invert_region(fb, highlight_x, highlight_y,
                            highlight_width, highlight_height);
         } else {
-            snprintf(display_text, sizeof(display_text), "  %s", truncated_title);
+            snprintf(display_text, sizeof(display_text), "  [%c] %s", format_indicator, truncated_title);
         }
 
         /* Render the text */

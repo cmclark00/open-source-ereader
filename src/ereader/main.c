@@ -25,6 +25,7 @@
 #include "rendering/framebuffer.h"
 #include "rendering/text_renderer.h"
 #include "books/book_manager.h"
+#include "formats/format_interface.h"
 #include "ui/menu.h"
 #include "ui/reader.h"
 
@@ -103,6 +104,14 @@ app_context_t* app_init(void) {
     /* Ensure required directories exist */
     if (ensure_directories_exist() != 0) {
         fprintf(stderr, "Failed to create required directories\n");
+        free(ctx);
+        return NULL;
+    }
+
+    /* Initialize format system */
+    printf("Initializing format system...\n");
+    if (format_init() != FORMAT_SUCCESS) {
+        fprintf(stderr, "Failed to initialize format system\n");
         free(ctx);
         return NULL;
     }
@@ -523,13 +532,15 @@ static int app_render_empty(app_context_t *ctx) {
     fb_clear(fb, COLOR_WHITE);
 
     const char *msg1 = "No books found.";
-    const char *msg2 = "Copy .txt files to /books/";
-    const char *msg3 = "Press BACK to rescan";
+    const char *msg2 = "Copy books to /books/";
+    const char *msg3 = "(.txt/.epub/.pdf)";
+    const char *msg4 = "Press BACK to rescan";
 
-    int y = 130;
+    int y = 120;
     text_render_string(fb, 100, y, msg1);
-    text_render_string(fb, 60, y + 20, msg2);
-    text_render_string(fb, 80, y + 40, msg3);
+    text_render_string(fb, 80, y + 20, msg2);
+    text_render_string(fb, 90, y + 40, msg3);
+    text_render_string(fb, 80, y + 60, msg4);
 
     return 0;
 }

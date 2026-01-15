@@ -66,13 +66,14 @@ This phase expands the e-reader to support industry-standard e-book formats: EPU
   - Implement interface for each format (txt_reader, epub_reader, pdf_reader)
   - **Completed:** Created comprehensive format abstraction layer with format_interface.h/c defining unified interface. Implemented txt_reader.h/c for plain text, added format interface implementations to epub_reader.c and pdf_reader.c. Updated book_manager.c to scan for all supported formats (.txt, .epub, .pdf) and store format type in metadata. Updated Makefile to include new format files. All formats now accessible through common interface with functions: validate, open, close, extract_text, get_text, get_metadata, get_page_count. Format detection by file extension automatically routes to appropriate reader implementation.
 
-- [ ] Update menu system to handle all formats:
+- [x] Update menu system to handle all formats:
   - Extend `src/ereader/ui/menu.c` to:
     - Display file type icon or indicator ([T] [E] [P] for TXT/EPUB/PDF)
     - Show book metadata if available (title from EPUB, PDF info)
     - Handle different file sizes (EPUB can be large)
   - Update book scanning to include .epub and .pdf extensions
   - Sort books alphabetically regardless of format
+  - **Completed:** Extended menu system with multi-format support. Added format_get_type_indicator() calls to display [T], [E], or [P] indicators for each book. Updated book_metadata_t structure to include title and author fields (256 chars each). Modified book_list_scan() to extract metadata from EPUB/PDF files using format interfaces - title displayed instead of filename when available. Updated MENU_EMPTY_HINT constant to show "Copy books (.txt/.epub/.pdf) to /books/". Updated main.c empty state message and added format_init() call during app initialization. Book scanning already supported all formats via format_detect_type() from Phase 4 format abstraction layer. Updated Makefile dependencies for menu.o to include formats/format_interface.h. Menu now displays books with format indicators and proper titles: "> [E] Pride and Prejudice" or "  [P] User Manual"
 
 - [ ] Update reader view for multi-format support:
   - Extend `src/ereader/ui/reader.c` to:
