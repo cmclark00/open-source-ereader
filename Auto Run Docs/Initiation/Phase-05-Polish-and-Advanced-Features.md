@@ -97,6 +97,11 @@ This phase adds essential quality-of-life features that make the e-reader truly 
   - If feasible: create `src/ereader/power/battery_monitor.c`
   - Display battery icon in status bar (optional, may skip if too complex)
   - Document battery setup in `docs/hardware/POWER_SUPPLY.md`
+  - ✅ Researched Pi Zero W battery monitoring options (I2C HATs and SPI ADC)
+  - ✅ Created battery_monitor.c/h with auto-detection (INA219, MCP3008, dummy mode)
+  - ✅ Documented complete battery setup in docs/hardware/POWER_SUPPLY.md
+  - ⏭️ Status bar integration deferred (requires main.c updates)
+  - **Note**: See Auto Run Docs/Working/BATTERY_MONITORING_NOTES.md for details
 
 - [ ] Add search functionality:
   - Create `src/ereader/search/search_engine.c` with:
@@ -141,8 +146,3 @@ This phase adds essential quality-of-life features that make the e-reader truly 
   - Update `docs/architecture/EREADER_DESIGN.md` with new components
   - Update `docs/progress/PHASE_05_LOG.md` with completion notes
   - Create `docs/progress/PHASE_06_PLANNING.md` for WiFi features
-  - ✅ Researched Pi Zero W battery monitoring options (I2C HATs and SPI ADC)
-  - ✅ Created battery_monitor.c/h with auto-detection (INA219, MCP3008, dummy mode)
-  - ✅ Documented complete battery setup in docs/hardware/POWER_SUPPLY.md
-  - ⏭️ Status bar integration deferred (requires main.c updates)
-  - **Note**: See Auto Run Docs/Working/BATTERY_MONITORING_NOTES.md for details
