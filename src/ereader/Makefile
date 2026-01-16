@@ -17,14 +17,15 @@ SRC_MAIN := main.c
 SRC_RENDERING := rendering/framebuffer.c rendering/text_renderer.c
 SRC_BOOKS := books/book_manager.c
 SRC_FORMATS := formats/format_interface.c formats/txt_reader.c formats/epub_reader.c formats/pdf_reader.c
-SRC_UI := ui/menu.c ui/reader.c
+SRC_UI := ui/menu.c ui/reader.c ui/search_ui.c
+SRC_SEARCH := search/search_engine.c
 SRC_SETTINGS := settings/settings_manager.c
 SRC_POWER := power/power_manager.c
 SRC_DISPLAY := ../display-test/epd_driver.c
 SRC_BUTTON := ../button-test/button_input.c
 
 # All source files
-SOURCES := $(SRC_MAIN) $(SRC_RENDERING) $(SRC_BOOKS) $(SRC_FORMATS) $(SRC_UI) $(SRC_SETTINGS) $(SRC_POWER) $(SRC_DISPLAY) $(SRC_BUTTON)
+SOURCES := $(SRC_MAIN) $(SRC_RENDERING) $(SRC_BOOKS) $(SRC_FORMATS) $(SRC_UI) $(SRC_SEARCH) $(SRC_SETTINGS) $(SRC_POWER) $(SRC_DISPLAY) $(SRC_BUTTON)
 
 # Object files (derived from sources)
 OBJECTS := $(SOURCES:.c=.o)
@@ -92,3 +93,5 @@ help:
 	@echo "  make              # Build application"
 	@echo "  make clean        # Clean build"
 	@echo "  make install DESTDIR=/path/to/staging  # Install for packaging"
+search/search_engine.o: search/search_engine.h books/book_manager.h rendering/text_renderer.h
+ui/search_ui.o: ui/search_ui.h search/search_engine.h rendering/framebuffer.h rendering/text_renderer.h
