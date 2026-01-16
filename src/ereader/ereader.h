@@ -113,6 +113,9 @@ typedef struct {
     /* Settings */
     void *settings;         /* settings_t* from settings_manager.h */
 
+    /* Power management */
+    void *power_manager;    /* power_manager_state_t* from power_manager.h */
+
     /* Framebuffer */
     void *framebuffer;      /* framebuffer_t* from framebuffer.h */
 
