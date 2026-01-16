@@ -72,6 +72,27 @@ BR2_PACKAGE_LTRACE=y
 BR2_PACKAGE_GDB=y
 BR2_PACKAGE_GDB_SERVER=y
 
+# WiFi and networking packages (Phase 6)
+# Broadcom WiFi firmware for Pi Zero W (brcmfmac43430)
+BR2_PACKAGE_RPI_WIFI_FIRMWARE=y
+
+# WPA supplicant for WPA/WPA2 authentication
+BR2_PACKAGE_WPA_SUPPLICANT=y
+BR2_PACKAGE_WPA_SUPPLICANT_CLI=y
+BR2_PACKAGE_WPA_SUPPLICANT_WPA_CLIENT_SO=y
+BR2_PACKAGE_WPA_SUPPLICANT_PASSPHRASE=y
+
+# Wireless tools for WiFi management
+BR2_PACKAGE_WIRELESS_TOOLS=y
+BR2_PACKAGE_IW=y
+
+# DHCP client for automatic IP address assignment
+BR2_PACKAGE_DHCPCD=y
+
+# DNS resolver
+BR2_PACKAGE_BIND=y
+BR2_PACKAGE_BIND_TOOLS=y
+
 # Libraries for EPUB support (Phase 4)
 BR2_PACKAGE_LIBZIP=y
 BR2_PACKAGE_LIBXML2=y

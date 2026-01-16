@@ -4,16 +4,29 @@ This phase unlocks the Raspberry Pi Zero W's WiFi capabilities, enabling book do
 
 ## Tasks
 
-- [ ] Enable WiFi in Buildroot and kernel:
-  - Update `configs/ereader_rpi0w_defconfig` to include:
-    - WiFi drivers for Pi Zero W (brcmfmac43430)
-    - wpa_supplicant for WPA/WPA2 authentication
-    - wireless-tools or iw for WiFi management
-    - dhcpcd or udhcpc for DHCP client
-  - Update `configs/linux_ereader.fragment` with:
-    - CONFIG_BRCMFMAC=y (Broadcom WiFi driver)
-    - CONFIG_WIRELESS=y and related options
-  - Document WiFi setup in `docs/hardware/WIFI_SETUP.md`
+- [x] Enable WiFi in Buildroot and kernel:
+  - ✅ Updated `configs/ereader_rpi0w_defconfig` to include:
+    - BR2_PACKAGE_RPI_WIFI_FIRMWARE=y (Broadcom WiFi firmware for brcmfmac43430)
+    - BR2_PACKAGE_WPA_SUPPLICANT=y with CLI and passphrase support
+    - BR2_PACKAGE_WIRELESS_TOOLS=y and BR2_PACKAGE_IW=y for WiFi management
+    - BR2_PACKAGE_DHCPCD=y for DHCP client
+    - BR2_PACKAGE_BIND=y for DNS resolution
+  - ✅ Updated `configs/linux_ereader.fragment` with:
+    - CONFIG_BRCMFMAC=y and CONFIG_BRCMFMAC_SDIO=y (Broadcom WiFi driver)
+    - CONFIG_WIRELESS=y, CONFIG_CFG80211=y, CONFIG_MAC80211=y (wireless subsystem)
+    - CONFIG_MMC=y and CONFIG_MMC_BCM2835=y (SDIO bus support)
+    - Cryptographic support for WPA/WPA2 (AES, CCM, GCM, CMAC)
+    - Network stack requirements (PACKET, UNIX, INET)
+  - ✅ Created comprehensive `docs/hardware/WIFI_SETUP.md` documenting:
+    - Hardware overview and antenna considerations
+    - Firmware requirements and verification
+    - Kernel driver configuration details
+    - Userspace components (wpa_supplicant, wireless tools, DHCP)
+    - Network interface management procedures
+    - Configuration file formats and locations
+    - First-time setup options (pre-configure, serial console, wpa_passphrase)
+    - Troubleshooting guide for common WiFi issues
+    - Performance characteristics and security considerations
 
 - [ ] Add firmware and configuration files:
   - Ensure brcm/brcmfmac43430-sdio.bin firmware is included in rootfs
