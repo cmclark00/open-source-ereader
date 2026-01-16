@@ -55,13 +55,28 @@ This phase unlocks the Raspberry Pi Zero W's WiFi capabilities, enabling book do
     - Hidden network configuration and security mode details
     - Cross-reference to hardware/WIFI_SETUP.md for technical details
 
-- [ ] Design WiFi management UI:
-  - Create `docs/architecture/WIFI_UI.md` documenting:
-    - WiFi menu: scan networks, connect, disconnect, status
-    - Network list display (SSID, signal strength, security)
-    - Text input system for entering WiFi passwords (challenging with 5 buttons!)
-    - Consider: pre-configured via SD card config file vs on-device entry
-  - Plan for simple password entry (A-Z navigation, slow but functional)
+- [x] Design WiFi management UI:
+  - ✅ Created `docs/architecture/WIFI_UI.md` documenting:
+    - Complete state machine for WiFi UI (MAIN, SCAN, LIST, CONNECT, PASSWORD, CONNECTING, RESULT, SAVED_NETWORKS)
+    - WiFi menu with scan networks, connect, disconnect, status overview
+    - Network list display with SSID, signal strength bars (8-level), security indicators
+    - Comprehensive text input system design (two approaches):
+      - **Recommended**: Sequential character selection (simple, ~90 characters)
+      - **Advanced**: Grid navigation with 2-level selection (faster but more complex)
+    - Password entry modes: uppercase, lowercase, numbers, symbols
+    - Character grid layout with [A-Z], [a-z], [0-9], [SYM], [SPACE], [BACKSPACE], [DONE] buttons
+    - Two-pronged strategy: Pre-configuration via SD card (recommended) + on-device entry (functional backup)
+    - WiFi status bar integration with connection indicators
+    - Screen layouts for all WiFi states with exact 400×300 pixel mockups
+    - Signal strength mapping (-30 to -90 dBm in 8 levels)
+    - Error handling screens (wrong password, network unavailable, DHCP timeout)
+    - Saved networks management interface
+    - WiFi manager backend C API specification (data structures and functions)
+    - Memory budget analysis (~21 KB total)
+    - User experience considerations and first-boot flow
+    - Testing checklist and edge cases
+    - Implementation checklist for Phase 06
+    - Future enhancements for Phase 07 (hidden networks, QR codes, external keyboard, predictive text)
 
 - [ ] Implement WiFi scanning and connection:
   - Create `src/ereader/network/wifi_manager.c` with functions:
