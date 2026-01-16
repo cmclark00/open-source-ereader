@@ -5,7 +5,7 @@ created: 2026-01-14
 tags:
   - user-guide
   - documentation
-  - phase-04
+  - phase-05
 related:
   - "[[EREADER_DESIGN]]"
   - "[[DISPLAY_SPECS]]"
@@ -25,10 +25,14 @@ Welcome to your open-source e-reader! This guide will help you get started with 
 4. [Navigating the Library](#navigating-the-library)
 5. [Reading Books](#reading-books)
 6. [Bookmarks](#bookmarks)
-7. [Current Limitations](#current-limitations)
-8. [Tips for Best Experience](#tips-for-best-experience)
-9. [Troubleshooting](#troubleshooting)
-10. [Technical Specifications](#technical-specifications)
+7. [Settings](#settings)
+8. [Search](#search)
+9. [Power Management](#power-management)
+10. [Battery Monitoring](#battery-monitoring)
+11. [Current Limitations](#current-limitations)
+12. [Tips for Best Experience](#tips-for-best-experience)
+13. [Troubleshooting](#troubleshooting)
+14. [Technical Specifications](#technical-specifications)
 
 ---
 
@@ -80,13 +84,14 @@ When reading a book:
 | **DOWN** | Next page (if not on last page) |
 | **SELECT** | Save bookmark at current page |
 | **BACK** | Return to library menu |
-| **MENU** | (Reserved for future reading options) |
+| **MENU** | Open search function |
 
 **Reading Tips:**
 - At the first page, pressing UP has no effect
 - At the last page, pressing DOWN has no effect
-- Your reading position is automatically saved when you return to the library
-- The status bar shows: `Book Title [Current Page/Total Pages]`
+- Your reading position is automatically saved on every page turn
+- The status bar shows: `Book Title [Current Page/Total Pages, Percentage%]`
+- Press MENU to search within the current book
 
 ---
 
@@ -256,9 +261,11 @@ Press **BACK** to rescan the `/books/` directory after adding books.
 
 Your e-reader automatically saves your reading position:
 
+- **On every page turn** (UP or DOWN button while reading)
 - **When you leave a book** (press BACK to return to library)
 - Your position is saved to `/etc/ereader/bookmarks.txt`
 - Bookmarks persist across reboots
+- The status bar shows your reading progress as a percentage
 
 ### Manual Bookmarks
 
@@ -292,9 +299,278 @@ Pride and Prejudice.txt,156,1736839200
 
 ---
 
+## Settings
+
+Your e-reader includes a comprehensive settings system that allows you to customize your reading experience.
+
+### Accessing Settings
+
+1. From the **Library Menu**, press the **MENU** button
+2. Navigate through settings using **UP/DOWN** buttons
+3. Press **SELECT** to cycle through available values for each setting
+4. Press **BACK** or **MENU** to save changes and return to library
+
+### Available Settings
+
+#### Font Size
+
+Control the size of text displayed on screen:
+
+- **Small** (6×12 pixels): ~63 characters per line, 21 lines per page
+  - Best for: Maximizing text on screen, reading dense content
+- **Medium** (8×16 pixels): ~47 characters per line, 14 lines per page (default)
+  - Best for: Balanced readability and screen usage
+- **Large** (10×20 pixels): ~38 characters per line, 11 lines per page
+  - Best for: Improved readability, reduced eye strain
+
+**Note:** Changing font size will re-paginate your book, but your approximate reading position (as a percentage) is preserved.
+
+#### Line Spacing
+
+Adjust the vertical space between lines:
+
+- **Single**: No extra space between lines (default)
+- **1.5**: 50% more space between lines
+- **Double**: Double spacing between lines
+
+**Note:** Larger line spacing reduces the number of lines per page but can improve readability.
+
+#### Margins
+
+Control the white space around the text:
+
+- **Narrow**: Minimal margins, maximum text area
+- **Normal**: Balanced margins (default)
+- **Wide**: Larger margins, more comfortable reading
+
+#### Display Mode
+
+Choose between display rendering modes:
+
+- **Normal**: Standard black text on white background (default)
+- **Dark**: Inverted colors - white text on black background (future feature)
+
+**Note:** Dark mode is currently reserved for future implementation.
+
+#### Auto Sleep
+
+Set the idle timeout before the device enters sleep mode:
+
+- **5 minutes**: Sleep after 5 minutes of inactivity
+- **10 minutes**: Sleep after 10 minutes of inactivity
+- **15 minutes**: Sleep after 15 minutes of inactivity (default)
+- **30 minutes**: Sleep after 30 minutes of inactivity
+- **Never**: Disable auto-sleep
+
+**Note:** A warning message appears 30 seconds before sleeping. The device wakes on any button press.
+
+### Settings File
+
+Settings are stored in `/etc/ereader/settings.conf` in a simple key=value format:
+
+```
+font_size=medium
+line_spacing=single
+margins=normal
+display_mode=normal
+auto_sleep_minutes=15
+```
+
+You can manually edit this file via SSH if needed, but changes require restarting the application.
+
+---
+
+## Search
+
+Search for text within the currently open book.
+
+### Accessing Search
+
+1. While reading a book, press the **MENU** button
+2. The search interface will appear
+
+### Using Search
+
+#### Selecting a Search Term
+
+1. Use **UP/DOWN** buttons to browse predefined search terms:
+   - "the"
+   - "chapter"
+   - "and"
+   - "said"
+   - "was"
+2. Press **SELECT** to search for the highlighted term
+
+#### Search Options
+
+- **MENU** button: Toggle case sensitivity (case-sensitive ↔ case-insensitive)
+- Current mode is displayed on screen
+
+#### Viewing Results
+
+After searching:
+- The number of results is displayed (e.g., "Result 5 of 127")
+- A preview shows ~60 characters of context around the match
+- Use **UP/DOWN** to navigate between results
+- Press **SELECT** to jump to the page containing that result
+- Press **BACK** to exit search and return to reading
+
+### Search Features
+
+- **Fast Search**: Linear search algorithm optimized for text files
+- **Context Preview**: See surrounding text for each match
+- **Result Navigation**: Browse through all matches with wraparound
+- **Case Sensitivity**: Toggle between case-sensitive and case-insensitive search
+- **Result Counter**: Always know your position in the results (e.g., "Result 5 of 127")
+- **Maximum Results**: Up to 1000 matches per search
+
+### Search Limitations
+
+- **Predefined Terms Only**: Cannot enter custom search text (requires external keyboard)
+  - Custom text input planned for Phase 6 (WiFi keyboard support)
+- **No Visual Highlighting**: Matches are not highlighted on the book page (requires rendering changes)
+- **No Search History**: Previous searches are not saved
+- **Memory Intensive**: Case-insensitive search creates a temporary lowercase copy of the book
+- **Basic Context Display**: Context may truncate mid-word at 60 characters
+
+### Search Tips
+
+1. **Choose Case Sensitivity Wisely**: Case-sensitive is faster, case-insensitive finds more matches
+2. **Common Terms**: Searching for "the" or "and" may produce hundreds of results
+3. **Specific Terms**: Search for "chapter" to quickly navigate chapter breaks
+4. **Result Navigation**: Use UP/DOWN to browse, SELECT to jump to that page
+
+---
+
+## Power Management
+
+Your e-reader includes intelligent power management to conserve battery life.
+
+### Auto-Sleep Mode
+
+The device automatically enters sleep mode after a period of inactivity:
+
+1. **Idle Timer**: Tracks time since last button press
+2. **Sleep Warning**: 30 seconds before sleep, displays "Sleeping in 30 seconds..."
+3. **Sleep Mode**: Clears display, powers down e-paper, waits for button press
+4. **Wake on Button**: Any button press wakes the device and restores state
+
+### Configuring Auto-Sleep
+
+1. Open **Settings** from the Library Menu (MENU button)
+2. Navigate to **Auto Sleep** setting
+3. Select timeout: 5, 10, 15, 30 minutes, or Never
+4. Default: 15 minutes
+
+### Manual Sleep
+
+Currently, manual sleep is not implemented. The device sleeps automatically based on the configured timeout.
+
+### What Happens During Sleep
+
+1. **Display Cleared**: Screen is cleared to white
+2. **E-Paper Powered Down**: Display controller enters low-power mode
+3. **CPU Active**: Processor remains on, waiting for button press
+4. **Reading Position Saved**: Your bookmark is preserved
+
+### Waking from Sleep
+
+1. **Press Any Button**: The first button press wakes the device
+2. **Display Re-Initialized**: E-paper controller is powered up
+3. **State Restored**: Returns to the screen you were viewing before sleep
+4. **Button Action Ignored**: The wake button press does not trigger an action
+
+### Power Consumption
+
+- **Active Reading**: ~200-400 mW (display refresh uses most power)
+- **Idle (Display Static)**: ~100-150 mW
+- **Sleep Mode**: ~50-80 mW (CPU active, display off)
+
+**Note:** E-paper displays only consume power during refresh, so static pages use very little energy.
+
+### Sleep Tips
+
+1. **Set Appropriate Timeout**: Balance convenience with battery life
+2. **Use Sleep for Long Pauses**: Let the device sleep during breaks
+3. **Wake Quickly**: Device wakes instantly, no boot delay
+4. **Disable for Reading Sessions**: Set to "Never" for long reading sessions without interruption
+
+---
+
+## Battery Monitoring
+
+If your device includes battery hardware (INA219 HAT or MCP3008 ADC), battery monitoring is available.
+
+### Supported Hardware
+
+#### INA219 Current/Voltage Sensor (I2C)
+- **Interface**: I2C bus
+- **I2C Address**: 0x40 (default) or 0x41
+- **Voltage Range**: 0-26V
+- **Current Measurement**: Yes (with shunt resistor)
+- **Recommended**: Best accuracy and features
+
+#### MCP3008 ADC (SPI)
+- **Interface**: SPI bus
+- **Channels**: 8-channel 10-bit ADC
+- **Voltage Range**: 0-3.3V (requires voltage divider for higher voltages)
+- **Current Measurement**: No (voltage only)
+- **Cost**: Very affordable
+
+### Auto-Detection
+
+The e-reader automatically detects battery hardware at startup:
+
+1. **Checks for INA219** on I2C bus (address 0x40, then 0x41)
+2. **Checks for MCP3008** on SPI bus (CS=GPIO 8)
+3. **Falls back to Dummy Mode** if no hardware detected
+
+### Battery Display
+
+If battery hardware is detected:
+- **Status Bar**: Battery icon or percentage may be shown (integration pending)
+- **Voltage Reading**: Available via logs or debug interface
+
+### Battery Levels
+
+The system categorizes battery voltage into levels:
+
+- **Full**: > 4.0V (100-90%)
+- **Good**: 3.8-4.0V (90-60%)
+- **Medium**: 3.6-3.8V (60-30%)
+- **Low**: 3.4-3.6V (30-10%)
+- **Critical**: < 3.4V (< 10%)
+
+**Note:** These values assume a single-cell Li-Ion/LiPo battery (3.7V nominal). Adjust thresholds in settings for different battery chemistries.
+
+### No Battery Hardware
+
+If no battery hardware is detected:
+- **Dummy Mode**: Always reports 100% charge
+- **No Warnings**: No low battery warnings
+- **USB Power Assumed**: Assumes device is USB-powered
+
+### Battery Safety
+
+1. **Use Protection Circuits**: Always use batteries with built-in protection (PCB/PCM)
+2. **Monitor Voltage**: Check battery voltage regularly via logs
+3. **Avoid Deep Discharge**: Recharge when voltage drops below 3.5V
+4. **Temperature Limits**: Avoid charging/discharging outside 0-45°C
+5. **Proper Charger**: Use a Li-Ion/LiPo compatible charging circuit
+
+### Setup Instructions
+
+See `docs/hardware/POWER_SUPPLY.md` for detailed instructions on:
+- Wiring INA219 or MCP3008 to Raspberry Pi
+- Enabling I2C/SPI interfaces
+- Configuring voltage dividers
+- Testing battery monitoring
+
+---
+
 ## Current Limitations
 
-This is Phase 4 of the project, with multi-format support! Some features are not yet implemented:
+This is Phase 5 of the project, with enhanced features! Some features are not yet implemented:
 
 ### File Format Limitations
 - ✅ Supports: Plain text files (`.txt`)
@@ -308,15 +584,18 @@ This is Phase 4 of the project, with multi-format support! Some features are not
 
 ### Display Limitations
 - ✅ Black and white display (e-paper technology)
+- ✅ Three font sizes available (small, medium, large)
 - ❌ No grayscale or color support
-- ❌ No font size adjustment (currently 8x16 fixed font)
-- ❌ No font family selection
+- ❌ No font family selection (bitmap fonts only)
+- ❌ Dark mode not yet implemented (planned)
 
 ### Navigation Limitations
 - ✅ Sequential page navigation (up/down)
+- ✅ Search within book (predefined terms only)
 - ❌ No jump to page number
-- ❌ No search within book
+- ❌ No custom text input for search (planned for Phase 6 with WiFi keyboard)
 - ❌ No table of contents navigation
+- ❌ No visual highlighting of search results on page
 
 ### Organization Limitations
 - ✅ Alphabetical sorting by filename
@@ -324,16 +603,39 @@ This is Phase 4 of the project, with multi-format support! Some features are not
 - ❌ No metadata (author, title, description)
 - ❌ No sorting options (by date, size, etc.)
 
+### Settings Limitations
+- ✅ Font size, line spacing, margins adjustable
+- ✅ Auto-sleep configurable
+- ✅ Settings persist across reboots
+- ❌ No display brightness control (e-paper has no backlight)
+- ❌ Dark mode not yet implemented
+
+### Power Management Limitations
+- ✅ Auto-sleep with configurable timeout
+- ✅ Sleep warning before timeout
+- ✅ Wake on any button press
+- ❌ No manual sleep button
+- ❌ No deep sleep mode (CPU remains active)
+
+### Battery Monitoring Limitations
+- ✅ Supports INA219 and MCP3008 battery sensors
+- ✅ Auto-detection of battery hardware
+- ❌ Battery status not yet shown in status bar (integration pending)
+- ❌ No low battery warnings yet
+- ❌ No battery charge estimation (time remaining)
+
 ### Connectivity Limitations
 - ❌ No WiFi features yet (planned for Phase 6)
 - ❌ No cloud sync or online library
 - ❌ No over-the-air book downloads
+- ❌ No external keyboard support for custom search
 
 ### Other Limitations
 - ❌ No dictionary lookup
 - ❌ No notes or highlights
-- ❌ No reading statistics
-- ❌ No multiple bookmarks per book
+- ❌ No reading statistics (time spent, pages read, etc.)
+- ❌ No multiple bookmarks per book (only one position saved)
+- ❌ No search history or saved queries
 
 These features are planned for future phases! See the project roadmap for details.
 
@@ -517,23 +819,26 @@ iconv -f ISO-8859-1 -t UTF-8 input.txt -o output.txt
 
 - **Screen Size**: 4.2 inches (diagonal)
 - **Resolution**: 400×300 pixels
-- **Font**: 8×16 pixel bitmap font
-- **Characters Per Line**: 47 characters
-- **Lines Per Page**: 14 lines (visible area)
-- **Margins**: Top: 20px, Bottom: 20px, Left: 10px, Right: 10px
-- **Line Spacing**: 2 pixels
-- **Status Bar**: Line 1 (title + page indicator)
+- **Font Sizes**:
+  - Small: 6×12 pixels (~63 chars/line, 21 lines/page)
+  - Medium: 8×16 pixels (~47 chars/line, 14 lines/page) - default
+  - Large: 10×20 pixels (~38 chars/line, 11 lines/page)
+- **Margins**: Adjustable (narrow, normal, wide)
+- **Line Spacing**: Adjustable (single, 1.5, double)
+- **Status Bar**: Line 1 (title + page indicator + percentage)
 - **Separator Lines**: Lines 1 (below status bar) and 16 (above hints)
-- **Content Area**: Lines 2-15 (14 lines)
+- **Content Area**: Lines 2-15 (varies with font size and line spacing)
 - **Hints Bar**: Line 17
 
 ### File Specifications
 
 - **Books Directory**: `/books/` (root of filesystem)
 - **Bookmarks File**: `/etc/ereader/bookmarks.txt`
+- **Settings File**: `/etc/ereader/settings.conf`
 - **Log File**: `/var/log/ereader.log`
 - **Maximum Book Size**: 10 MB (10,485,760 bytes)
 - **Maximum Books**: 1000 (configurable)
+- **Maximum Search Results**: 1000 per search
 - **Supported Encodings**: UTF-8, ASCII
 - **Line Endings**: LF, CRLF, CR (auto-detected)
 
@@ -586,16 +891,16 @@ See `[[BUTTON_LAYOUT]]` for complete wiring information.
 
 ## What's Next?
 
-This is Phase 4 of the e-reader project. Completed phases:
+This is Phase 5 of the e-reader project. Completed phases:
 
 - ✅ **Phase 1-2**: Hardware setup, display drivers, button input
 - ✅ **Phase 3**: Text rendering, bookmarks, library management
 - ✅ **Phase 4**: EPUB and PDF support with metadata extraction
+- ✅ **Phase 5**: Settings system, font sizes, search, power management, battery monitoring
 
 Future phases will add:
-- **Phase 5**: Enhanced UI, font selection, margins, reading statistics
-- **Phase 6**: WiFi features, online library sync, web interface
-- **Phase 7**: Final polish, documentation, release preparation
+- **Phase 6**: WiFi features, external keyboard, custom search, online library sync
+- **Phase 7**: Final polish, optimization, release preparation
 
 See the project roadmap in the main repository for details.
 
@@ -607,4 +912,4 @@ This e-reader is an open-source project built with love for book enthusiasts and
 
 ---
 
-*Last updated: 2026-01-14 (Phase 04 - Multi-format support)*
+*Last updated: 2026-01-16 (Phase 05 - Polish and Advanced Features)*

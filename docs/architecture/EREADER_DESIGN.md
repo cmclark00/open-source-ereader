@@ -7,7 +7,7 @@ tags:
   - software
   - design
   - ereader
-  - phase-03
+  - phase-05
 related:
   - "[[INPUT_SYSTEM]]"
   - "[[DISPLAY_SPECS]]"
@@ -17,15 +17,19 @@ related:
 
 # E-Reader Application Design
 
-This document describes the complete architecture for the basic e-reader application implemented in Phase 03. It covers the application state machine, screen rendering pipeline, file system structure, and memory optimization strategies for the Raspberry Pi Zero W's constrained 512MB RAM environment.
+This document describes the complete architecture for the e-reader application through Phase 05. It covers the application state machine, screen rendering pipeline, file system structure, memory optimization strategies, and advanced features including settings management, search functionality, power management, and battery monitoring.
 
 ## Overview
 
-The e-reader application is a minimal, embedded C application designed to:
+The e-reader application is a feature-rich, embedded C application designed to:
 - Boot directly to a book selection menu
-- Read and display .txt files from the `/books/` directory
+- Read and display .txt, .epub, and .pdf files from the `/books/` directory
 - Provide simple page navigation using GPIO buttons
-- Maintain reading position across sessions
+- Maintain reading position across sessions with auto-save bookmarks
+- Support customizable settings (font size, line spacing, margins, auto-sleep)
+- Search within books using predefined terms
+- Automatic power management with configurable sleep mode
+- Battery monitoring support (INA219, MCP3008)
 - Operate within severe memory constraints (512MB RAM total, ~200MB available to userspace)
 
 ### Design Principles
@@ -1030,30 +1034,529 @@ book_list_t* scan_books_directory(const char *dir_path) {
 - Display refresh timing
 - Long-running stability (24+ hours)
 
-## Future Enhancements (Beyond Phase 03)
+## Phase 05 Components
 
-### Phase 04: EPUB/PDF Support
-- Add libzip, libxml2, poppler/mupdf dependencies
-- Implement EPUB parser
-- Extract text/images from PDF
-- More complex pagination
+### Settings System
 
-### Phase 05: Polish
-- Partial refresh optimization
-- Adjustable font size
-- Brightness control
-- Bookmarks UI
+**Location**: `src/ereader/settings/settings_manager.c/h`
+
+**Purpose**: Persist user preferences across sessions.
+
+**Architecture**:
+
+```c
+typedef enum {
+    FONT_SIZE_SMALL = 0,   // 6x12 pixels
+    FONT_SIZE_MEDIUM = 1,  // 8x16 pixels (default)
+    FONT_SIZE_LARGE = 2    // 10x20 pixels
+} font_size_t;
+
+typedef enum {
+    LINE_SPACING_SINGLE = 0,   // 0 pixels extra
+    LINE_SPACING_1_5 = 1,      // 50% extra
+    LINE_SPACING_DOUBLE = 2    // 100% extra
+} line_spacing_t;
+
+typedef enum {
+    MARGINS_NARROW = 0,   // Minimal margins
+    MARGINS_NORMAL = 1,   // Balanced (default)
+    MARGINS_WIDE = 2      // Large margins
+} margins_t;
+
+typedef enum {
+    DISPLAY_MODE_NORMAL = 0,  // Black on white (default)
+    DISPLAY_MODE_DARK = 1     // White on black (future)
+} display_mode_t;
+
+typedef struct {
+    font_size_t font_size;
+    line_spacing_t line_spacing;
+    margins_t margins;
+    display_mode_t display_mode;
+    int auto_sleep_minutes;  // 5, 10, 15, 30, or 0 (never)
+} settings_t;
+```
+
+**File Format**: `/etc/ereader/settings.conf` (key=value)
+
+```ini
+font_size=medium
+line_spacing=single
+margins=normal
+display_mode=normal
+auto_sleep_minutes=15
+```
+
+**Key Functions**:
+- `settings_load()` - Load from file, use defaults if missing
+- `settings_save()` - Write to file
+- `settings_get_*()` / `settings_set_*()` - Getters/setters for each field
+
+**Integration**: Settings are loaded at startup and consulted by text_renderer, power_manager, and UI components.
+
+### Settings Menu UI
+
+**Location**: `src/ereader/ui/settings_menu.c/h`
+
+**Purpose**: Interactive UI for changing settings.
+
+**Architecture**:
+
+```c
+typedef enum {
+    SETTINGS_ITEM_FONT_SIZE = 0,
+    SETTINGS_ITEM_LINE_SPACING,
+    SETTINGS_ITEM_MARGINS,
+    SETTINGS_ITEM_DISPLAY_MODE,
+    SETTINGS_ITEM_AUTO_SLEEP,
+    SETTINGS_ITEM_COUNT
+} settings_item_t;
+
+typedef struct {
+    settings_t *settings;           // Pointer to active settings
+    int selected_item;              // Currently highlighted setting
+    bool dirty;                     // Has anything changed?
+} settings_menu_state_t;
+```
+
+**Controls**:
+- UP/DOWN: Navigate between settings
+- SELECT: Cycle through values for current setting
+- BACK/MENU: Save and exit
+
+**Visual Design**:
+```
+┌────────────────────────────────────┐
+│ Settings                           │
+├────────────────────────────────────┤
+│ > Font Size: Medium                │
+│   Line Spacing: Single             │
+│   Margins: Normal                  │
+│   Display Mode: Normal             │
+│   Auto Sleep: 15 minutes           │
+├────────────────────────────────────┤
+│ SELECT:Change  BACK:Save & Exit    │
+└────────────────────────────────────┘
+```
+
+### Dynamic Font Rendering
+
+**Location**: `src/ereader/rendering/text_renderer.c/h`, `src/ereader/rendering/font_data.h`
+
+**Purpose**: Support multiple font sizes with runtime switching.
+
+**Font Data**: Three embedded bitmap fonts:
+- Small (6×12): 95 glyphs × 12 bytes = 1,140 bytes
+- Medium (8×16): 95 glyphs × 16 bytes = 1,520 bytes (existing)
+- Large (10×20): 95 glyphs × 40 bytes = 3,800 bytes (16-bit encoding)
+
+**Total**: ~8 KB for all fonts
+
+**Key Functions**:
+- `text_renderer_set_font_size(font_size_t size)` - Switch active font
+- `text_renderer_get_chars_per_line()` / `text_renderer_get_lines_per_page()` - Dynamic layout
+- `text_renderer_repaginate()` - Re-paginate book with new font, preserve reading position
+
+**Re-Pagination Algorithm**:
+1. Calculate current reading position as percentage through book
+2. Apply new font size
+3. Recalculate total pages
+4. Map percentage to new page number
+5. Preserve approximate reading position
+
+**Backward Compatibility**: Old code using `FONT_WIDTH`/`FONT_HEIGHT` macros continues to work via wrapper functions.
+
+### Search Engine
+
+**Location**: `src/ereader/search/search_engine.c/h`
+
+**Purpose**: Find text within currently open book.
+
+**Architecture**:
+
+```c
+#define MAX_SEARCH_RESULTS 1000
+
+typedef struct {
+    int offset;              // Byte offset in book text
+    int page_number;         // Page containing this match
+    char context[128];       // Surrounding text (~60 chars)
+} search_result_t;
+
+typedef struct {
+    char *book_text;                        // Pointer to book text
+    int book_length;                        // Total text length
+    char search_term[256];                  // Current search term
+    bool case_sensitive;                    // Search mode
+    search_result_t results[MAX_SEARCH_RESULTS];
+    int result_count;                       // Number of matches
+    int current_result;                     // Index in results array
+} search_state_t;
+```
+
+**Algorithm**: Simple linear search (O(n*m))
+
+```c
+// Pseudocode
+for each position in book_text:
+    if substring matches search_term (with case mode):
+        store offset, calculate page, extract context
+        increment result_count
+        if result_count >= MAX_SEARCH_RESULTS:
+            break
+```
+
+**Key Functions**:
+- `search_execute()` - Perform search, populate results
+- `search_get_result()` - Get specific result by index
+- `search_next()` / `search_prev()` - Navigate results with wraparound
+- `search_clear()` - Free resources
+
+**Performance**: ~500-1000 matches/second on Pi Zero W (depends on book size and term frequency)
+
+### Search UI
+
+**Location**: `src/ereader/ui/search_ui.c/h`
+
+**Purpose**: Interactive search interface.
+
+**Modes**:
+1. **TERM_SELECTION**: Browse predefined terms
+2. **SEARCHING**: Display "Searching..." while engine runs
+3. **RESULTS**: Browse and navigate results
+4. **NO_RESULTS**: Display "No matches found"
+
+**Predefined Terms**: "the", "chapter", "and", "said", "was"
+
+**Controls**:
+- UP/DOWN: Navigate terms or results
+- SELECT: Execute search or jump to result page
+- MENU: Toggle case sensitivity
+- BACK: Exit search
+
+**Visual Design (Results)**:
+```
+┌────────────────────────────────────┐
+│ Search: "chapter" (Case-Sensitive) │
+├────────────────────────────────────┤
+│ Result 5 of 127                    │
+│                                    │
+│ ...beginning of Chapter 3. It was │
+│ a dark and stormy night...         │
+│                                    │
+│ [Page 42]                          │
+├────────────────────────────────────┤
+│ ↑↓:Navigate  SELECT:Go  BACK:Exit │
+└────────────────────────────────────┘
+```
+
+**Limitations**:
+- No custom text input (requires external keyboard, Phase 6)
+- No visual highlighting on book page (requires significant rendering changes)
+- Maximum 1000 results
+- Case-insensitive search creates temporary lowercase copy (memory intensive)
+
+### Power Manager
+
+**Location**: `src/ereader/power/power_manager.c/h`
+
+**Purpose**: Automatic sleep mode to conserve battery.
+
+**Architecture**:
+
+```c
+#define SLEEP_WARNING_SECONDS 30
+
+typedef enum {
+    POWER_STATE_ACTIVE,     // Normal operation
+    POWER_STATE_WARNING,    // Sleep warning displayed
+    POWER_STATE_SLEEPING    // Display off, waiting for wake
+} power_state_t;
+
+typedef struct {
+    power_state_t state;
+    time_t last_activity;         // Last button press timestamp
+    int timeout_seconds;          // Sleep timeout (from settings)
+    bool warning_displayed;       // Has warning been shown?
+} power_manager_t;
+```
+
+**State Machine**:
+
+```
+ACTIVE ──(idle timeout - 30s)──> WARNING ──(30s elapsed)──> SLEEPING
+  ▲                                                              │
+  └───────────────────(any button press)──────────────────────┘
+```
+
+**Sleep Workflow**:
+1. **Idle Detection**: Track time since last button press
+2. **Warning**: 30 seconds before timeout, display "Sleeping in 30 seconds..."
+3. **Sleep Entry**: Clear display, power down e-paper controller
+4. **Sleep Loop**: Wait for button press
+5. **Wake**: Re-initialize display, restore previous state
+
+**Key Functions**:
+- `power_manager_init()` - Initialize with settings
+- `power_manager_reset_idle_timer()` - Called on every button press
+- `power_manager_update()` - Called every frame, checks for timeout
+- `power_manager_should_sleep()` - Returns true if timeout reached
+- `power_manager_enter_sleep()` / `power_manager_wake()` - Sleep/wake cycle
+
+**Integration**: Main event loop calls `power_manager_update()` and checks `power_manager_should_sleep()` before rendering.
+
+### Battery Monitor
+
+**Location**: `src/ereader/power/battery_monitor.c/h`
+
+**Purpose**: Read battery voltage/current (if hardware available).
+
+**Supported Hardware**:
+1. **INA219** (I2C current/voltage sensor) - Recommended
+   - I2C address: 0x40 or 0x41
+   - Voltage range: 0-26V
+   - Current measurement: Yes
+2. **MCP3008** (SPI 10-bit ADC)
+   - SPI CS: GPIO 8
+   - Voltage range: 0-3.3V (requires voltage divider)
+   - Current measurement: No
+
+**Architecture**:
+
+```c
+typedef enum {
+    BATTERY_HW_NONE,      // No hardware detected
+    BATTERY_HW_INA219,    // INA219 I2C sensor
+    BATTERY_HW_MCP3008    // MCP3008 SPI ADC
+} battery_hw_type_t;
+
+typedef enum {
+    BATTERY_LEVEL_FULL,      // > 4.0V (100-90%)
+    BATTERY_LEVEL_GOOD,      // 3.8-4.0V (90-60%)
+    BATTERY_LEVEL_MEDIUM,    // 3.6-3.8V (60-30%)
+    BATTERY_LEVEL_LOW,       // 3.4-3.6V (30-10%)
+    BATTERY_LEVEL_CRITICAL   // < 3.4V (< 10%)
+} battery_level_t;
+
+typedef struct {
+    battery_hw_type_t hw_type;
+    float voltage;              // Volts
+    float current;              // Amps (INA219 only, else 0.0)
+    int percentage;             // 0-100%
+    battery_level_t level;
+    bool charging;              // Future feature
+} battery_status_t;
+```
+
+**Auto-Detection Sequence**:
+1. Try INA219 at address 0x40
+2. Try INA219 at address 0x41
+3. Try MCP3008 on SPI
+4. Fall back to dummy mode (always 100%)
+
+**Key Functions**:
+- `battery_monitor_init()` - Detect and initialize hardware
+- `battery_monitor_read()` - Get current status
+- `battery_monitor_get_level()` - Categorize voltage
+- `battery_monitor_cleanup()` - Close hardware connections
+
+**Integration**: Called periodically (e.g., every 10 seconds) to update battery status. Future: display in status bar.
+
+### UI Components Library
+
+**Location**: `src/ereader/ui/ui_components.c/h`, `src/ereader/ui/loading_screen.c/h`
+
+**Purpose**: Reusable UI elements for better UX.
+
+**Components**:
+
+1. **Loading Spinner**: 8-frame rotating animation
+   ```c
+   void ui_draw_spinner(framebuffer_t *fb, int x, int y, int frame);
+   ```
+
+2. **Loading Dots**: Animated "..." (cycling)
+   ```c
+   void ui_draw_loading_dots(framebuffer_t *fb, int x, int y, int frame);
+   ```
+
+3. **Progress Bar**: 0-100% with percentage display
+   ```c
+   void ui_draw_progress_bar(framebuffer_t *fb, int x, int y, int width, int percentage);
+   ```
+
+4. **Confirmation Dialog**: Interactive yes/no
+   ```c
+   typedef struct {
+       char message[256];
+       bool confirmed;  // Result
+   } confirmation_dialog_t;
+
+   void ui_draw_confirmation_dialog(framebuffer_t *fb, confirmation_dialog_t *dialog);
+   ```
+
+5. **Message Box**: Non-interactive notification
+   ```c
+   void ui_draw_message_box(framebuffer_t *fb, const char *message);
+   ```
+
+6. **Borders**: Single, double, decorative with corner ornaments
+   ```c
+   typedef enum {
+       BORDER_STYLE_NONE,
+       BORDER_STYLE_SINGLE,
+       BORDER_STYLE_DOUBLE,
+       BORDER_STYLE_DECORATIVE
+   } border_style_t;
+
+   void ui_draw_border(framebuffer_t *fb, int x, int y, int w, int h, border_style_t style);
+   ```
+
+7. **Toast Notifications**: Bottom-screen temporary messages
+   ```c
+   void ui_draw_toast(framebuffer_t *fb, const char *message);
+   ```
+
+8. **Loading Screen**: Full-screen loading with spinner/progress
+   ```c
+   typedef struct {
+       char message[256];
+       int progress_percentage;  // -1 for indeterminate (spinner)
+       bool show_spinner;
+   } loading_screen_t;
+
+   void loading_screen_show(loading_screen_t *screen);
+   ```
+
+**Design Principles**:
+- **E-paper Optimized**: Minimize refreshes, clear rendering
+- **Modular**: Can be integrated incrementally without breaking existing code
+- **Consistent**: All components follow same visual style
+- **Accessible**: Clear visual hierarchy, good contrast
+
+**Use Cases**:
+- **Loading Screens**: Opening large PDFs/EPUBs (1-2 seconds)
+- **Confirmation Dialogs**: Exit application, delete bookmark
+- **Progress Bars**: Multi-step operations (scanning library, building index)
+- **Toast Notifications**: Quick feedback ("Bookmark saved", "Settings updated")
+- **Borders**: Enhance visual appeal of dialogs and menus
+
+## Application State Machine (Updated for Phase 05)
+
+### Extended State Diagram
+
+```
+                    ┌──────────────┐
+                    │   STARTUP    │
+                    │  (init hw)   │
+                    └──────┬───────┘
+                           │
+                           ▼
+              ┌────────────────────────┐
+              │     MENU_LIBRARY       │◄──────────┐
+              │  (list books)          │           │
+              └─────┬────────────┬─────┘           │
+                    │            │                 │
+        SELECT book │            │ MENU            │
+                    │            ├────────┐        │
+                    ▼            ▼        │        │
+         ┌─────────────┐  ┌──────────┐   │        │
+         │   READING   │  │ SETTINGS │   │        │
+         │ (show page) │  │  (menu)  │───┘        │
+         └──────┬──────┘  └──────────┘            │
+                │                                  │
+           MENU │                                  │
+                ▼                                  │
+         ┌─────────────┐                          │
+         │   SEARCH    │                          │
+         │ (find text) │                          │
+         └──────┬──────┘                          │
+                │                                  │
+           BACK │                                  │
+                └──────────────────────────────────┘
+```
+
+### New States
+
+#### STATE_SETTINGS
+
+**Purpose**: Interactive settings menu.
+
+**Entry**: MENU button from MENU_LIBRARY state
+
+**Exit**: BACK or MENU button → save settings, return to MENU_LIBRARY
+
+**Button Handling**:
+- UP/DOWN: Navigate settings
+- SELECT: Cycle values
+- BACK/MENU: Save and exit
+
+#### STATE_SEARCH
+
+**Purpose**: Search within current book.
+
+**Entry**: MENU button from READING state
+
+**Exit**: BACK button → return to READING
+
+**Sub-modes**:
+- Term selection
+- Searching (with spinner)
+- Results browsing
+- No results
+
+**Button Handling**:
+- UP/DOWN: Navigate terms or results
+- SELECT: Execute search or jump to page
+- MENU: Toggle case sensitivity
+- BACK: Exit to reading
+
+### State Context (Updated)
+
+```c
+typedef struct {
+    app_state_t current_state;
+
+    // Existing state data
+    menu_state_t *menu;
+    reading_state_t *reading;
+    book_manager_t *book_manager;
+
+    // Phase 05 additions
+    settings_t *settings;
+    settings_menu_state_t *settings_menu;
+    search_ui_state_t *search_ui;
+    power_manager_t *power_manager;
+    battery_monitor_t *battery_monitor;
+
+    // UI components
+    framebuffer_t *fb;
+    text_renderer_t *renderer;
+} app_context_t;
+```
+
+## Future Enhancements (Beyond Phase 05)
+
+### Phase 06: WiFi and Network Features
+- WiFi configuration and management
+- External keyboard support (USB/Bluetooth)
+- Custom text input for search
+- Download books from online sources (Project Gutenberg, etc.)
+- Cloud sync for reading positions
+- Over-the-air software updates
+- Web-based book management interface
+
+### Phase 07: Final Polish and Optimization
+- Partial refresh optimization (reduce ghosting, faster refreshes)
+- Performance optimizations (memory-mapped I/O, font metrics caching)
+- Dark mode implementation (inverted rendering)
+- Visual search result highlighting on page
 - Table of contents navigation
-
-### Phase 06: WiFi Features
-- Download books from Project Gutenberg
-- Sync reading positions to cloud
-- Software updates
-
-### Phase 07: Power Management
-- Sleep mode after inactivity
-- Battery monitoring
-- Wake-on-button
+- Multiple bookmarks per book
+- Reading statistics (time spent, pages read, books completed)
+- Dictionary lookup
+- Notes and highlights
+- Enhanced error handling and recovery
 
 ## References
 
@@ -1067,3 +1570,4 @@ book_list_t* scan_books_directory(const char *dir_path) {
 ## Revision History
 
 - 2026-01-13: Initial e-reader application architecture design (Phase 03)
+- 2026-01-16: Updated with Phase 05 components (settings, search, power management, battery monitoring, UI components)
