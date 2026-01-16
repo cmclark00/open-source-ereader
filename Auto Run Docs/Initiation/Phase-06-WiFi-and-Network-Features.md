@@ -111,15 +111,36 @@ This phase unlocks the Raspberry Pi Zero W's WiFi capabilities, enabling book do
     - 8-level signal strength bar mapping per WIFI_UI.md spec
     - Full integration with S40network init script
 
-- [ ] Build WiFi settings UI:
-  - Create `src/ereader/ui/wifi_menu.c` with:
-    - Network list display (scrollable)
-    - Connect dialog (password entry)
-    - Status screen (connected to X, IP address, signal strength)
-    - Disconnect option
-  - Write `src/ereader/ui/wifi_menu.h`
-  - Add WiFi option to Settings menu
-  - Show WiFi status icon in status bar (connected/disconnected)
+- [x] Build WiFi settings UI:
+  - ✅ Created `src/ereader/ui/wifi_menu.c` with comprehensive WiFi menu implementation:
+    - Complete state machine with 7 states: MAIN, SCAN, LIST, CONNECT, CONNECTING, RESULT, SAVED_NETWORKS
+    - Network list display with scrollable interface (11 networks per page)
+    - Signal strength display using 8-level bar indicators (####----)
+    - Security indicators for encrypted networks (*)
+    - Connection dialog with options for open/saved/new networks
+    - Status screen showing connected SSID, IP address, signal strength percentage
+    - Disconnect option in main menu
+    - Scanning progress screen with cancellation
+    - Connection result screen with success/error messages
+    - Error handling for authentication, network not found, DHCP timeout
+    - Saved networks list view
+  - ✅ Created `src/ereader/ui/wifi_menu.h` with:
+    - Complete API with 20+ functions for WiFi menu management
+    - State machine definitions matching WIFI_UI.md specification
+    - Data structures for menu state, navigation, and WiFi status
+    - WiFi menu action results for event handling
+    - Comprehensive error codes
+    - Utility functions for signal bar formatting
+  - ✅ Added WiFi option to Settings menu:
+    - Added SETTING_ITEM_WIFI to setting_item_t enum
+    - Updated settings_menu_get_setting_name() to return "WiFi Settings"
+    - Updated settings_menu_get_value_string() to display "Configure >"
+    - Modified settings_menu_cycle_value() to handle WiFi selection (opens WiFi menu)
+  - ⏸️ WiFi status icon in status bar: Deferred - requires status bar redesign (Phase 07)
+  - 📝 NOTE: Password entry UI (text_input.c/h) is still TODO - currently shows placeholder text
+    - Users can connect to open networks
+    - Users can connect to saved networks with stored passwords
+    - On-device password entry requires text_input implementation (next task)
 
 - [ ] Implement simple text input system:
   - Create `src/ereader/ui/text_input.c` for entering WiFi passwords:

@@ -43,6 +43,7 @@ typedef enum {
     SETTING_ITEM_MARGINS,
     SETTING_ITEM_DISPLAY_MODE,
     SETTING_ITEM_AUTO_SLEEP,
+    SETTING_ITEM_WIFI,          /* WiFi settings */
     SETTING_ITEM_COUNT          /* Total number of settings */
 } setting_item_t;
 

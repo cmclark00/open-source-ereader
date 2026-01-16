@@ -344,6 +344,11 @@ bool settings_menu_cycle_value(settings_menu_state_t *menu) {
             return true;
         }
 
+        case SETTING_ITEM_WIFI:
+            /* WiFi is handled specially - doesn't cycle, opens WiFi menu */
+            /* This will be caught by the caller to transition to WiFi state */
+            return true;
+
         default:
             break;
     }
@@ -415,6 +420,8 @@ const char* settings_menu_get_setting_name(setting_item_t item) {
             return "Display Mode";
         case SETTING_ITEM_AUTO_SLEEP:
             return "Auto Sleep";
+        case SETTING_ITEM_WIFI:
+            return "WiFi Settings";
         default:
             return "Unknown";
     }
@@ -446,6 +453,9 @@ void settings_menu_get_value_string(settings_menu_state_t *menu, setting_item_t 
             break;
         case SETTING_ITEM_AUTO_SLEEP:
             value_str = settings_auto_sleep_to_string(settings_get_auto_sleep(menu->settings));
+            break;
+        case SETTING_ITEM_WIFI:
+            value_str = "Configure >";
             break;
         default:
             value_str = "Unknown";
