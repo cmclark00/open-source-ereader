@@ -22,17 +22,18 @@ Welcome to your open-source e-reader! This guide will help you get started with 
 1. [Getting Started](#getting-started)
 2. [Button Controls](#button-controls)
 3. [Adding Books](#adding-books)
-4. [Navigating the Library](#navigating-the-library)
-5. [Reading Books](#reading-books)
-6. [Bookmarks](#bookmarks)
-7. [Settings](#settings)
-8. [Search](#search)
-9. [Power Management](#power-management)
-10. [Battery Monitoring](#battery-monitoring)
-11. [Current Limitations](#current-limitations)
-12. [Tips for Best Experience](#tips-for-best-experience)
-13. [Troubleshooting](#troubleshooting)
-14. [Technical Specifications](#technical-specifications)
+4. [WiFi Setup](#wifi-setup)
+5. [Navigating the Library](#navigating-the-library)
+6. [Reading Books](#reading-books)
+7. [Bookmarks](#bookmarks)
+8. [Settings](#settings)
+9. [Search](#search)
+10. [Power Management](#power-management)
+11. [Battery Monitoring](#battery-monitoring)
+12. [Current Limitations](#current-limitations)
+13. [Tips for Best Experience](#tips-for-best-experience)
+14. [Troubleshooting](#troubleshooting)
+15. [Technical Specifications](#technical-specifications)
 
 ---
 
@@ -155,6 +156,244 @@ Many public domain books are available in plain text format:
 - Hidden files (starting with `.`) are ignored
 - Subdirectories are not currently supported (future feature)
 - Keep filenames under 50 characters for best display
+
+---
+
+## WiFi Setup
+
+Your Raspberry Pi Zero W has built-in WiFi capabilities, enabling you to connect to wireless networks. Once configured, WiFi can be used for downloading books, time synchronization, and future online features.
+
+### WiFi Hardware
+
+The Raspberry Pi Zero W includes:
+- **WiFi Chip**: Broadcom BCM43430
+- **Standards**: 802.11 b/g/n (2.4 GHz only)
+- **Range**: 10-30 meters indoors
+- **Antenna**: Built-in PCB trace antenna
+
+**Note**: The Pi Zero W **does not support 5 GHz** WiFi networks. Only 2.4 GHz networks are supported.
+
+### First-Time WiFi Configuration
+
+Before your e-reader can connect to WiFi, you need to configure your network credentials. There are two methods:
+
+#### Method 1: Pre-Configure via SD Card (Recommended)
+
+This is the easiest method and doesn't require any additional hardware:
+
+1. **Power off** your e-reader
+2. **Remove the microSD card** from the Raspberry Pi
+3. **Insert the SD card** into your computer
+4. **Mount the root partition** (ext4 filesystem)
+   - Linux: Usually auto-mounted at `/media/username/rootfs/`
+   - macOS: Requires ext4 driver (e.g., extFS for Mac)
+   - Windows: Requires ext4 driver (e.g., Linux File Systems for Windows, Ext2Fsd)
+5. **Navigate to** `/etc/` directory on the SD card
+6. **Copy the example config**:
+   ```bash
+   cp /etc/wpa_supplicant.conf.example /etc/wpa_supplicant.conf
+   ```
+7. **Edit** `/etc/wpa_supplicant.conf` with a text editor
+8. **Replace** the example values with your WiFi credentials:
+   ```
+   network={
+       ssid="YourNetworkName"
+       psk="YourNetworkPassword"
+       key_mgmt=WPA-PSK
+       priority=1
+   }
+   ```
+9. **Save the file** and safely eject the SD card
+10. **Reinsert** the SD card into your Raspberry Pi
+11. **Power on** - WiFi will connect automatically (takes 5-15 seconds)
+
+#### Method 2: Configure via Serial Console
+
+If you have serial console access (USB-to-TTL adapter):
+
+1. **Boot** the e-reader
+2. **Login** via serial console (root / ereader)
+3. **Copy the example config**:
+   ```bash
+   cp /etc/wpa_supplicant.conf.example /etc/wpa_supplicant.conf
+   ```
+4. **Edit the configuration**:
+   ```bash
+   vi /etc/wpa_supplicant.conf
+   ```
+5. **Add your network credentials** (replace YourNetworkName and YourNetworkPassword)
+6. **Save and exit** the editor
+7. **Restart networking**:
+   ```bash
+   /etc/init.d/S40network restart
+   ```
+8. **Check status**:
+   ```bash
+   /etc/init.d/S40network status
+   ```
+
+### WiFi Configuration File
+
+The WiFi configuration is stored in `/etc/wpa_supplicant.conf`. Here's what a basic configuration looks like:
+
+```
+# WPA Supplicant Configuration
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+update_config=1
+country=US
+
+# Your home network (WPA2)
+network={
+    ssid="MyHomeNetwork"
+    psk="MySecurePassword123"
+    key_mgmt=WPA-PSK
+    priority=1
+}
+```
+
+### Supported Security Modes
+
+Your e-reader supports the following WiFi security types:
+
+- **Open** - No password (not recommended)
+- **WEP** - Legacy encryption (not recommended, insecure)
+- **WPA-PSK** - WPA with pre-shared key
+- **WPA2-PSK** - Modern WPA2 with pre-shared key (recommended)
+
+**Recommendation**: Use WPA2-PSK (WPA2 with AES encryption) for best security.
+
+### Multiple Network Configuration
+
+You can configure multiple WiFi networks with priorities. The device will automatically connect to the highest priority network available:
+
+```
+network={
+    ssid="HomeNetwork"
+    psk="homepassword"
+    key_mgmt=WPA-PSK
+    priority=10
+}
+
+network={
+    ssid="WorkNetwork"
+    psk="workpassword"
+    key_mgmt=WPA-PSK
+    priority=5
+}
+
+network={
+    ssid="CoffeeShopWiFi"
+    key_mgmt=NONE
+    priority=1
+}
+```
+
+Higher priority numbers are preferred. In this example, the e-reader will connect to "HomeNetwork" first if available, then "WorkNetwork", and finally "CoffeeShopWiFi".
+
+### Checking WiFi Status
+
+If you have serial console access, you can check WiFi status:
+
+```bash
+# Check overall WiFi status
+/etc/init.d/S40network status
+
+# Scan for available networks
+/etc/init.d/S40network scan
+
+# Check IP address
+ip addr show wlan0
+
+# Check connection status
+iw dev wlan0 link
+```
+
+### Managing WiFi Services
+
+The WiFi services start automatically on boot via the `/etc/init.d/S40network` init script.
+
+**Manual control** (via serial console):
+
+```bash
+# Start WiFi
+/etc/init.d/S40network start
+
+# Stop WiFi
+/etc/init.d/S40network stop
+
+# Restart WiFi
+/etc/init.d/S40network restart
+```
+
+### WiFi Performance and Battery Life
+
+WiFi consumes significant power:
+
+- **WiFi Active (downloading)**: ~150-200 mA additional current
+- **WiFi Connected (idle)**: ~50-80 mA with power save enabled
+- **WiFi Disabled**: ~0 mA
+
+**Recommendations for battery life**:
+- Only enable WiFi when needed for downloads
+- WiFi automatically enables power save mode to conserve battery
+- Consider disabling WiFi when reading for extended periods
+
+### Troubleshooting WiFi
+
+#### WiFi Not Connecting
+
+1. **Verify configuration**: Check `/etc/wpa_supplicant.conf` for typos
+   - SSID is case-sensitive
+   - Password must be correct
+   - Remove the example values (YourNetworkName, YourNetworkPassword)
+
+2. **Check 2.4 GHz**: Ensure your router broadcasts on 2.4 GHz (5 GHz not supported)
+
+3. **Check range**: Move closer to your WiFi router
+
+4. **Restart networking**:
+   ```bash
+   /etc/init.d/S40network restart
+   ```
+
+#### Weak Signal
+
+If you experience weak WiFi signal:
+
+1. **Positioning**: Orient the e-reader with the WiFi chip side facing the router
+2. **Case material**: Use plastic or wood cases, not metal (blocks RF signals)
+3. **Interference**: Keep away from microwaves and other 2.4 GHz devices
+4. **Range**: Ensure router is within 10-30 meters
+
+#### No IP Address
+
+If WiFi connects but you can't access the internet:
+
+1. **Check DHCP**: Ensure your router's DHCP server is enabled
+2. **Wait longer**: DHCP negotiation can take 10-30 seconds
+3. **Restart**: Try restarting the network service
+4. **Check logs**: View `/var/log/network.log` for error messages
+
+### Hidden Networks
+
+If your network SSID is hidden (not broadcast):
+
+```
+network={
+    ssid="HiddenNetwork"
+    psk="password"
+    key_mgmt=WPA-PSK
+    scan_ssid=1      # Enable scanning for hidden SSIDs
+    priority=2
+}
+```
+
+### Advanced: Static IP Configuration
+
+By default, the e-reader uses DHCP to obtain an IP address automatically. If you need a static IP, you can configure it manually via serial console after boot.
+
+For detailed technical information about WiFi setup, driver configuration, and advanced options, see the [WiFi Setup Guide](hardware/WIFI_SETUP.md).
 
 ---
 

@@ -28,13 +28,32 @@ This phase unlocks the Raspberry Pi Zero W's WiFi capabilities, enabling book do
     - Troubleshooting guide for common WiFi issues
     - Performance characteristics and security considerations
 
-- [ ] Add firmware and configuration files:
-  - Ensure brcm/brcmfmac43430-sdio.bin firmware is included in rootfs
-  - Create `board/ereader/rootfs-overlay/etc/wpa_supplicant.conf.example`:
-    - Template for WiFi configuration (SSID, password)
-    - Comments explaining setup
-  - Create init script to start wpa_supplicant and DHCP client on boot
-  - Document first-time WiFi setup in `docs/USER_GUIDE.md`
+- [x] Add firmware and configuration files:
+  - ✅ Firmware automatically included via BR2_PACKAGE_RPI_WIFI_FIRMWARE=y in defconfig
+  - ✅ Created `board/ereader/rootfs-overlay/etc/wpa_supplicant.conf.example`:
+    - Comprehensive template with examples for WPA2-PSK, open networks, hidden SSIDs
+    - Multiple network configuration examples with priorities
+    - Detailed comments explaining all options and security modes
+    - Instructions for using wpa_passphrase for encrypted PSK
+  - ✅ Created `board/ereader/rootfs-overlay/etc/init.d/S40network`:
+    - Automatically starts wpa_supplicant and dhcpcd on boot
+    - Smart startup logic: checks for config file and skips if not configured
+    - Comprehensive WiFi management: start, stop, restart, status, scan
+    - Connection monitoring with timeout and detailed logging
+    - Status command shows: interface state, connection info, IP address, signal strength
+    - Scan command lists available networks with SSIDs and signal levels
+    - Logs to /var/log/network.log for troubleshooting
+  - ✅ Updated `board/ereader/post-build.sh` to make S40network executable
+  - ✅ Documented first-time WiFi setup in `docs/USER_GUIDE.md`:
+    - Added comprehensive WiFi Setup section with TOC entry
+    - Two setup methods: pre-configure via SD card (recommended) and serial console
+    - WiFi configuration file format and examples
+    - Multiple network configuration with priorities
+    - WiFi status checking and service management commands
+    - Battery life considerations and performance characteristics
+    - Extensive troubleshooting section (connection, weak signal, DHCP issues)
+    - Hidden network configuration and security mode details
+    - Cross-reference to hardware/WIFI_SETUP.md for technical details
 
 - [ ] Design WiFi management UI:
   - Create `docs/architecture/WIFI_UI.md` documenting:

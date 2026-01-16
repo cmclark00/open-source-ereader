@@ -1,0 +1,111 @@
+# WPA Supplicant Configuration Example
+# This file contains example WiFi network configurations.
+# Copy this file to /etc/wpa_supplicant.conf and edit with your network details.
+#
+# For first-time setup:
+# 1. Mount the SD card on your computer
+# 2. Copy this file: cp /etc/wpa_supplicant.conf.example /etc/wpa_supplicant.conf
+# 3. Edit /etc/wpa_supplicant.conf with your WiFi credentials
+# 4. Boot the e-reader - it will connect automatically
+#
+# Or use wpa_passphrase to generate encrypted configuration:
+#   wpa_passphrase "YourSSID" "YourPassword" >> /etc/wpa_supplicant.conf
+
+# Control interface - allows wpa_cli to manage connections
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+
+# Allow wpa_supplicant to update this config file
+update_config=1
+
+# Country code (affects available WiFi channels)
+# Set to your country code: US, GB, CA, AU, etc.
+country=US
+
+# Network configuration - WPA2-PSK (most common)
+# Replace YourNetworkName and YourNetworkPassword with your credentials
+network={
+    # Network name (SSID) - case sensitive
+    ssid="YourNetworkName"
+
+    # Network password
+    # Use wpa_passphrase to generate encrypted PSK instead of plain text:
+    #   wpa_passphrase "YourSSID" "YourPassword"
+    psk="YourNetworkPassword"
+
+    # Security mode
+    # WPA-PSK: Original WPA with pre-shared key
+    # WPA2-PSK: Modern WPA2 (recommended)
+    key_mgmt=WPA-PSK
+
+    # Priority (higher number = higher priority)
+    # Useful when configuring multiple networks
+    priority=1
+}
+
+# Example: Open network (no password)
+# Uncomment to use:
+#network={
+#    ssid="OpenNetworkName"
+#    key_mgmt=NONE
+#    priority=0
+#}
+
+# Example: Hidden network (SSID not broadcast)
+# Uncomment and edit to use:
+#network={
+#    ssid="HiddenNetworkName"
+#    psk="HiddenNetworkPassword"
+#    key_mgmt=WPA-PSK
+#    scan_ssid=1
+#    priority=2
+#}
+
+# Example: Multiple networks with priority
+# The device will automatically connect to the highest priority network available
+#network={
+#    ssid="HomeNetwork"
+#    psk="homepassword"
+#    key_mgmt=WPA-PSK
+#    priority=10
+#}
+#
+#network={
+#    ssid="WorkNetwork"
+#    psk="workpassword"
+#    key_mgmt=WPA-PSK
+#    priority=5
+#}
+#
+#network={
+#    ssid="CoffeeShopWiFi"
+#    key_mgmt=NONE
+#    priority=1
+#}
+
+# Advanced Options (optional)
+#
+# Disable WiFi power save (increases power consumption but improves latency):
+# Add to network block: ps_mode=0
+#
+# Background scanning:
+# bgscan="simple:30:-65:300"
+#
+# For WPA-Enterprise (requires additional configuration):
+# network={
+#     ssid="EnterpriseNetwork"
+#     key_mgmt=WPA-EAP
+#     eap=PEAP
+#     identity="username"
+#     password="password"
+#     phase2="auth=MSCHAPV2"
+# }
+
+# Notes:
+# - Only 2.4 GHz networks are supported (Pi Zero W does not support 5 GHz)
+# - Raspberry Pi Zero W supports 802.11 b/g/n
+# - For best security, use WPA2-PSK with AES encryption
+# - The wpa_supplicant service will automatically start on boot via /etc/init.d/S40network
+# - To restart networking: /etc/init.d/S40network restart
+# - To check connection status: wpa_cli status
+# - To scan for networks: iw dev wlan0 scan

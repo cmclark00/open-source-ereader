@@ -1,0 +1,316 @@
+#!/bin/sh
+#
+# WiFi Network Startup Script
+#
+# This init script manages WiFi connectivity on the E-Reader.
+# It starts wpa_supplicant for WiFi authentication and dhcpcd for IP configuration.
+#
+# The script runs at boot (S40 = starts early in boot sequence, before S99ereader)
+# This ensures network is available before the e-reader application starts.
+#
+
+WLAN_INTERFACE="wlan0"
+WPA_CONF="/etc/wpa_supplicant.conf"
+WPA_CONF_EXAMPLE="/etc/wpa_supplicant.conf.example"
+WPA_PIDFILE="/var/run/wpa_supplicant.pid"
+DHCP_PIDFILE="/var/run/dhcpcd-${WLAN_INTERFACE}.pid"
+LOGFILE="/var/log/network.log"
+
+# Ensure log directory exists
+mkdir -p /var/log
+mkdir -p /var/run/wpa_supplicant
+
+# Logging function
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOGFILE"
+}
+
+# Check if WiFi interface exists
+interface_exists() {
+    ip link show "$WLAN_INTERFACE" >/dev/null 2>&1
+    return $?
+}
+
+# Check if wpa_supplicant is running
+wpa_is_running() {
+    [ -f "$WPA_PIDFILE" ] && kill -0 $(cat "$WPA_PIDFILE") 2>/dev/null
+    return $?
+}
+
+# Check if dhcpcd is running for our interface
+dhcp_is_running() {
+    [ -f "$DHCP_PIDFILE" ] && kill -0 $(cat "$DHCP_PIDFILE") 2>/dev/null
+    return $?
+}
+
+# Check if wpa_supplicant.conf exists
+check_wpa_config() {
+    if [ ! -f "$WPA_CONF" ]; then
+        log_message "WARNING: WiFi configuration file not found: $WPA_CONF"
+        log_message "Copy $WPA_CONF_EXAMPLE to $WPA_CONF and edit with your network credentials"
+        log_message "WiFi will not be enabled until configuration is provided"
+        return 1
+    fi
+
+    # Check if config contains actual network settings (not just the example)
+    if grep -q "YourNetworkName" "$WPA_CONF" 2>/dev/null; then
+        log_message "WARNING: WiFi configuration still contains example values"
+        log_message "Edit $WPA_CONF with your actual network credentials"
+        return 1
+    fi
+
+    return 0
+}
+
+# Start WiFi services
+start() {
+    log_message "Starting WiFi services..."
+
+    # Check if WiFi interface exists
+    if ! interface_exists; then
+        log_message "ERROR: WiFi interface $WLAN_INTERFACE not found"
+        log_message "Check if brcmfmac driver is loaded: lsmod | grep brcmfmac"
+        log_message "Check firmware: ls /lib/firmware/brcm/brcmfmac43430*"
+        return 1
+    fi
+
+    # Check if already running
+    if wpa_is_running && dhcp_is_running; then
+        log_message "WiFi services already running"
+        return 0
+    fi
+
+    # Check configuration file
+    if ! check_wpa_config; then
+        log_message "WiFi startup skipped - configuration required"
+        return 0  # Not an error, just not configured yet
+    fi
+
+    # Bring interface up
+    log_message "Bringing up interface $WLAN_INTERFACE..."
+    ip link set "$WLAN_INTERFACE" up
+    if [ $? -ne 0 ]; then
+        log_message "ERROR: Failed to bring up $WLAN_INTERFACE"
+        return 1
+    fi
+    sleep 1
+
+    # Start wpa_supplicant
+    log_message "Starting wpa_supplicant..."
+    wpa_supplicant -B -i "$WLAN_INTERFACE" -c "$WPA_CONF" -P "$WPA_PIDFILE" >> "$LOGFILE" 2>&1
+    if [ $? -ne 0 ]; then
+        log_message "ERROR: Failed to start wpa_supplicant"
+        return 1
+    fi
+
+    # Wait for wpa_supplicant to initialize
+    sleep 3
+
+    # Check if wpa_supplicant is running
+    if ! wpa_is_running; then
+        log_message "ERROR: wpa_supplicant failed to start"
+        return 1
+    fi
+
+    log_message "wpa_supplicant started successfully"
+
+    # Wait for WiFi association (up to 15 seconds)
+    log_message "Waiting for WiFi connection..."
+    for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+        if iw dev "$WLAN_INTERFACE" link | grep -q "Connected"; then
+            SSID=$(iw dev "$WLAN_INTERFACE" link | grep "SSID" | cut -d: -f2 | xargs)
+            log_message "Connected to WiFi network: $SSID"
+            break
+        fi
+        sleep 1
+    done
+
+    # Start DHCP client
+    log_message "Starting DHCP client..."
+    dhcpcd -b "$WLAN_INTERFACE" >> "$LOGFILE" 2>&1
+    if [ $? -ne 0 ]; then
+        log_message "WARNING: Failed to start DHCP client"
+        return 1
+    fi
+
+    # Wait for IP address (up to 10 seconds)
+    log_message "Waiting for IP address..."
+    for i in 1 2 3 4 5 6 7 8 9 10; do
+        IP_ADDR=$(ip -4 addr show "$WLAN_INTERFACE" | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+        if [ -n "$IP_ADDR" ]; then
+            log_message "IP address obtained: $IP_ADDR"
+            log_message "WiFi startup complete"
+            return 0
+        fi
+        sleep 1
+    done
+
+    log_message "WARNING: No IP address obtained yet (DHCP may still be negotiating)"
+    log_message "WiFi services started, check 'ip addr show $WLAN_INTERFACE' for status"
+    return 0
+}
+
+# Stop WiFi services
+stop() {
+    log_message "Stopping WiFi services..."
+
+    # Stop DHCP client
+    if dhcp_is_running; then
+        log_message "Stopping DHCP client..."
+        PID=$(cat "$DHCP_PIDFILE")
+        kill "$PID" 2>/dev/null
+        rm -f "$DHCP_PIDFILE"
+        sleep 1
+    fi
+
+    # Release IP address
+    if interface_exists; then
+        dhcpcd -k "$WLAN_INTERFACE" 2>/dev/null
+    fi
+
+    # Stop wpa_supplicant
+    if wpa_is_running; then
+        log_message "Stopping wpa_supplicant..."
+        PID=$(cat "$WPA_PIDFILE")
+        kill "$PID" 2>/dev/null
+        rm -f "$WPA_PIDFILE"
+        sleep 1
+    fi
+
+    # Bring interface down
+    if interface_exists; then
+        log_message "Bringing down interface $WLAN_INTERFACE..."
+        ip link set "$WLAN_INTERFACE" down
+    fi
+
+    log_message "WiFi services stopped"
+    return 0
+}
+
+# Restart WiFi services
+restart() {
+    log_message "Restarting WiFi services..."
+    stop
+    sleep 2
+    start
+}
+
+# Show WiFi status
+status() {
+    echo "=== WiFi Status ==="
+    echo
+
+    # Check interface
+    if ! interface_exists; then
+        echo "ERROR: WiFi interface $WLAN_INTERFACE not found"
+        echo "Driver may not be loaded. Check: lsmod | grep brcmfmac"
+        return 1
+    fi
+
+    # Interface state
+    echo "Interface: $WLAN_INTERFACE"
+    LINK_STATE=$(ip link show "$WLAN_INTERFACE" | grep -oP '(?<=state )\w+')
+    echo "State: $LINK_STATE"
+    echo
+
+    # WPA supplicant status
+    if wpa_is_running; then
+        echo "wpa_supplicant: Running (PID: $(cat $WPA_PIDFILE))"
+        echo
+
+        # Connection status
+        if iw dev "$WLAN_INTERFACE" link | grep -q "Connected"; then
+            SSID=$(iw dev "$WLAN_INTERFACE" link | grep "SSID" | cut -d: -f2 | xargs)
+            SIGNAL=$(iw dev "$WLAN_INTERFACE" link | grep "signal" | cut -d: -f2 | xargs)
+            echo "Connection: Connected to '$SSID'"
+            echo "Signal: $SIGNAL"
+        else
+            echo "Connection: Not connected"
+        fi
+    else
+        echo "wpa_supplicant: Not running"
+    fi
+    echo
+
+    # DHCP status
+    if dhcp_is_running; then
+        echo "DHCP client: Running (PID: $(cat $DHCP_PIDFILE))"
+    else
+        echo "DHCP client: Not running"
+    fi
+    echo
+
+    # IP address
+    IP_ADDR=$(ip -4 addr show "$WLAN_INTERFACE" 2>/dev/null | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+    if [ -n "$IP_ADDR" ]; then
+        echo "IP Address: $IP_ADDR"
+        GATEWAY=$(ip route | grep default | grep "$WLAN_INTERFACE" | cut -d' ' -f3)
+        if [ -n "$GATEWAY" ]; then
+            echo "Gateway: $GATEWAY"
+        fi
+    else
+        echo "IP Address: None"
+    fi
+    echo
+
+    # Configuration status
+    if [ -f "$WPA_CONF" ]; then
+        echo "Configuration: $WPA_CONF (present)"
+        if grep -q "YourNetworkName" "$WPA_CONF" 2>/dev/null; then
+            echo "WARNING: Configuration contains example values - needs editing"
+        fi
+    else
+        echo "Configuration: Not configured"
+        echo "Copy $WPA_CONF_EXAMPLE to $WPA_CONF and edit with your credentials"
+    fi
+
+    return 0
+}
+
+# Scan for available networks
+scan() {
+    if ! interface_exists; then
+        echo "ERROR: WiFi interface $WLAN_INTERFACE not found"
+        return 1
+    fi
+
+    # Bring interface up if needed
+    ip link set "$WLAN_INTERFACE" up 2>/dev/null
+    sleep 1
+
+    echo "Scanning for WiFi networks..."
+    echo
+    iw dev "$WLAN_INTERFACE" scan | grep -E "^BSS|SSID:|signal:" | sed 's/^BSS /\nNetwork: /; s/(on.*//; s/\tsignal:/  Signal:/; s/\tSSID:/  SSID:/'
+    echo
+}
+
+# Main command processing
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        status
+        ;;
+    scan)
+        scan
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status|scan}"
+        echo
+        echo "  start   - Start WiFi services (wpa_supplicant and DHCP)"
+        echo "  stop    - Stop WiFi services"
+        echo "  restart - Restart WiFi services"
+        echo "  status  - Show current WiFi connection status"
+        echo "  scan    - Scan for available WiFi networks"
+        exit 1
+        ;;
+esac
+
+exit $?

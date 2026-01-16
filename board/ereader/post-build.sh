@@ -23,7 +23,12 @@ mkdir -p "${TARGET_DIR}/home/ereader/books"
 mkdir -p "${TARGET_DIR}/books"
 mkdir -p "${TARGET_DIR}/etc/ereader"
 
-# Make init script executable
+# Make init scripts executable
+if [ -f "${TARGET_DIR}/etc/init.d/S40network" ]; then
+    chmod +x "${TARGET_DIR}/etc/init.d/S40network"
+    echo "Made S40network init script executable"
+fi
+
 if [ -f "${TARGET_DIR}/etc/init.d/S99ereader" ]; then
     chmod +x "${TARGET_DIR}/etc/init.d/S99ereader"
     echo "Made S99ereader init script executable"
