@@ -2,6 +2,7 @@
  * text_renderer.c - Text Rendering Engine Implementation
  *
  * Implements text rendering with word wrapping and pagination support.
+ * Supports multiple font sizes with dynamic switching.
  */
 
 #include <stdio.h>
@@ -9,6 +10,10 @@
 #include <string.h>
 #include <ctype.h>
 #include "text_renderer.h"
+#include "font_data.h"
+
+/* Global state for current font size */
+static text_font_size_t current_font_size = TEXT_FONT_SIZE_MEDIUM;
 
 /* Embedded 8x16 bitmap font - Basic ASCII characters (32-90) */
 /* Each character is 16 bytes (8 pixels wide x 16 pixels tall) */
@@ -172,23 +177,59 @@ int text_render_char(framebuffer_t *fb, int x, int y, char c, uint8_t color) {
     int char_index;
     if (c < FONT_FIRST_CHAR || c > FONT_LAST_CHAR) {
         char_index = 0;  /* Space for unsupported characters */
-    } else if (c <= 90) {
-        char_index = c - FONT_FIRST_CHAR;  /* Characters 32-90 are in array */
     } else {
-        char_index = 0;  /* Space for characters 91-126 (not yet implemented) */
+        char_index = c - FONT_FIRST_CHAR;
     }
 
-    /* Render character pixel by pixel */
-    for (int row = 0; row < FONT_HEIGHT; row++) {
-        uint8_t byte = font_8x16[char_index][row];
-        for (int col = 0; col < FONT_WIDTH; col++) {
-            if (byte & (0x80 >> col)) {
-                fb_set_pixel(fb, x + col, y + row, color);
+    /* Get current font dimensions */
+    int font_width = text_renderer_get_font_width();
+    int font_height = text_renderer_get_font_height();
+
+    /* Render character based on current font size */
+    switch (current_font_size) {
+        case TEXT_FONT_SIZE_SMALL:
+            /* Small font: 6x12 */
+            for (int row = 0; row < font_height && row < 12; row++) {
+                uint8_t byte = (char_index < 95) ? font_6x12_data[char_index][row] : 0;
+                for (int col = 0; col < font_width && col < 8; col++) {
+                    if (byte & (0x80 >> col)) {
+                        fb_set_pixel(fb, x + col, y + row, color);
+                    }
+                }
             }
-        }
+            break;
+
+        case TEXT_FONT_SIZE_LARGE:
+            /* Large font: 10x20 - uses 2 bytes per row */
+            for (int row = 0; row < font_height && row < 20; row++) {
+                if (char_index < 95) {
+                    /* Large font uses 2 bytes per row (10 pixels wide) */
+                    uint16_t word = (font_10x20_data[char_index][row * 2] << 8) |
+                                     font_10x20_data[char_index][row * 2 + 1];
+                    for (int col = 0; col < font_width && col < 10; col++) {
+                        if (word & (0x8000 >> col)) {
+                            fb_set_pixel(fb, x + col, y + row, color);
+                        }
+                    }
+                }
+            }
+            break;
+
+        case TEXT_FONT_SIZE_MEDIUM:
+        default:
+            /* Medium font: 8x16 (existing font) */
+            for (int row = 0; row < font_height && row < 16; row++) {
+                uint8_t byte = (char_index <= 58) ? font_8x16[char_index][row] : 0;
+                for (int col = 0; col < font_width && col < 8; col++) {
+                    if (byte & (0x80 >> col)) {
+                        fb_set_pixel(fb, x + col, y + row, color);
+                    }
+                }
+            }
+            break;
     }
 
-    return FONT_WIDTH;
+    return font_width;
 }
 
 /**
@@ -197,6 +238,10 @@ int text_render_char(framebuffer_t *fb, int x, int y, char c, uint8_t color) {
 int text_render_string(framebuffer_t *fb, int x, int y, const char *text, uint8_t color) {
     if (!fb || !text) return 0;
 
+    int font_width = text_renderer_get_font_width();
+    int font_height = text_renderer_get_font_height();
+    int line_height = font_height + LINE_SPACING;
+
     int cur_x = x;
     int count = 0;
 
@@ -204,14 +249,14 @@ int text_render_string(framebuffer_t *fb, int x, int y, const char *text, uint8_
         if (*text == '\n') {
             /* Newline: move to next line */
             cur_x = x;
-            y += LINE_HEIGHT;
+            y += line_height;
         } else if (*text == '\t') {
             /* Tab: advance by 4 character widths */
-            cur_x += FONT_WIDTH * 4;
+            cur_x += font_width * 4;
         } else {
             /* Regular character */
             text_render_char(fb, cur_x, y, *text, color);
-            cur_x += FONT_WIDTH;
+            cur_x += font_width;
             count++;
         }
         text++;
@@ -226,14 +271,15 @@ int text_render_string(framebuffer_t *fb, int x, int y, const char *text, uint8_
 int text_measure_width(const char *text, int length) {
     if (!text) return 0;
 
+    int font_width = text_renderer_get_font_width();
     int width = 0;
     int i = 0;
 
     while (text[i] && (length < 0 || i < length)) {
         if (text[i] == '\t') {
-            width += FONT_WIDTH * 4;
+            width += font_width * 4;
         } else if (text[i] != '\n') {
-            width += FONT_WIDTH;
+            width += font_width;
         }
         i++;
     }
@@ -247,11 +293,12 @@ int text_measure_width(const char *text, int length) {
 int text_chars_in_width(const char *text, int max_width) {
     if (!text) return 0;
 
+    int font_width = text_renderer_get_font_width();
     int width = 0;
     int count = 0;
 
     while (text[count]) {
-        int char_width = (text[count] == '\t') ? (FONT_WIDTH * 4) : FONT_WIDTH;
+        int char_width = (text[count] == '\t') ? (font_width * 4) : font_width;
         if (width + char_width > max_width) {
             break;
         }
@@ -269,6 +316,10 @@ int text_render_wrapped(framebuffer_t *fb, int x, int y, const char *text,
                        int max_width, uint8_t color) {
     if (!fb || !text) return 0;
 
+    int font_width = text_renderer_get_font_width();
+    int font_height = text_renderer_get_font_height();
+    int line_height = font_height + LINE_SPACING;
+
     int cur_x = x;
     int cur_y = y;
     int line_count = 0;
@@ -285,7 +336,7 @@ int text_render_wrapped(framebuffer_t *fb, int x, int y, const char *text,
         /* Handle explicit newlines */
         if (*p == '\n') {
             cur_x = x;
-            cur_y += LINE_HEIGHT;
+            cur_y += line_height;
             line_count++;
             p++;
             continue;
@@ -305,18 +356,18 @@ int text_render_wrapped(framebuffer_t *fb, int x, int y, const char *text,
             if (cur_x > x) {
                 /* Move to next line */
                 cur_x = x;
-                cur_y += LINE_HEIGHT;
+                cur_y += line_height;
                 line_count++;
             } else {
                 /* Word is too long for one line, break it */
                 int chars_fit = text_chars_in_width(word_start, max_width);
                 for (int i = 0; i < chars_fit; i++) {
                     text_render_char(fb, cur_x, cur_y, word_start[i], color);
-                    cur_x += FONT_WIDTH;
+                    cur_x += font_width;
                 }
                 p = word_start + chars_fit;
                 cur_x = x;
-                cur_y += LINE_HEIGHT;
+                cur_y += line_height;
                 line_count++;
                 continue;
             }
@@ -325,12 +376,12 @@ int text_render_wrapped(framebuffer_t *fb, int x, int y, const char *text,
         /* Render the word */
         for (int i = 0; i < word_len; i++) {
             text_render_char(fb, cur_x, cur_y, word_start[i], color);
-            cur_x += FONT_WIDTH;
+            cur_x += font_width;
         }
 
         /* Skip trailing space */
         if (*p == ' ') {
-            cur_x += FONT_WIDTH;
+            cur_x += font_width;
             p++;
         }
     }
@@ -509,4 +560,142 @@ int text_render_page(framebuffer_t *fb, text_page_t *page, uint8_t color) {
     }
 
     return 0;
+}
+
+/* =============================================================================
+ * Dynamic Font Size Support
+ * ============================================================================= */
+
+/**
+ * Set the current font size
+ */
+void text_renderer_set_font_size(text_font_size_t size) {
+    if (size >= TEXT_FONT_SIZE_SMALL && size <= TEXT_FONT_SIZE_LARGE) {
+        current_font_size = size;
+    }
+}
+
+/**
+ * Get the current font size
+ */
+text_font_size_t text_renderer_get_font_size(void) {
+    return current_font_size;
+}
+
+/**
+ * Get the width of the current font
+ */
+int text_renderer_get_font_width(void) {
+    switch (current_font_size) {
+        case TEXT_FONT_SIZE_SMALL:  return FONT_SMALL_WIDTH;   /* 6 pixels */
+        case TEXT_FONT_SIZE_MEDIUM: return FONT_MEDIUM_WIDTH;  /* 8 pixels */
+        case TEXT_FONT_SIZE_LARGE:  return FONT_LARGE_WIDTH;   /* 10 pixels */
+        default:                    return FONT_MEDIUM_WIDTH;
+    }
+}
+
+/**
+ * Get the height of the current font
+ */
+int text_renderer_get_font_height(void) {
+    switch (current_font_size) {
+        case TEXT_FONT_SIZE_SMALL:  return FONT_SMALL_HEIGHT;   /* 12 pixels */
+        case TEXT_FONT_SIZE_MEDIUM: return FONT_MEDIUM_HEIGHT;  /* 16 pixels */
+        case TEXT_FONT_SIZE_LARGE:  return FONT_LARGE_HEIGHT;   /* 20 pixels */
+        default:                    return FONT_MEDIUM_HEIGHT;
+    }
+}
+
+/**
+ * Get the number of characters per line for the current font
+ */
+int text_renderer_get_chars_per_line(void) {
+    int text_area_width = FB_WIDTH - MARGIN_LEFT - MARGIN_RIGHT;  /* 380 pixels */
+    int font_width = text_renderer_get_font_width();
+    return text_area_width / font_width;
+}
+
+/**
+ * Get the number of lines per page for the current font
+ */
+int text_renderer_get_lines_per_page(void) {
+    int text_area_height = FB_HEIGHT - MARGIN_TOP - MARGIN_BOTTOM;  /* 260 pixels */
+    int font_height = text_renderer_get_font_height();
+    int line_height = font_height + LINE_SPACING;
+    return text_area_height / line_height;
+}
+
+/**
+ * Re-paginate existing pagination context with new font size
+ */
+int text_renderer_repaginate(pagination_t *pg, int current_page) {
+    if (!pg || !pg->source_text) return -1;
+
+    /* Calculate current position as percentage through the document */
+    int old_page_count = pg->page_count;
+    if (old_page_count == 0) return 0;
+
+    /* Approximate character offset based on current page */
+    float position_percent = (float)current_page / (float)old_page_count;
+
+    /* Free existing pagination data but keep source text pointer */
+    char *source_backup = pg->source_text;
+    size_t source_len_backup = pg->source_length;
+
+    if (pg->pages) {
+        for (int page = 0; page < pg->page_count; page++) {
+            text_page_t *p = &pg->pages[page];
+            for (int i = 0; i < p->line_count; i++) {
+                free(p->lines[i]);
+            }
+        }
+        free(pg->pages);
+        pg->pages = NULL;
+    }
+
+    /* Recalculate layout with new font */
+    int text_area_width = FB_WIDTH - MARGIN_LEFT - MARGIN_RIGHT;
+    char **all_lines = malloc(sizeof(char *) * 1000);
+    if (!all_lines) return -1;
+
+    int total_lines = text_calculate_layout(source_backup, text_area_width, all_lines, 1000);
+    int lines_per_page = text_renderer_get_lines_per_page();
+
+    /* Calculate new page count */
+    pg->page_count = (total_lines + lines_per_page - 1) / lines_per_page;
+    if (pg->page_count == 0) pg->page_count = 1;
+
+    /* Allocate new page structures */
+    pg->pages = calloc(pg->page_count, sizeof(text_page_t));
+    if (!pg->pages) {
+        for (int i = 0; i < total_lines; i++) {
+            free(all_lines[i]);
+        }
+        free(all_lines);
+        return -1;
+    }
+
+    /* Distribute lines into pages */
+    int line_idx = 0;
+    for (int page = 0; page < pg->page_count; page++) {
+        text_page_t *p = &pg->pages[page];
+        p->line_count = 0;
+
+        for (int i = 0; i < lines_per_page && line_idx < total_lines; i++) {
+            p->lines[p->line_count++] = all_lines[line_idx++];
+        }
+    }
+
+    free(all_lines);
+
+    /* Restore source text references */
+    pg->source_text = source_backup;
+    pg->source_length = source_len_backup;
+
+    /* Calculate new page position */
+    int new_page = (int)(position_percent * pg->page_count);
+    if (new_page >= pg->page_count) new_page = pg->page_count - 1;
+    if (new_page < 0) new_page = 0;
+
+    return new_page;
 }

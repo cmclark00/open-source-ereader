@@ -2,7 +2,7 @@
  * text_renderer.h - Text Rendering Engine
  *
  * Provides text rendering capabilities with word wrapping and pagination.
- * Uses embedded 8x16 bitmap font for rendering text to framebuffer.
+ * Supports multiple font sizes: small (6x12), medium (8x16), large (10x20).
  */
 
 #ifndef TEXT_RENDERER_H
@@ -12,11 +12,20 @@
 #include <stdbool.h>
 #include "framebuffer.h"
 
-/* Font Specifications */
-#define FONT_WIDTH          8
-#define FONT_HEIGHT         16
+/* Font size options - matches settings_manager.h */
+typedef enum {
+    TEXT_FONT_SIZE_SMALL = 0,   /* 6x12 font - ~63 chars/line, 21 lines/page */
+    TEXT_FONT_SIZE_MEDIUM = 1,  /* 8x16 font - ~47 chars/line, 14 lines/page */
+    TEXT_FONT_SIZE_LARGE = 2    /* 10x20 font - ~38 chars/line, 11 lines/page */
+} text_font_size_t;
+
+/* Font Specifications - these are dynamic based on current font size */
 #define FONT_FIRST_CHAR     32   /* First printable ASCII character (space) */
 #define FONT_LAST_CHAR      126  /* Last printable ASCII character (~) */
+
+/* Legacy macros for backward compatibility - now dynamic */
+#define FONT_WIDTH          text_renderer_get_font_width()
+#define FONT_HEIGHT         text_renderer_get_font_height()
 
 /* Rendering Configuration */
 #define MARGIN_TOP          20   /* Top margin in pixels */
@@ -158,5 +167,53 @@ int text_measure_width(const char *text, int length);
  * @return: Number of characters that fit
  */
 int text_chars_in_width(const char *text, int max_width);
+
+/**
+ * Set the current font size
+ * This affects all subsequent rendering operations and pagination calculations.
+ * Call this before creating pagination contexts to use the new font size.
+ * @param size: Font size to use (SMALL, MEDIUM, or LARGE)
+ */
+void text_renderer_set_font_size(text_font_size_t size);
+
+/**
+ * Get the current font size
+ * @return: Current font size setting
+ */
+text_font_size_t text_renderer_get_font_size(void);
+
+/**
+ * Get the width of the current font
+ * @return: Font width in pixels
+ */
+int text_renderer_get_font_width(void);
+
+/**
+ * Get the height of the current font
+ * @return: Font height in pixels
+ */
+int text_renderer_get_font_height(void);
+
+/**
+ * Get the number of characters per line for the current font
+ * @return: Characters that fit on one line with current font and margins
+ */
+int text_renderer_get_chars_per_line(void);
+
+/**
+ * Get the number of lines per page for the current font
+ * @return: Lines that fit on one page with current font and margins
+ */
+int text_renderer_get_lines_per_page(void);
+
+/**
+ * Re-paginate existing pagination context with new font size
+ * This is useful when the user changes font size while reading.
+ * The function attempts to maintain approximate reading position.
+ * @param pg: Existing pagination context
+ * @param current_page: Current page number (0-indexed)
+ * @return: New approximate page number in re-paginated content, or -1 on error
+ */
+int text_renderer_repaginate(pagination_t *pg, int current_page);
 
 #endif /* TEXT_RENDERER_H */

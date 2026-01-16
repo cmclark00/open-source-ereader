@@ -62,9 +62,9 @@ install:
 .PHONY: all clean install
 
 # Header dependencies (simplified - all objects depend on key headers)
-main.o: ereader.h rendering/framebuffer.h rendering/text_renderer.h books/book_manager.h ui/menu.h ui/reader.h
+main.o: ereader.h rendering/framebuffer.h rendering/text_renderer.h books/book_manager.h ui/menu.h ui/reader.h settings/settings_manager.h
 rendering/framebuffer.o: rendering/framebuffer.h
-rendering/text_renderer.o: rendering/text_renderer.h rendering/framebuffer.h
+rendering/text_renderer.o: rendering/text_renderer.h rendering/framebuffer.h rendering/font_data.h
 books/book_manager.o: books/book_manager.h formats/format_interface.h
 formats/format_interface.o: formats/format_interface.h formats/txt_reader.h formats/epub_reader.h formats/pdf_reader.h
 formats/txt_reader.o: formats/txt_reader.h formats/format_interface.h

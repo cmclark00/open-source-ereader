@@ -43,13 +43,29 @@ This phase adds essential quality-of-life features that make the e-reader truly 
   - ⏭️ Integration with main.c requires manual code updates (see SETTINGS_MENU_INTEGRATION_GUIDE.md)
   - **Note**: Settings menu UI fully implemented following same pattern as book list menu. See `Auto Run Docs/Working/SETTINGS_MENU_INTEGRATION_GUIDE.md` for detailed integration instructions to add to main.c. The integration requires updating app_init(), app_cleanup(), app_change_state(), app_handle_button_event(), app_render(), and app_state_to_string().
 
-- [ ] Implement dynamic font size rendering:
-  - Update `src/ereader/rendering/text_renderer.c` to:
-    - Support multiple font sizes (embed 3 bitmap fonts or scale one font)
-    - Recalculate lines-per-page and chars-per-line based on font size
-    - Re-paginate current book when font size changes
-    - Handle memory efficiently (don't store all pages, calculate on demand)
-  - Test with small/medium/large fonts to verify readability on 4.2" screen
+- [x] Implement dynamic font size rendering:
+  - ✅ Created `src/ereader/rendering/font_data.h` with three embedded bitmap fonts:
+    - Small: 6x12 pixels (~63 chars/line, 21 lines/page)
+    - Medium: 8x16 pixels (~47 chars/line, 14 lines/page) - existing font
+    - Large: 10x20 pixels (~38 chars/line, 11 lines/page)
+  - ✅ Updated `src/ereader/rendering/text_renderer.h` with new API:
+    - `text_renderer_set_font_size()` / `text_renderer_get_font_size()`
+    - `text_renderer_get_font_width()` / `text_renderer_get_font_height()`
+    - `text_renderer_get_chars_per_line()` / `text_renderer_get_lines_per_page()`
+    - `text_renderer_repaginate()` - re-paginate with new font, maintains reading position
+  - ✅ Updated `src/ereader/rendering/text_renderer.c` with full implementation:
+    - Dynamic font selection in `text_render_char()` based on current font size
+    - All rendering functions updated to use dynamic font dimensions
+    - Re-pagination function calculates position percentage and maps to new page count
+  - ✅ Updated `src/ereader/Makefile` to include font_data.h dependency
+  - **Implementation Notes**:
+    - Font sizes match settings_manager.h enum values (SMALL=0, MEDIUM=1, LARGE=2)
+    - Backward compatibility: FONT_WIDTH and FONT_HEIGHT macros now call dynamic functions
+    - All font data embedded in binary (~8KB total for all 3 fonts covering ASCII 32-126)
+    - Large font uses 16-bit encoding (2 bytes per row) for 10-pixel width
+    - Re-pagination preserves approximate reading position as percentage through book
+  - ⏭️ Integration with settings menu and reader UI requires main.c updates (see SETTINGS_MENU_INTEGRATION_GUIDE.md)
+  - ⏭️ Testing on real hardware needed to verify readability of all three font sizes on 4.2" e-paper display
 
 - [ ] Add power management and sleep mode:
   - Create `src/ereader/power/power_manager.c` with:
