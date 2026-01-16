@@ -90,7 +90,7 @@ This phase adds essential quality-of-life features that make the e-reader truly 
   - ⏭️ Integration requires updating main.c (see `Auto Run Docs/Working/POWER_MANAGER_INTEGRATION_GUIDE.md`)
   - **Note**: Core power management module fully implemented. See integration guide for detailed instructions on adding to main.c event loop. The integration requires updates to app_init(), app_cleanup(), and app_run() to handle sleep/wake cycles.
 
-- [ ] Implement battery monitoring (if hardware supports):
+- [x] Implement battery monitoring (if hardware supports):
   - Research Pi Zero W battery monitoring options:
     - If using battery HAT: read voltage via I2C or ADC
     - If no HAT: document that battery monitoring requires additional hardware
@@ -141,3 +141,8 @@ This phase adds essential quality-of-life features that make the e-reader truly 
   - Update `docs/architecture/EREADER_DESIGN.md` with new components
   - Update `docs/progress/PHASE_05_LOG.md` with completion notes
   - Create `docs/progress/PHASE_06_PLANNING.md` for WiFi features
+  - ✅ Researched Pi Zero W battery monitoring options (I2C HATs and SPI ADC)
+  - ✅ Created battery_monitor.c/h with auto-detection (INA219, MCP3008, dummy mode)
+  - ✅ Documented complete battery setup in docs/hardware/POWER_SUPPLY.md
+  - ⏭️ Status bar integration deferred (requires main.c updates)
+  - **Note**: See Auto Run Docs/Working/BATTERY_MONITORING_NOTES.md for details
