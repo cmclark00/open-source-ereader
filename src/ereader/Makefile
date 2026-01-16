@@ -17,7 +17,7 @@ SRC_MAIN := main.c
 SRC_RENDERING := rendering/framebuffer.c rendering/text_renderer.c
 SRC_BOOKS := books/book_manager.c
 SRC_FORMATS := formats/format_interface.c formats/txt_reader.c formats/epub_reader.c formats/pdf_reader.c
-SRC_UI := ui/menu.c ui/reader.c ui/search_ui.c
+SRC_UI := ui/menu.c ui/reader.c ui/search_ui.c ui/ui_components.c ui/loading_screen.c
 SRC_SEARCH := search/search_engine.c
 SRC_SETTINGS := settings/settings_manager.c
 SRC_POWER := power/power_manager.c
@@ -95,3 +95,6 @@ help:
 	@echo "  make install DESTDIR=/path/to/staging  # Install for packaging"
 search/search_engine.o: search/search_engine.h books/book_manager.h rendering/text_renderer.h
 ui/search_ui.o: ui/search_ui.h search/search_engine.h rendering/framebuffer.h rendering/text_renderer.h
+
+ui/ui_components.o: ui/ui_components.h rendering/framebuffer.h rendering/text_renderer.h
+ui/loading_screen.o: ui/loading_screen.h ui/ui_components.h rendering/framebuffer.h rendering/text_renderer.h
