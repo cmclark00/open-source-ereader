@@ -78,15 +78,38 @@ This phase unlocks the Raspberry Pi Zero W's WiFi capabilities, enabling book do
     - Implementation checklist for Phase 06
     - Future enhancements for Phase 07 (hidden networks, QR codes, external keyboard, predictive text)
 
-- [ ] Implement WiFi scanning and connection:
-  - Create `src/ereader/network/wifi_manager.c` with functions:
-    - Scan for available networks (parse `iw dev wlan0 scan` output)
-    - Connect to network (write wpa_supplicant.conf, restart wpa_supplicant)
-    - Check connection status (parse `iw dev wlan0 link`)
-    - Disconnect from network
-    - Read current network SSID and signal strength
-  - Write `src/ereader/network/wifi_manager.h`
-  - Handle errors: no networks found, wrong password, out of range
+- [x] Implement WiFi scanning and connection:
+  - ✅ Created `src/ereader/network/wifi_manager.c` with comprehensive functions:
+    - `wifi_manager_scan()`: Parses `iw dev wlan0 scan` output, sorts by signal strength
+    - `wifi_manager_connect()`: Updates wpa_supplicant.conf, handles WPA/WPA2-PSK and open networks, waits for DHCP
+    - `wifi_manager_get_status()`: Parses `iw dev wlan0 link` and `ip addr` for full status
+    - `wifi_manager_disconnect()`: Cleanly disconnects from network
+    - `wifi_manager_get_current_ssid()`: Returns currently connected SSID
+    - `wifi_manager_get_signal_strength()`: Returns signal strength in dBm
+    - `wifi_manager_forget_network()`: Removes saved credentials
+    - `wifi_manager_list_saved()`: Lists saved networks from wpa_supplicant.conf
+    - `wifi_manager_test_connection()`: Tests connectivity with ping
+  - ✅ Created `src/ereader/network/wifi_manager.h` with complete API specification:
+    - Data structures: wifi_network_t, wifi_status_t
+    - Enums: wifi_security_t, wifi_state_t, wifi_error_t
+    - All function prototypes with detailed documentation
+    - Utility functions for string conversion and signal strength mapping
+  - ✅ Comprehensive error handling implemented:
+    - Authentication failures (wrong password)
+    - Network not found or out of range
+    - DHCP timeout
+    - Connection timeout (30s max)
+    - Scan failures
+    - Configuration write errors
+    - Interface down errors
+  - ✅ Implementation features:
+    - Supports WPA/WPA2-PSK and open networks
+    - Uses wpa_passphrase for secure PSK generation
+    - Preserves existing network configurations
+    - Automatically sorts networks by signal strength
+    - Checks for saved credentials
+    - 8-level signal strength bar mapping per WIFI_UI.md spec
+    - Full integration with S40network init script
 
 - [ ] Build WiFi settings UI:
   - Create `src/ereader/ui/wifi_menu.c` with:
