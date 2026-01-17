@@ -349,6 +349,11 @@ bool settings_menu_cycle_value(settings_menu_state_t *menu) {
             /* This will be caught by the caller to transition to WiFi state */
             return true;
 
+        case SETTING_ITEM_ONLINE_LIBRARY:
+            /* Online Library is handled specially - doesn't cycle, opens library browser */
+            /* This will be caught by the caller to transition to library browser state */
+            return true;
+
         default:
             break;
     }
@@ -422,6 +427,8 @@ const char* settings_menu_get_setting_name(setting_item_t item) {
             return "Auto Sleep";
         case SETTING_ITEM_WIFI:
             return "WiFi Settings";
+        case SETTING_ITEM_ONLINE_LIBRARY:
+            return "Online Library";
         default:
             return "Unknown";
     }
@@ -456,6 +463,9 @@ void settings_menu_get_value_string(settings_menu_state_t *menu, setting_item_t 
             break;
         case SETTING_ITEM_WIFI:
             value_str = "Configure >";
+            break;
+        case SETTING_ITEM_ONLINE_LIBRARY:
+            value_str = "Browse Books >";
             break;
         default:
             value_str = "Unknown";

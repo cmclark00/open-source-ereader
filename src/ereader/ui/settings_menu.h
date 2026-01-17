@@ -44,6 +44,7 @@ typedef enum {
     SETTING_ITEM_DISPLAY_MODE,
     SETTING_ITEM_AUTO_SLEEP,
     SETTING_ITEM_WIFI,          /* WiFi settings */
+    SETTING_ITEM_ONLINE_LIBRARY, /* Online library browser */
     SETTING_ITEM_COUNT          /* Total number of settings */
 } setting_item_t;
 
@@ -61,7 +62,9 @@ typedef enum {
     SETTINGS_MENU_ACTION_NONE,          /* No action taken */
     SETTINGS_MENU_ACTION_REDRAW,        /* Menu needs to be redrawn */
     SETTINGS_MENU_ACTION_VALUE_CHANGED, /* A setting value was changed */
-    SETTINGS_MENU_ACTION_SAVE_EXIT      /* User wants to save and exit */
+    SETTINGS_MENU_ACTION_SAVE_EXIT,     /* User wants to save and exit */
+    SETTINGS_MENU_ACTION_OPEN_WIFI,     /* User wants to open WiFi menu */
+    SETTINGS_MENU_ACTION_OPEN_LIBRARY   /* User wants to open online library browser */
 } settings_menu_action_t;
 
 /*

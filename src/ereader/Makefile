@@ -17,7 +17,7 @@ SRC_MAIN := main.c
 SRC_RENDERING := rendering/framebuffer.c rendering/text_renderer.c
 SRC_BOOKS := books/book_manager.c
 SRC_FORMATS := formats/format_interface.c formats/txt_reader.c formats/epub_reader.c formats/pdf_reader.c
-SRC_UI := ui/menu.c ui/reader.c ui/search_ui.c ui/ui_components.c ui/loading_screen.c ui/wifi_menu.c ui/settings_menu.c ui/text_input.c
+SRC_UI := ui/menu.c ui/reader.c ui/search_ui.c ui/ui_components.c ui/loading_screen.c ui/wifi_menu.c ui/settings_menu.c ui/text_input.c ui/library_browser.c
 SRC_SEARCH := search/search_engine.c
 SRC_SETTINGS := settings/settings_manager.c
 SRC_POWER := power/power_manager.c
@@ -102,5 +102,6 @@ ui/loading_screen.o: ui/loading_screen.h ui/ui_components.h rendering/framebuffe
 ui/wifi_menu.o: ui/wifi_menu.h network/wifi_manager.h rendering/framebuffer.h rendering/text_renderer.h
 ui/settings_menu.o: ui/settings_menu.h settings/settings_manager.h rendering/framebuffer.h rendering/text_renderer.h
 ui/text_input.o: ui/text_input.h rendering/framebuffer.h rendering/text_renderer.h
+ui/library_browser.o: ui/library_browser.h network/download_manager.h rendering/framebuffer.h rendering/text_renderer.h
 network/wifi_manager.o: network/wifi_manager.h
 network/download_manager.o: network/download_manager.h

@@ -7,6 +7,7 @@
  */
 
 #include "wifi_menu.h"
+#include "text_input.h"
 #include "../rendering/text_renderer.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,6 +42,7 @@ wifi_menu_state_t* wifi_menu_create(void) {
     menu->refresh_counter = 0;
     menu->connection_password[0] = '\0';
     menu->result_message[0] = '\0';
+    menu->text_input = NULL;
 
     /* Initialize WiFi status */
     menu->wifi_status.state = WIFI_STATE_DISCONNECTED;
@@ -58,6 +60,11 @@ wifi_menu_state_t* wifi_menu_create(void) {
 
 void wifi_menu_free(wifi_menu_state_t *menu) {
     if (menu) {
+        /* Clean up text input if active */
+        if (menu->text_input) {
+            text_input_free(menu->text_input);
+            menu->text_input = NULL;
+        }
         free(menu);
     }
 }
@@ -115,6 +122,9 @@ int wifi_menu_render(wifi_menu_state_t *menu, framebuffer_t *fb) {
             break;
         case WIFI_STATE_CONNECT:
             result = wifi_menu_render_connect(menu, fb);
+            break;
+        case WIFI_STATE_PASSWORD:
+            result = wifi_menu_render_password(menu, fb);
             break;
         case WIFI_STATE_CONNECTING:
             result = wifi_menu_render_connecting(menu, fb);
@@ -584,6 +594,8 @@ wifi_menu_action_t wifi_menu_handle_event(wifi_menu_state_t *menu, const button_
             return wifi_menu_handle_list(menu, event);
         case WIFI_STATE_CONNECT:
             return wifi_menu_handle_connect(menu, event);
+        case WIFI_STATE_PASSWORD:
+            return wifi_menu_handle_password(menu, event);
         case WIFI_STATE_CONNECTING:
             /* Can only cancel during connection */
             if (event->button == BUTTON_BACK) {
@@ -799,9 +811,8 @@ wifi_menu_action_t wifi_menu_handle_connect(wifi_menu_state_t *menu, const butto
                     wifi_menu_connect_network(menu);
                     return WIFI_MENU_ACTION_STATE_CHANGE;
                 } else if (menu->selected_index == WIFI_CONNECT_OPTION_ENTER_PASSWORD) {
-                    /* TODO: Enter new password */
-                    /* For now, just return to list */
-                    wifi_menu_change_state(menu, WIFI_STATE_LIST);
+                    /* Enter new password */
+                    wifi_menu_change_state(menu, WIFI_STATE_PASSWORD);
                     return WIFI_MENU_ACTION_STATE_CHANGE;
                 } else {
                     /* Cancel */
@@ -811,9 +822,8 @@ wifi_menu_action_t wifi_menu_handle_connect(wifi_menu_state_t *menu, const butto
             } else {
                 /* Secured network without saved password */
                 if (menu->selected_index == 0) {
-                    /* TODO: Enter password */
-                    /* For now, just return to list */
-                    wifi_menu_change_state(menu, WIFI_STATE_LIST);
+                    /* Enter password */
+                    wifi_menu_change_state(menu, WIFI_STATE_PASSWORD);
                     return WIFI_MENU_ACTION_STATE_CHANGE;
                 } else {
                     /* Cancel */
@@ -1065,6 +1075,7 @@ const char* wifi_menu_state_to_string(wifi_menu_state_enum_t state) {
         case WIFI_STATE_SCAN:           return "SCAN";
         case WIFI_STATE_LIST:           return "LIST";
         case WIFI_STATE_CONNECT:        return "CONNECT";
+        case WIFI_STATE_PASSWORD:       return "PASSWORD";
         case WIFI_STATE_CONNECTING:     return "CONNECTING";
         case WIFI_STATE_RESULT:         return "RESULT";
         case WIFI_STATE_SAVED_NETWORKS: return "SAVED_NETWORKS";
@@ -1125,4 +1136,104 @@ static void wifi_menu_render_hints(framebuffer_t *fb, const char *hints) {
     int x_offset = (fb->width / FONT_WIDTH - hints_len) / 2;
 
     text_render_string(fb, hints, x_offset, WIFI_HINTS_LINE, COLOR_BLACK);
+}
+
+/*
+ * Password Entry Functions
+ */
+
+int wifi_menu_render_password(wifi_menu_state_t *menu, framebuffer_t *fb) {
+    if (!menu || !fb) {
+        return WIFI_MENU_ERROR_NULL_POINTER;
+    }
+
+    /* Create text input if not already created */
+    if (!menu->text_input) {
+        /* Get selected network SSID for title */
+        char title[80];
+        if (menu->selected_network_index >= 0 && menu->selected_network_index < menu->network_count) {
+            snprintf(title, sizeof(title), "Password: %.30s",
+                     menu->networks[menu->selected_network_index].ssid);
+        } else {
+            snprintf(title, sizeof(title), "Enter WiFi Password");
+        }
+
+        /* Create text input with password mode, min 8 chars, max 63 chars */
+        menu->text_input = text_input_create(title, TEXT_INPUT_MODE_PASSWORD, 8, 63);
+        if (!menu->text_input) {
+            return WIFI_MENU_ERROR_WIFI_MANAGER;
+        }
+
+        /* Set helpful prompt */
+        text_input_set_prompt(menu->text_input, "WPA password: 8-63 chars");
+    }
+
+    /* Render text input UI */
+    if (text_input_render(menu->text_input, fb) != 0) {
+        return WIFI_MENU_ERROR_RENDER_FAILED;
+    }
+
+    return WIFI_MENU_SUCCESS;
+}
+
+wifi_menu_action_t wifi_menu_handle_password(wifi_menu_state_t *menu, const button_event_t *event) {
+    if (!menu || !event) {
+        return WIFI_MENU_ACTION_NONE;
+    }
+
+    /* Only handle press events */
+    if (event->event_type != BUTTON_EVENT_PRESS) {
+        return WIFI_MENU_ACTION_NONE;
+    }
+
+    /* Ensure text input exists */
+    if (!menu->text_input) {
+        /* This shouldn't happen, but handle gracefully */
+        wifi_menu_change_state(menu, WIFI_STATE_CONNECT);
+        return WIFI_MENU_ACTION_STATE_CHANGE;
+    }
+
+    /* Pass button to text input */
+    text_input_handle_button(menu->text_input, event->button);
+
+    /* Check if text input is done */
+    if (text_input_is_done(menu->text_input)) {
+        text_input_result_t result = text_input_get_result(menu->text_input);
+
+        if (result == TEXT_INPUT_RESULT_DONE) {
+            /* User finished entering password */
+            const char *password = text_input_get_text(menu->text_input);
+
+            /* Copy password to menu state */
+            strncpy(menu->connection_password, password, MAX_PASSWORD_LENGTH);
+            menu->connection_password[MAX_PASSWORD_LENGTH] = '\0';
+
+            /* Clean up text input */
+            text_input_free(menu->text_input);
+            menu->text_input = NULL;
+
+            /* Proceed to connecting state */
+            wifi_menu_change_state(menu, WIFI_STATE_CONNECTING);
+            wifi_menu_connect_network(menu);
+            return WIFI_MENU_ACTION_STATE_CHANGE;
+
+        } else {
+            /* User cancelled */
+            /* Clean up text input */
+            text_input_free(menu->text_input);
+            menu->text_input = NULL;
+
+            /* Return to connect dialog */
+            wifi_menu_change_state(menu, WIFI_STATE_CONNECT);
+            return WIFI_MENU_ACTION_STATE_CHANGE;
+        }
+    }
+
+    /* Request redraw if text input needs it */
+    if (text_input_needs_redraw(menu->text_input)) {
+        menu->needs_redraw = true;
+        return WIFI_MENU_ACTION_REDRAW;
+    }
+
+    return WIFI_MENU_ACTION_NONE;
 }

@@ -62,6 +62,7 @@ typedef enum {
     STATE_MENU_LIBRARY,     /* Book library menu */
     STATE_READING,          /* Reading a book */
     STATE_SETTINGS,         /* Settings menu */
+    STATE_LIBRARY_BROWSER,  /* Online library browser */
     STATE_EMPTY,            /* Empty library (no books found) */
     STATE_ERROR,            /* Error state */
     STATE_SHUTDOWN          /* Shutting down */
@@ -109,6 +110,7 @@ typedef struct {
     void *menu_state;       /* menu_state_t* from menu.h */
     void *reader_state;     /* reader_state_t* from reader.h */
     void *settings_menu_state; /* settings_menu_state_t* from settings_menu.h */
+    void *library_browser_state; /* library_browser_menu_t* from library_browser.h */
 
     /* Settings */
     void *settings;         /* settings_t* from settings_manager.h */

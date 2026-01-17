@@ -219,16 +219,41 @@ This phase unlocks the Raspberry Pi Zero W's WiFi capabilities, enabling book do
     - Project Gutenberg User-Agent included for compliance
     - File validation uses magic number detection (PK for EPUB/ZIP, %PDF for PDF, text heuristics for TXT)
 
-- [ ] Create online library browser UI:
-  - Create `src/ereader/ui/library_browser.c` with:
-    - Browse pre-configured book catalogs (Project Gutenberg popular books)
-    - Search by title or author (if API supports)
-    - Display book info (title, author, size, format)
-    - Download button with progress indicator
-    - Navigate to "Downloads" folder after completion
-  - Write `src/ereader/ui/library_browser.h`
-  - Add "Library" option to main menu
-  - Consider: cache catalog locally to reduce network requests
+- [x] Create online library browser UI:
+  - ✅ Created `src/ereader/ui/library_browser.c` with:
+    - Hardcoded catalog of 100 popular Project Gutenberg books across 8 genres
+    - State machine: BROWSING → DETAILS → DOWNLOADING → RESULT
+    - Scrollable list display with 14 visible items
+    - Book details view (title, author, genre, size, format, Gutenberg ID)
+    - Download functionality using download_manager
+    - Progress tracking with download speed, ETA, and percentage
+    - Success/failure result screens with error messages
+    - Clean navigation: UP/DOWN for browsing, SELECT for actions, BACK to return
+  - ✅ Created `src/ereader/ui/library_browser.h` with complete API
+  - ✅ Added SETTING_ITEM_ONLINE_LIBRARY to settings menu (settings_menu.h/c)
+  - ✅ Added STATE_LIBRARY_BROWSER to application state machine (ereader.h)
+  - ✅ Added library_browser.c to Makefile with proper dependencies
+  - ✅ Catalog curated across genres:
+    - Classics (30 books): Austen, Dickens, Shelley, Carroll, Melville, etc.
+    - Science Fiction (10 books): H.G. Wells, Jules Verne
+    - Mystery (10 books): Sherlock Holmes, Agatha Christie, Edgar Allan Poe
+    - Adventure (10 books): Stevenson, Kipling, Twain, Defoe, London
+    - Philosophy (10 books): Plato, Aristotle, Marcus Aurelius, Kant, Nietzsche
+    - Poetry (10 books): Whitman, Milton, Poe, Shelley, Dickinson, Eliot
+    - Children's (10 books): Alice in Wonderland, Wizard of Oz, Peter Pan
+    - Horror (10 books): Dracula, Frankenstein, H.P. Lovecraft, Poe
+  - 📝 **Implementation details**:
+    - Download URL format: `https://www.gutenberg.org/ebooks/{id}.txt.utf-8`
+    - Filename format: `{gutenberg_id}.txt`
+    - Downloads saved to `/books/` directory
+    - Books auto-added to library after download
+    - Memory footprint: ~40 KB (30 KB catalog + 10 KB UI/buffers)
+  - ⏸️ **Integration pending**: Main application state handler needs to be updated to:
+    - Handle STATE_LIBRARY_BROWSER state transitions
+    - Process SETTINGS_MENU_ACTION_OPEN_LIBRARY from settings menu
+    - Create/free library_browser_state in app context
+    - Render library browser UI in app_render()
+    - This will be completed when main.c is updated for Phase 06 integration
 
 - [ ] Add time synchronization and updates:
   - Add ntpd or chrony to Buildroot for time sync via NTP

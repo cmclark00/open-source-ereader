@@ -52,6 +52,7 @@ typedef enum {
     WIFI_STATE_SCAN,            /* Scanning for networks (progress) */
     WIFI_STATE_LIST,            /* Network list display */
     WIFI_STATE_CONNECT,         /* Connection dialog */
+    WIFI_STATE_PASSWORD,        /* Password entry using text input */
     WIFI_STATE_CONNECTING,      /* Connecting progress */
     WIFI_STATE_RESULT,          /* Connection result (success/error) */
     WIFI_STATE_SAVED_NETWORKS,  /* Saved networks management */
@@ -126,6 +127,9 @@ typedef struct {
     /* Selected network for connection */
     int selected_network_index;         /* Index of network to connect to */
     char connection_password[MAX_PASSWORD_LENGTH + 1]; /* Password buffer */
+
+    /* Text input for password entry */
+    struct text_input_state *text_input; /* Text input state (NULL when not in use) */
 
     /* Flags */
     bool needs_redraw;                  /* Flag indicating full redraw is needed */
@@ -255,6 +259,15 @@ int wifi_menu_render_result(wifi_menu_state_t *menu, framebuffer_t *fb);
  */
 int wifi_menu_render_saved_networks(wifi_menu_state_t *menu, framebuffer_t *fb);
 
+/**
+ * Render the password entry screen
+ *
+ * @param menu: WiFi menu state
+ * @param fb: Framebuffer to render to
+ * @return: 0 on success, negative error code on failure
+ */
+int wifi_menu_render_password(wifi_menu_state_t *menu, framebuffer_t *fb);
+
 /*
  * WiFi Menu Navigation and Input Handling
  */
@@ -305,6 +318,15 @@ wifi_menu_action_t wifi_menu_handle_connect(wifi_menu_state_t *menu, const butto
  * @return: WiFi menu action
  */
 wifi_menu_action_t wifi_menu_handle_result(wifi_menu_state_t *menu, const button_event_t *event);
+
+/**
+ * Handle button event in password entry state
+ *
+ * @param menu: WiFi menu state
+ * @param event: Button event to handle
+ * @return: WiFi menu action
+ */
+wifi_menu_action_t wifi_menu_handle_password(wifi_menu_state_t *menu, const button_event_t *event);
 
 /*
  * WiFi Operations
