@@ -137,20 +137,27 @@ This phase unlocks the Raspberry Pi Zero W's WiFi capabilities, enabling book do
     - Updated settings_menu_get_value_string() to display "Configure >"
     - Modified settings_menu_cycle_value() to handle WiFi selection (opens WiFi menu)
   - ⏸️ WiFi status icon in status bar: Deferred - requires status bar redesign (Phase 07)
-  - 📝 NOTE: Password entry UI (text_input.c/h) is still TODO - currently shows placeholder text
+  - ✅ Password entry UI now fully implemented via text_input.c/h
     - Users can connect to open networks
     - Users can connect to saved networks with stored passwords
-    - On-device password entry requires text_input implementation (next task)
+    - Users can enter new passwords on-device using text input system
 
-- [ ] Implement simple text input system:
-  - Create `src/ereader/ui/text_input.c` for entering WiFi passwords:
-    - Display alphabet grid (A-Z, 0-9, symbols)
-    - Navigate with UP/DOWN/SELECT buttons
-    - Backspace, space, done buttons
-    - Display entered text at top
-  - Write `src/ereader/ui/text_input.h`
-  - Test with WiFi password entry
-  - Note: This is slow but functional for occasional use
+- [x] Implement simple text input system:
+  - ✅ Created `src/ereader/ui/text_input.c` with sequential character selection:
+    - 93-character charset: A-Z, a-z, 0-9, symbols, SPACE, BACKSPACE, DONE, CANCEL
+    - UP/DOWN navigate through character list with wrap-around
+    - SELECT adds current character to input buffer
+    - MENU button provides quick backspace
+    - BACK button cancels input
+    - Password mode: shows first 3 chars then asterisks
+    - Character counter: displays current/max length (e.g., "8/63")
+    - Large centered character display with position indicator
+    - Blinking cursor animation for visual feedback
+    - Min/max length validation (prevents DONE if too short)
+  - ✅ Created `src/ereader/ui/text_input.h` with complete API
+  - ✅ Integrated with WiFi menu for password entry
+  - ✅ Added to Makefile
+  - 📝 Note: Sequential navigation through 93 chars is slow but functional for occasional use
 
 - [ ] Add online book download feature:
   - Research public domain book sources:
