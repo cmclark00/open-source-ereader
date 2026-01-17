@@ -15,6 +15,7 @@ WPA_CONF_EXAMPLE="/etc/wpa_supplicant.conf.example"
 WPA_PIDFILE="/var/run/wpa_supplicant.pid"
 DHCP_PIDFILE="/var/run/dhcpcd-${WLAN_INTERFACE}.pid"
 LOGFILE="/var/log/network.log"
+CHRONYD_PIDFILE="/var/run/chronyd.pid"
 
 # Ensure log directory exists
 mkdir -p /var/log

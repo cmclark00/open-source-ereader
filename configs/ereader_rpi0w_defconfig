@@ -96,6 +96,9 @@ BR2_PACKAGE_BIND_TOOLS=y
 # Network utilities for downloading books
 BR2_PACKAGE_WGET=y
 
+# Time synchronization via NTP (chrony - lightweight and efficient)
+BR2_PACKAGE_CHRONY=y
+
 # Libraries for EPUB support (Phase 4)
 BR2_PACKAGE_LIBZIP=y
 BR2_PACKAGE_LIBXML2=y

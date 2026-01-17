@@ -255,14 +255,45 @@ This phase unlocks the Raspberry Pi Zero W's WiFi capabilities, enabling book do
     - Render library browser UI in app_render()
     - This will be completed when main.c is updated for Phase 06 integration
 
-- [ ] Add time synchronization and updates:
-  - Add ntpd or chrony to Buildroot for time sync via NTP
-  - Create `src/ereader/network/time_sync.c` to trigger sync when WiFi connects
-  - Consider OTA updates:
-    - Design update mechanism (download new rootfs, apply on reboot)
-    - Security considerations (signed updates)
-    - Document in `docs/architecture/OTA_UPDATES.md`
-  - Or: defer OTA updates to Phase 7, just do time sync in Phase 6
+- [x] Add time synchronization and updates:
+  - ✅ Added chrony to Buildroot configuration (configs/ereader_rpi0w_defconfig):
+    - BR2_PACKAGE_CHRONY=y - lightweight NTP client (better than ntpd for embedded systems)
+    - Chrony is more efficient, uses less resources, and handles intermittent connections better
+  - ✅ Created `src/ereader/network/time_sync.c` implementation:
+    - `time_sync_init()`: Starts chronyd daemon
+    - `time_sync_shutdown()`: Stops chronyd daemon
+    - `time_sync_trigger()`: Forces immediate time sync using chronyc makestep
+    - `time_sync_get_status()`: Returns current sync state and server info
+    - `time_sync_is_synced()`: Quick check if time is synced
+    - `time_sync_on_wifi_connect()`: Callback for WiFi connection (triggers auto-sync)
+    - Helper functions for chronyd management and tracking output parsing
+  - ✅ Created `src/ereader/network/time_sync.h` with complete API:
+    - Data structures: time_sync_status_t with state, error, last_sync_time, offset, server
+    - Enums: time_sync_state_t (NOT_SYNCED, SYNCING, SYNCED, ERROR)
+    - Enums: time_sync_error_t (NONE, NO_NETWORK, TIMEOUT, NTP_FAILED, CHRONY_FAILED, UNKNOWN)
+    - String conversion utilities for states and errors
+  - ✅ Created `/etc/init.d/S41chronyd` init script:
+    - Starts chronyd daemon on boot (after S40network)
+    - Automatically triggers time sync when network is available
+    - Provides commands: start, stop, restart, status, sync
+    - Logs to /var/log/timesync.log for troubleshooting
+    - Status command shows tracking info and NTP sources
+  - ✅ Updated Makefile to include time_sync module
+  - ✅ **OTA Updates Decision**: Deferred to Phase 07
+    - Created comprehensive `docs/architecture/OTA_UPDATES.md` documenting:
+      - Decision rationale: complexity, security, storage constraints
+      - Current update methods: manual SD card update, Buildroot rebuild
+      - Future OTA architecture: A/B partitioning, signed updates, rollback
+      - Security requirements: GPG signing, HTTPS, certificate pinning
+      - Storage requirements: dual 512MB partitions + boot + data
+      - Implementation checklist for Phase 07
+      - Risks and mitigation strategies
+    - **Rationale for deferral**:
+      - OTA requires dual partition system (A/B), doubling storage needs
+      - Security infrastructure needed: signing keys, certificate management
+      - Rollback mechanism requires watchdog timer and boot switching logic
+      - Manual SD card updates are sufficient for development phase
+      - Time sync is higher priority (needed for SSL/TLS certificate validation)
 
 - [ ] Build and test WiFi features:
   - Rebuild Buildroot with WiFi support

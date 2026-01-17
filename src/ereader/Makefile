@@ -21,7 +21,7 @@ SRC_UI := ui/menu.c ui/reader.c ui/search_ui.c ui/ui_components.c ui/loading_scr
 SRC_SEARCH := search/search_engine.c
 SRC_SETTINGS := settings/settings_manager.c
 SRC_POWER := power/power_manager.c
-SRC_NETWORK := network/wifi_manager.c network/download_manager.c
+SRC_NETWORK := network/wifi_manager.c network/download_manager.c network/time_sync.c
 SRC_DISPLAY := ../display-test/epd_driver.c
 SRC_BUTTON := ../button-test/button_input.c
 
@@ -105,3 +105,4 @@ ui/text_input.o: ui/text_input.h rendering/framebuffer.h rendering/text_renderer
 ui/library_browser.o: ui/library_browser.h network/download_manager.h rendering/framebuffer.h rendering/text_renderer.h
 network/wifi_manager.o: network/wifi_manager.h
 network/download_manager.o: network/download_manager.h
+network/time_sync.o: network/time_sync.h
