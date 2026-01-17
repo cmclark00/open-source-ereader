@@ -4,7 +4,7 @@ This phase prepares the project for public release as an open-source hardware/so
 
 ## Tasks
 
-- [ ] Create comprehensive build guide:
+- [x] Create comprehensive build guide:
   - Write `docs/BUILD_GUIDE.md` with step-by-step instructions:
     - Hardware assembly (Pi Zero W, e-paper display, buttons, case)
     - Wiring and soldering guide with photos/diagrams
@@ -13,6 +13,7 @@ This phase prepares the project for public release as an open-source hardware/so
     - Initial configuration (WiFi, time zone, etc.)
   - Include troubleshooting section for common build issues
   - Link to all relevant hardware/software docs
+  - **Completed:** Created comprehensive 600+ line BUILD_GUIDE.md with 5 major sections covering procurement, software build, hardware assembly, first boot testing, and initial configuration. Includes detailed troubleshooting, GPIO reference tables, visual wiring diagrams, and links to all related documentation.
 
 - [ ] Design and document case/enclosure:
   - Create `docs/hardware/CASE_DESIGN.md` documenting:
