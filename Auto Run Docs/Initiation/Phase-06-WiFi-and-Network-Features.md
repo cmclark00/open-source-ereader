@@ -159,13 +159,26 @@ This phase unlocks the Raspberry Pi Zero W's WiFi capabilities, enabling book do
   - ✅ Added to Makefile
   - 📝 Note: Sequential navigation through 93 chars is slow but functional for occasional use
 
-- [ ] Add online book download feature:
-  - Research public domain book sources:
-    - Project Gutenberg FTP/HTTP access
-    - Internet Archive e-book collection
-    - Other open APIs for book downloads
-  - Create `docs/research/BOOK_SOURCES.md` with available sources
-  - Decide on initial implementation (pre-configured bookstore vs manual URL entry)
+- [x] Add online book download feature:
+  - ✅ Researched public domain book sources:
+    - Project Gutenberg: 70,000+ books, direct URL download, Gutendex API
+    - Internet Archive: 10M+ books, API with EPUB/TXT/PDF support
+    - Standard Ebooks: 600+ curated high-quality EPUB books, OPDS feed
+    - LibriVox: Audiobooks only (deferred for future)
+    - OPDS protocol overview and available catalogs
+  - ✅ Created `docs/research/BOOK_SOURCES.md` with comprehensive analysis:
+    - Detailed documentation of all sources with API examples
+    - Access methods, features, pros/cons for each source
+    - OPDS overview and catalog availability
+    - Legal considerations and geographic restrictions
+    - Bandwidth and storage considerations
+    - Testing checklist and references
+  - ✅ **Implementation decision**: Pre-configured catalog (hardcoded 100 popular Project Gutenberg books)
+    - **Rationale**: Simple, fast, reliable, memory-efficient, good UX for MVP
+    - **Download method**: Direct Project Gutenberg URLs via wget
+    - **Catalog structure**: 100 books across 8 genres (Classics, SciFi, Mystery, Adventure, Philosophy, Poetry, Children's, Horror)
+    - **Memory footprint**: ~40 KB total (30 KB catalog + 5 KB UI + 5 KB buffers)
+    - **Phase 07 enhancements**: Gutendex API search, OPDS integration, genre filtering
 
 - [ ] Implement book download manager:
   - Create `src/ereader/network/download_manager.c` with:
