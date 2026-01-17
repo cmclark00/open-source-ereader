@@ -17,15 +17,16 @@ SRC_MAIN := main.c
 SRC_RENDERING := rendering/framebuffer.c rendering/text_renderer.c
 SRC_BOOKS := books/book_manager.c
 SRC_FORMATS := formats/format_interface.c formats/txt_reader.c formats/epub_reader.c formats/pdf_reader.c
-SRC_UI := ui/menu.c ui/reader.c ui/search_ui.c ui/ui_components.c ui/loading_screen.c
+SRC_UI := ui/menu.c ui/reader.c ui/search_ui.c ui/ui_components.c ui/loading_screen.c ui/wifi_menu.c ui/settings_menu.c ui/text_input.c
 SRC_SEARCH := search/search_engine.c
 SRC_SETTINGS := settings/settings_manager.c
 SRC_POWER := power/power_manager.c
+SRC_NETWORK := network/wifi_manager.c network/download_manager.c
 SRC_DISPLAY := ../display-test/epd_driver.c
 SRC_BUTTON := ../button-test/button_input.c
 
 # All source files
-SOURCES := $(SRC_MAIN) $(SRC_RENDERING) $(SRC_BOOKS) $(SRC_FORMATS) $(SRC_UI) $(SRC_SEARCH) $(SRC_SETTINGS) $(SRC_POWER) $(SRC_DISPLAY) $(SRC_BUTTON)
+SOURCES := $(SRC_MAIN) $(SRC_RENDERING) $(SRC_BOOKS) $(SRC_FORMATS) $(SRC_UI) $(SRC_SEARCH) $(SRC_SETTINGS) $(SRC_POWER) $(SRC_NETWORK) $(SRC_DISPLAY) $(SRC_BUTTON)
 
 # Object files (derived from sources)
 OBJECTS := $(SOURCES:.c=.o)
@@ -98,3 +99,8 @@ ui/search_ui.o: ui/search_ui.h search/search_engine.h rendering/framebuffer.h re
 
 ui/ui_components.o: ui/ui_components.h rendering/framebuffer.h rendering/text_renderer.h
 ui/loading_screen.o: ui/loading_screen.h ui/ui_components.h rendering/framebuffer.h rendering/text_renderer.h
+ui/wifi_menu.o: ui/wifi_menu.h network/wifi_manager.h rendering/framebuffer.h rendering/text_renderer.h
+ui/settings_menu.o: ui/settings_menu.h settings/settings_manager.h rendering/framebuffer.h rendering/text_renderer.h
+ui/text_input.o: ui/text_input.h rendering/framebuffer.h rendering/text_renderer.h
+network/wifi_manager.o: network/wifi_manager.h
+network/download_manager.o: network/download_manager.h

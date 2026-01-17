@@ -180,15 +180,44 @@ This phase unlocks the Raspberry Pi Zero W's WiFi capabilities, enabling book do
     - **Memory footprint**: ~40 KB total (30 KB catalog + 5 KB UI + 5 KB buffers)
     - **Phase 07 enhancements**: Gutendex API search, OPDS integration, genre filtering
 
-- [ ] Implement book download manager:
-  - Create `src/ereader/network/download_manager.c` with:
-    - HTTP/HTTPS download function (use libcurl or wget)
-    - Progress tracking (bytes downloaded / total size)
-    - Save to /books/ directory with proper filename
-    - Validate downloaded file (check format, not corrupt)
-  - Write `src/ereader/network/download_manager.h`
-  - Add libcurl or wget to Buildroot packages
-  - Handle errors: network timeout, disk full, invalid file
+- [x] Implement book download manager:
+  - ✅ Created `src/ereader/network/download_manager.c` with:
+    - HTTP/HTTPS download function using wget
+    - Progress tracking (bytes downloaded, percentage, speed, ETA)
+    - Save to /books/ directory with automatic filename extraction
+    - File validation (TXT, EPUB, PDF format detection)
+    - Comprehensive error handling with detailed error codes
+  - ✅ Created `src/ereader/network/download_manager.h` with complete API:
+    - Data structures: download_progress_t, download_options_t
+    - Enums: download_state_t, download_error_t, file_format_t
+    - Functions: download, cancel, get_progress, validate_file, get_available_space
+    - Utility functions: format_size, format_time, extract_filename
+  - ✅ Added wget to Buildroot packages (configs/ereader_rpi0w_defconfig)
+  - ✅ Error handling implemented:
+    - Network timeout (30s default, configurable)
+    - Disk full detection via statvfs
+    - Invalid file detection (corrupt, wrong format)
+    - File already exists check (with overwrite option)
+    - HTTP errors (404, 403, etc.)
+    - DNS resolution failures
+    - Connection failures
+  - ✅ Implementation features:
+    - wget-based downloads with progress parsing
+    - Automatic filename extraction from URL
+    - File format validation (TXT, EPUB, PDF signature detection)
+    - Available disk space checking
+    - Configurable user-agent header
+    - Download cancellation support
+    - Max file size limits (default 10 MB)
+    - Human-readable size/time formatting
+  - ✅ Added to Makefile with proper dependencies
+  - 📝 **Implementation Notes**:
+    - Uses wget for simplicity and reliability
+    - Progress tracking via wget's --progress=bar:force output
+    - Blocking download operation (suitable for single-threaded e-reader UI)
+    - Downloads to /books/ directory (same as book library)
+    - Project Gutenberg User-Agent included for compliance
+    - File validation uses magic number detection (PK for EPUB/ZIP, %PDF for PDF, text heuristics for TXT)
 
 - [ ] Create online library browser UI:
   - Create `src/ereader/ui/library_browser.c` with:

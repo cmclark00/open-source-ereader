@@ -93,6 +93,9 @@ BR2_PACKAGE_DHCPCD=y
 BR2_PACKAGE_BIND=y
 BR2_PACKAGE_BIND_TOOLS=y
 
+# Network utilities for downloading books
+BR2_PACKAGE_WGET=y
+
 # Libraries for EPUB support (Phase 4)
 BR2_PACKAGE_LIBZIP=y
 BR2_PACKAGE_LIBXML2=y
