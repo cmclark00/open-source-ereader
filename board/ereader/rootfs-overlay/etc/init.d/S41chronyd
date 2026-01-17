@@ -1,0 +1,192 @@
+#!/bin/sh
+#
+# Chronyd Time Synchronization Script
+#
+# This init script manages the chronyd NTP daemon for time synchronization.
+# It starts after the network script (S40network) to ensure network is available.
+# It triggers time sync when WiFi connection is detected.
+#
+# The script runs at boot (S41 = starts after S40network, before S99ereader)
+#
+
+CHRONYD_BIN="/usr/sbin/chronyd"
+CHRONYC_BIN="/usr/bin/chronyc"
+LOGFILE="/var/log/timesync.log"
+WLAN_INTERFACE="wlan0"
+
+# Ensure log directory exists
+mkdir -p /var/log
+
+# Logging function
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOGFILE"
+}
+
+# Check if chronyd is running
+chronyd_is_running() {
+    pidof chronyd >/dev/null 2>&1
+    return $?
+}
+
+# Check if network is available
+network_is_available() {
+    # Check if wlan0 has an IP address
+    ip -4 addr show "$WLAN_INTERFACE" 2>/dev/null | grep -q "inet "
+    return $?
+}
+
+# Start chronyd daemon
+start() {
+    log_message "Starting chronyd time synchronization..."
+
+    if chronyd_is_running; then
+        log_message "chronyd is already running"
+        return 0
+    fi
+
+    # Start chronyd in background
+    $CHRONYD_BIN -d >> "$LOGFILE" 2>&1 &
+    
+    # Wait for chronyd to start
+    for i in 1 2 3 4 5; do
+        if chronyd_is_running; then
+            log_message "chronyd started successfully"
+            
+            # If network is available, trigger time sync
+            if network_is_available; then
+                log_message "Network detected, triggering time sync..."
+                sleep 2
+                
+                # Force immediate sync
+                $CHRONYC_BIN makestep >> "$LOGFILE" 2>&1
+                sleep 2
+                
+                # Check sync status
+                SYNC_STATUS=$($CHRONYC_BIN tracking 2>&1 | grep "Reference ID")
+                if [ -n "$SYNC_STATUS" ]; then
+                    log_message "Time sync successful: $SYNC_STATUS"
+                else
+                    log_message "WARNING: Time sync may have failed (network may not be ready yet)"
+                fi
+            else
+                log_message "No network connection detected - time sync will occur when network becomes available"
+            fi
+            
+            return 0
+        fi
+        sleep 1
+    done
+
+    log_message "ERROR: chronyd failed to start"
+    return 1
+}
+
+# Stop chronyd daemon
+stop() {
+    log_message "Stopping chronyd..."
+
+    if ! chronyd_is_running; then
+        log_message "chronyd is not running"
+        return 0
+    fi
+
+    killall chronyd 2>/dev/null
+    sleep 1
+
+    if chronyd_is_running; then
+        log_message "ERROR: Failed to stop chronyd"
+        return 1
+    fi
+
+    log_message "chronyd stopped successfully"
+    return 0
+}
+
+# Restart chronyd
+restart() {
+    log_message "Restarting chronyd..."
+    stop
+    sleep 1
+    start
+}
+
+# Show chronyd status
+status() {
+    echo "=== Chronyd Time Sync Status ==="
+    echo
+
+    if chronyd_is_running; then
+        echo "chronyd: Running (PID: $(pidof chronyd))"
+        echo
+
+        if command -v chronyc >/dev/null 2>&1; then
+            echo "Tracking information:"
+            $CHRONYC_BIN tracking 2>/dev/null || echo "  Unable to get tracking info"
+            echo
+            
+            echo "Sources:"
+            $CHRONYC_BIN sources 2>/dev/null || echo "  Unable to get sources"
+        else
+            echo "chronyc not available"
+        fi
+    else
+        echo "chronyd: Not running"
+    fi
+
+    return 0
+}
+
+# Trigger manual time sync
+sync_now() {
+    if ! chronyd_is_running; then
+        echo "ERROR: chronyd is not running. Start it first with: $0 start"
+        return 1
+    fi
+
+    if ! network_is_available; then
+        echo "ERROR: No network connection available"
+        return 1
+    fi
+
+    echo "Triggering time synchronization..."
+    log_message "Manual time sync triggered"
+    
+    $CHRONYC_BIN makestep
+    sleep 2
+    
+    echo "Sync status:"
+    $CHRONYC_BIN tracking
+    
+    return 0
+}
+
+# Main command processing
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        status
+        ;;
+    sync)
+        sync_now
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status|sync}"
+        echo
+        echo "  start   - Start chronyd NTP daemon"
+        echo "  stop    - Stop chronyd daemon"
+        echo "  restart - Restart chronyd daemon"
+        echo "  status  - Show time synchronization status"
+        echo "  sync    - Trigger immediate time sync"
+        exit 1
+        ;;
+esac
+
+exit $?
