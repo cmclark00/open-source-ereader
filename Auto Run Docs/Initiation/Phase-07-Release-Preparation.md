@@ -15,7 +15,7 @@ This phase prepares the project for public release as an open-source hardware/so
   - Link to all relevant hardware/software docs
   - **Completed:** Created comprehensive 600+ line BUILD_GUIDE.md with 5 major sections covering procurement, software build, hardware assembly, first boot testing, and initial configuration. Includes detailed troubleshooting, GPIO reference tables, visual wiring diagrams, and links to all related documentation.
 
-- [ ] Design and document case/enclosure:
+- [x] Design and document case/enclosure:
   - Create `docs/hardware/CASE_DESIGN.md` documenting:
     - Enclosure requirements (size, button placement, display opening)
     - 3D printable case design (if applicable) or DIY case instructions
@@ -23,6 +23,7 @@ This phase prepares the project for public release as an open-source hardware/so
     - Alternative enclosures (commercial project boxes, laser-cut acrylic)
   - Consider contributing STL files for 3D printing
   - Document assembly and finishing (sanding, painting, etc.)
+  - **Completed:** Created comprehensive CASE_DESIGN.md (970 lines) covering all enclosure options including detailed 3D printable case design specifications (dimensions, button layouts, assembly), commercial project box modifications, laser-cut acrylic layered design, and DIY cardboard/wood options. Includes complete assembly instructions, finishing techniques, design files organization, and troubleshooting guidance. Documents minimum internal dimensions (110mm × 85mm × 15mm), recommended external dimensions (115-120mm × 165-175mm × 18-22mm), display opening specs (85mm × 64mm), button placement layouts, and material requirements for each approach.
 
 - [ ] Create detailed hardware schematics:
   - Use KiCad or Fritzing to create proper schematics:
