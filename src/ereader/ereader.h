@@ -18,10 +18,10 @@
 /*
  * Application version information
  */
-#define EREADER_VERSION_MAJOR   0
-#define EREADER_VERSION_MINOR   3
+#define EREADER_VERSION_MAJOR   1
+#define EREADER_VERSION_MINOR   0
 #define EREADER_VERSION_PATCH   0
-#define EREADER_VERSION_STRING  "0.3.0"
+#define EREADER_VERSION_STRING  "1.0.0"
 
 /*
  * Application configuration constants

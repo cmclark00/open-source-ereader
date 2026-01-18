@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-EREADER_VERSION = 0.3.0
+EREADER_VERSION = 1.0.0
 EREADER_SITE = $(BR2_EXTERNAL_EREADER_PATH)/src/ereader
 EREADER_SITE_METHOD = local
 EREADER_LICENSE = Custom
