@@ -1,0 +1,14 @@
+blank_issues_enabled: true
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/cmclark00/open-source-ereader/discussions
+    about: Ask questions, share builds, and discuss ideas with the community
+  - name: Documentation
+    url: https://github.com/cmclark00/open-source-ereader/tree/master/docs
+    about: Browse comprehensive documentation for building and using the e-reader
+  - name: Build Guide
+    url: https://github.com/cmclark00/open-source-ereader/blob/master/docs/BUILD_GUIDE.md
+    about: Step-by-step instructions for assembling your e-reader
+  - name: Troubleshooting
+    url: https://github.com/cmclark00/open-source-ereader/blob/master/docs/BUILD_GUIDE.md#troubleshooting
+    about: Common problems and solutions

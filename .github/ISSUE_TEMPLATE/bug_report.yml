@@ -1,0 +1,138 @@
+name: Bug Report
+description: Report a bug or issue with the e-reader hardware or software
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below to help us reproduce and fix the issue.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the e-reader is affected?
+      options:
+        - Hardware (display, buttons, wiring)
+        - Software - Boot/System
+        - Software - Display Driver
+        - Software - Book Reading
+        - Software - File Formats (EPUB/PDF/TXT)
+        - Software - WiFi/Network
+        - Software - Power/Battery
+        - Software - UI/Menus
+        - Documentation
+        - Build Process
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: "Example: The e-reader freezes when opening large PDF files (>10MB)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Boot the e-reader
+        2. Navigate to Books menu
+        3. Open a PDF file larger than 10MB
+        4. Screen freezes on loading screen
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+      placeholder: "The PDF should open and display the first page"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened
+      placeholder: "The screen shows 'Loading...' and never updates. Device becomes unresponsive."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: Software Version
+      description: Which version of the e-reader software are you using?
+      options:
+        - v1.0.0 (Release)
+        - Built from source (master branch)
+        - Built from source (development branch)
+        - Pre-release version
+        - Unknown
+    validations:
+      required: true
+
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware Details
+      description: "Example: Pi Zero W, Waveshare 4.2\" Rev 2.2, 5 GPIO buttons"
+      placeholder: "Pi Zero W, Waveshare 4.2\" Rev 2.2"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: How often does this happen?
+      options:
+        - Every time
+        - Sometimes (50% of the time)
+        - Rarely (< 25% of the time)
+        - Only happened once
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log Output
+      description: "If available, paste relevant log output from serial console or /var/log/"
+      render: shell
+      placeholder: |
+        # Example: Serial console output or dmesg
+        [  123.456] epd_driver: SPI timeout waiting for BUSY pin
+        [  123.789] ereader: Failed to refresh display
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information that might be helpful (photos, videos, error messages)
+      placeholder: "I noticed this only happens with PDFs that have many images. Text-only PDFs work fine."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Troubleshooting Checklist
+      description: Please confirm you've tried these basic troubleshooting steps
+      options:
+        - label: I've checked the troubleshooting section in the Build Guide
+        - label: I've verified all wiring connections match the wiring guide
+        - label: I've tried rebooting the device
+        - label: I've searched existing issues for similar problems
+        - label: I'm using a supported e-paper display (Waveshare 4.2" Rev 2.2)

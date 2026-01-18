@@ -1,0 +1,135 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for the e-reader
+title: "[FEATURE] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please describe your idea below.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What type of feature are you requesting?
+      options:
+        - Hardware Enhancement
+        - Display/Screen
+        - Book Formats (new format support)
+        - Reading Experience (UI/UX)
+        - Navigation/Controls
+        - WiFi/Network Features
+        - Power/Battery Management
+        - Library/Book Management
+        - Search/Organization
+        - Settings/Configuration
+        - Documentation
+        - Build System
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: "Example: I'm always frustrated when I can't adjust the font size while reading a book. I have to go back to the main menu."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like to see
+      placeholder: "Example: Add a quick settings menu accessible while reading (maybe by holding the MENU button for 2 seconds) that lets you adjust font size, margins, and brightness without leaving the book."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: Have you considered any alternative solutions or features?
+      placeholder: "Example: Alternatively, dedicated buttons for increasing/decreasing font size could work, but that would require hardware changes."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: How important is this feature to you?
+      options:
+        - Critical - Blocking me from using the device
+        - High - Would significantly improve my experience
+        - Medium - Nice to have, would use occasionally
+        - Low - Minor improvement
+    validations:
+      required: true
+
+  - type: dropdown
+    id: willingness
+    attributes:
+      label: Are you willing to help implement this?
+      description: No pressure! Just helps us prioritize.
+      options:
+        - "Yes, I can write the code"
+        - "Yes, I can help test"
+        - "Yes, I can help with documentation"
+        - "Maybe, with guidance"
+        - "No, but I can provide feedback"
+    validations:
+      required: false
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific scenarios where this feature would be useful
+      placeholder: |
+        1. Reading technical PDFs with small text - need to quickly increase font size
+        2. Reading in bed with low light - need to adjust brightness without navigating menus
+        3. Switching between books with different formatting needs
+    validations:
+      required: false
+
+  - type: textarea
+    id: technical-details
+    attributes:
+      label: Technical Details
+      description: Any technical considerations, implementation ideas, or relevant research?
+      placeholder: "Example: This could be implemented by adding a long-press handler for the MENU button that displays an overlay menu. The Kindle uses a similar approach with their quick settings."
+    validations:
+      required: false
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples from Other Devices
+      description: Have you seen this feature on other e-readers or devices?
+      placeholder: "Example: The Kobo Clara HD has a brightness slider accessible by tapping the top of the screen. The Kindle has a quick settings menu accessible from any screen."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: compatibility
+    attributes:
+      label: Compatibility Considerations
+      description: Does this feature require specific hardware or configuration?
+      options:
+        - label: Requires hardware modifications (new buttons, sensors, etc.)
+        - label: Requires different display model
+        - label: Requires battery/power supply
+        - label: Works with all current hardware configurations
+        - label: Not sure
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information, mockups, diagrams, or references
+      placeholder: "Feel free to add screenshots, sketches, links to similar projects, or any other helpful context."
+    validations:
+      required: false

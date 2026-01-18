@@ -82,7 +82,7 @@ See the complete [Bill of Materials](docs/hardware/BOM.md) for detailed part num
 
 ### Option 1: Pre-Built Image (Fastest)
 
-1. **Download** the [latest release image](https://github.com/[username]/open-source-ereader/releases)
+1. **Download** the [latest release image](https://github.com/cmclark00/open-source-ereader/releases)
 2. **Flash** to microSD card using [balenaEtcher](https://www.balena.io/etcher/)
 3. **Wire** hardware following the [Wiring Guide](docs/hardware/WIRING_GUIDE.md)
 4. **Add books** to the `/books/` directory on the SD card
@@ -94,7 +94,7 @@ See the complete [Bill of Materials](docs/hardware/BOM.md) for detailed part num
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/[username]/open-source-ereader.git
+git clone https://github.com/cmclark00/open-source-ereader.git
 cd open-source-ereader
 
 # 2. Configure Buildroot
@@ -270,8 +270,8 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines and development setup
 **Questions or issues?**
 - 📖 Check the [User Guide](docs/USER_GUIDE.md) and [Build Guide](docs/BUILD_GUIDE.md)
 - 🔧 Review [Troubleshooting](docs/BUILD_GUIDE.md#troubleshooting) section
-- 🐛 Search or file [GitHub Issues](https://github.com/[username]/open-source-ereader/issues)
-- 💬 Join discussions on [GitHub Discussions](https://github.com/[username]/open-source-ereader/discussions)
+- 🐛 Search or file [GitHub Issues](https://github.com/cmclark00/open-source-ereader/issues)
+- 💬 Join discussions on [GitHub Discussions](https://github.com/cmclark00/open-source-ereader/discussions)
 
 **Share your build:**
 - Post on [Reddit /r/raspberry_pi](https://reddit.com/r/raspberry_pi)
@@ -320,11 +320,11 @@ Special thanks to all contributors, testers, and early builders!
 Ready to build your own e-reader?
 
 1. 📋 Review the [Bill of Materials](docs/hardware/BOM.md) and order parts (~$60)
-2. 📥 Download the [pre-built image](https://github.com/[username]/open-source-ereader/releases) or build from source
+2. 📥 Download the [pre-built image](https://github.com/cmclark00/open-source-ereader/releases) or build from source
 3. 🔧 Follow the [Build Guide](docs/BUILD_GUIDE.md) for step-by-step assembly
 4. 📚 Add books and start reading on a device you built and truly own!
 
-**Questions?** Open an [issue](https://github.com/[username]/open-source-ereader/issues) or check the [documentation](docs/).
+**Questions?** Open an [issue](https://github.com/cmclark00/open-source-ereader/issues) or check the [documentation](docs/).
 
 ---
 

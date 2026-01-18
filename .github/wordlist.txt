@@ -1,0 +1,108 @@
+# Custom wordlist for e-reader project spell checking
+# Technical terms, product names, and project-specific vocabulary
+
+# Hardware
+Waveshare
+GPIO
+SPI
+MOSI
+MISO
+SCLK
+microSD
+HDMI
+USB
+Raspberry
+Pi
+Buildroot
+KiCad
+Fritzing
+
+# Software
+EPUB
+PDF
+TXT
+MOBI
+AZW
+KFX
+Linux
+Debian
+systemd
+udev
+wpa
+supplicant
+libxml
+libzip
+poppler
+framebuffer
+dmesg
+syslog
+busybox
+
+# E-reader specific
+ereader
+eink
+epaper
+grayscale
+pagination
+bookmarks
+debouncing
+refresh
+
+# Brands
+Kindle
+Kobo
+Amazon
+Adafruit
+Digi
+Mouser
+DigiKey
+Hackaday
+Hackster
+
+# Common abbreviations
+WiFi
+USB
+OTA
+PWM
+GPIO
+HAT
+CLI
+UI
+UX
+API
+SDK
+BOM
+PCB
+3D
+
+# Technical terms
+bootloader
+filesystem
+hostname
+toolchain
+config
+defconfig
+DRM
+GPL
+CERN
+OHL
+
+# Units and measurements
+GHz
+MHz
+MB
+GB
+mA
+mAh
+V
+kohm
+
+# Filenames and paths
+README
+CHANGELOG
+CONTRIBUTING
+src
+docs
+usr
+var
+etc

@@ -1,0 +1,132 @@
+name: Build Help
+description: Get help with building, assembling, or troubleshooting your e-reader
+title: "[HELP] "
+labels: ["question", "build-help"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need help building your e-reader? We're here to assist! Please provide as much detail as possible.
+
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Build Stage
+      description: At what stage of the build are you stuck?
+      options:
+        - Planning/Ordering Parts
+        - Buildroot Compilation
+        - SD Card Flashing
+        - Hardware Assembly/Wiring
+        - First Boot/Testing
+        - Software Configuration
+        - Adding Books/Usage
+        - Case/Enclosure Assembly
+        - Battery/Power Setup
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What do you need help with?
+      placeholder: "Example: I'm trying to compile the Buildroot system but getting an error about missing dependencies. I'm on Ubuntu 22.04."
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried?
+      description: What troubleshooting steps have you already attempted?
+      placeholder: |
+        - Checked the Build Guide troubleshooting section
+        - Searched existing issues
+        - Tried rebuilding with make clean
+    validations:
+      required: false
+
+  - type: textarea
+    id: error
+    attributes:
+      label: Error Messages
+      description: If you're seeing errors, please paste them here
+      render: shell
+      placeholder: |
+        # Paste complete error output here
+        ERROR: Package 'libxml2' not found
+        make[1]: *** [package/pkg-generic.mk:289: build] Error 1
+    validations:
+      required: false
+
+  - type: input
+    id: os
+    attributes:
+      label: Development System
+      description: "What OS are you building on?"
+      placeholder: "Example: Ubuntu 22.04 LTS, macOS 13 Ventura, Windows 11 with WSL2"
+    validations:
+      required: false
+
+  - type: textarea
+    id: hardware-status
+    attributes:
+      label: Hardware Status
+      description: "For hardware questions: What parts do you have? What's assembled?"
+      placeholder: |
+        Parts received:
+        - ✅ Raspberry Pi Zero W
+        - ✅ Waveshare 4.2" display (Rev 2.2)
+        - ✅ 5 GPIO buttons
+        - ❌ Case (3D printing now)
+
+        Assembly status:
+        - Display wired to Pi Zero W
+        - Buttons not yet soldered
+    validations:
+      required: false
+
+  - type: textarea
+    id: photos
+    attributes:
+      label: Photos/Screenshots
+      description: "If applicable, attach photos of your wiring, assembly, or screenshots of errors"
+      placeholder: "Drag and drop images here or paste image URLs"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: documentation
+    attributes:
+      label: Documentation Checked
+      description: Which documentation have you already reviewed?
+      options:
+        - label: Build Guide
+        - label: Wiring Guide
+        - label: Troubleshooting section
+        - label: Hardware schematics
+        - label: Buildroot build process docs
+        - label: FAQ (if available)
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      options:
+        - Just planning, no rush
+        - Working on it, can wait a few days
+        - Stuck and eager to continue
+        - Blocked completely
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other details that might be helpful
+      placeholder: "This is my first Raspberry Pi project. I have experience with Arduino but new to Linux compilation."
+    validations:
+      required: false
