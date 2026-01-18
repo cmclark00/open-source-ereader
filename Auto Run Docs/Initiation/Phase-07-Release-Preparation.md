@@ -36,7 +36,7 @@ This phase prepares the project for public release as an open-source hardware/so
   - Document schematic in `docs/hardware/SCHEMATIC.md`
   - **Completed:** Created comprehensive hardware schematics in `hardware/schematics/` directory including complete-schematic.txt (full ASCII schematic with all subsystems), detailed README.md with instructions for creating Fritzing/KiCad schematics, and comprehensive SCHEMATIC.md documentation (970+ lines) covering system architecture, display SPI interface, button input system with active-low pull-up configuration, power supply with optional battery monitoring (INA219 I2C), complete GPIO pin assignments, electrical specifications (voltage levels, current limits, timing requirements), PCB design guidelines, signal integrity requirements, and component reference designators. All connections labeled with Pi Zero W pinout, button wiring (internal 50kΩ pull-ups, no external resistors needed), display SPI connections (MOSI, SCLK, CS, DC, RST, BUSY), and power supply circuit (5V input, 3.3V regulation, optional battery with boost converter and I2C monitoring).
 
-- [ ] Compile complete Bill of Materials (BOM):
+- [x] Compile complete Bill of Materials (BOM):
   - Update `docs/hardware/BOM.md` with final, verified part list:
     - Every component with manufacturer part numbers
     - Supplier links (Digi-Key, Mouser, Adafruit, etc.)
@@ -45,6 +45,7 @@ This phase prepares the project for public release as an open-source hardware/so
     - Alternative parts where applicable
   - Calculate total project cost
   - Note tools required (soldering iron, wire cutters, etc.)
+  - **Completed:** Completely rewrote BOM.md (788 lines, version 2.0) with verified manufacturer part numbers, direct supplier links, and comprehensive pricing. Includes 6 core components ($66.07), multiple button options ($1.40-$3.85), 4 power supply configurations ($7.99-$47.20), 4 enclosure options ($3-$42.98), development tools ($36.93), and assembly tools ($54-$92). Documented 4 complete build configurations: Minimum Viable ($82.65), Complete Portable ($136.11), Budget Portable ($110.93), and Premium Build ($158.36). Added detailed component specifications (Pi Zero W, Waveshare 4.2" Rev 2.2, Omron B3F-4055 buttons, Samsung 18650 batteries), comprehensive supplier information (Adafruit, DigiKey, Mouser, Waveshare, Amazon with pros/cons/shipping/returns), alternative components, procurement strategy with order timelines, money-saving tips, quality vs. cost decisions, battery runtime estimates (6-20 hours depending on configuration), and safety notes. Total project cost ranges from $73 (breadboard prototype) to $266 (first-time builder, premium build with tools).
 
 - [ ] Write software architecture documentation:
   - Create `docs/architecture/SYSTEM_OVERVIEW.md` with:
