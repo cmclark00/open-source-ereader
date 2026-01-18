@@ -25,7 +25,7 @@ This phase prepares the project for public release as an open-source hardware/so
   - Document assembly and finishing (sanding, painting, etc.)
   - **Completed:** Created comprehensive CASE_DESIGN.md (970 lines) covering all enclosure options including detailed 3D printable case design specifications (dimensions, button layouts, assembly), commercial project box modifications, laser-cut acrylic layered design, and DIY cardboard/wood options. Includes complete assembly instructions, finishing techniques, design files organization, and troubleshooting guidance. Documents minimum internal dimensions (110mm × 85mm × 15mm), recommended external dimensions (115-120mm × 165-175mm × 18-22mm), display opening specs (85mm × 64mm), button placement layouts, and material requirements for each approach.
 
-- [ ] Create detailed hardware schematics:
+- [x] Create detailed hardware schematics:
   - Use KiCad or Fritzing to create proper schematics:
     - Pi Zero W pinout with all connections labeled
     - Button wiring with resistor values
@@ -34,6 +34,7 @@ This phase prepares the project for public release as an open-source hardware/so
   - Export as PDF and PNG for documentation
   - Save source files in `hardware/schematics/` directory
   - Document schematic in `docs/hardware/SCHEMATIC.md`
+  - **Completed:** Created comprehensive hardware schematics in `hardware/schematics/` directory including complete-schematic.txt (full ASCII schematic with all subsystems), detailed README.md with instructions for creating Fritzing/KiCad schematics, and comprehensive SCHEMATIC.md documentation (970+ lines) covering system architecture, display SPI interface, button input system with active-low pull-up configuration, power supply with optional battery monitoring (INA219 I2C), complete GPIO pin assignments, electrical specifications (voltage levels, current limits, timing requirements), PCB design guidelines, signal integrity requirements, and component reference designators. All connections labeled with Pi Zero W pinout, button wiring (internal 50kΩ pull-ups, no external resistors needed), display SPI connections (MOSI, SCLK, CS, DC, RST, BUSY), and power supply circuit (5V input, 3.3V regulation, optional battery with boost converter and I2C monitoring).
 
 - [ ] Compile complete Bill of Materials (BOM):
   - Update `docs/hardware/BOM.md` with final, verified part list:

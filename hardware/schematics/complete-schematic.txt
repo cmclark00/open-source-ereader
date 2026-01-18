@@ -1,0 +1,404 @@
+================================================================================
+                    OPEN SOURCE E-READER - COMPLETE SCHEMATIC
+================================================================================
+
+Project:        Open Source E-Reader
+Hardware Rev:   1.0 (Phase 07 Release)
+Date:           2026-01-17
+Controller:     Raspberry Pi Zero W
+Display:        Waveshare 4.2" E-Paper Display (400x300, Rev 2.2)
+Input:          5x GPIO Buttons (Active-Low)
+Power:          5V 2A Micro-USB (with optional battery)
+
+================================================================================
+                              COMPONENT REFERENCE
+================================================================================
+
+U1      = Raspberry Pi Zero W (BCM2835 SoC, 512MB RAM, WiFi/BT)
+J1      = Waveshare 4.2" E-Paper Display Module (8-pin connector)
+SW1-SW5 = Tactile Push Buttons (6x6mm or 12x12mm, normally open)
+C1-C5   = 0.1µF Ceramic Capacitors (optional hardware debouncing)
+J2      = Power Input (5V 2A Micro-USB)
+J3      = Optional: Battery Connector (JST PH 2-pin)
+U2      = Optional: INA219 I2C Power Monitor
+
+================================================================================
+                        COMPLETE SYSTEM BLOCK DIAGRAM
+================================================================================
+
+                              ┌──────────────┐
+                              │   5V 2A PSU  │ (J2)
+                              │  Micro-USB   │
+                              └──────┬───────┘
+                                     │
+                    ┌────────────────┴────────────────┐
+                    │  Optional Battery & Monitoring  │
+                    │  (UPS HAT with INA219)          │
+                    └────────────────┬────────────────┘
+                                     │ 5V
+                    ┌────────────────┴────────────────┐
+                    │                                 │
+                    │    Raspberry Pi Zero W (U1)     │
+                    │    BCM2835 @ 1GHz, 512MB RAM    │
+                    │                                 │
+                    │  ┌───────────────────────────┐  │
+                    │  │  40-pin GPIO Header       │  │
+                    │  │  ├─ 3.3V Power Rails      │  │
+                    │  │  ├─ GND Rails             │  │
+                    │  │  ├─ SPI0 Bus (Display)    │  │
+                    │  │  ├─ I2C1 Bus (Optional)   │  │
+                    │  │  └─ GPIO Inputs (Buttons) │  │
+                    │  └───────────────────────────┘  │
+                    │                                 │
+                    └─┬───────┬──────┬──────┬────────┘
+                      │       │      │      │
+             ┌────────┘       │      │      └────────────┐
+             │                │      │                   │
+    ┌────────┴─────┐   ┌──────┴────┐ │          ┌───────┴────────┐
+    │  E-Paper (J1)│   │  Buttons  │ │          │  Optional I2C  │
+    │  400x300 B/W │   │  SW1-SW5  │ │          │  (Battery Mon) │
+    │  SPI + GPIO  │   │ (Active-L)│ │          │   INA219 (U2)  │
+    └──────────────┘   └───────────┘ │          └────────────────┘
+                                      │
+                               ┌──────┴──────┐
+                               │   Future    │
+                               │  Expansion  │
+                               └─────────────┘
+
+================================================================================
+                    RASPBERRY PI ZERO W GPIO HEADER PINOUT
+================================================================================
+
+                        Pi Zero W 40-Pin Header
+                        (Top view, pins facing up)
+
+         3.3V  [ 1] ●─────────● [ 2]  5V         ← Power Rails
+     I2C SDA   [ 3] ○         ○ [ 4]  5V
+     I2C SCL   [ 5] ○         ● [ 6]  GND
+      GPIO 4   [ 7] ○         ○ [ 8]  TXD (GPIO 14)
+         GND   [ 9] ●         ○ [10]  RXD (GPIO 15)
+  RST→GPIO 17  [11] ●         ○ [12]  GPIO 18
+     GPIO 27   [13] ○         ● [14]  GND
+     GPIO 22   [15] ○         ○ [16]  GPIO 23
+        3.3V   [17] ●         ● [18]  GPIO 24 ←BUSY
+ MOSI→GPIO 10  [19] ●         ● [20]  GND
+     GPIO 9    [21] ○         ● [22]  GPIO 25 ←DC
+ SCLK→GPIO 11  [23] ●         ● [24]  GPIO 8 (CE0) ←CS
+         GND   [25] ●         ○ [26]  GPIO 7 (CE1)
+   ID_SD (NC)  [27] ○         ○ [28]  ID_SC (NC)
+ UP→  GPIO 5   [29] ●         ● [30]  GND
+ DOWN→GPIO 6   [31] ●         ○ [32]  GPIO 12
+ SEL→ GPIO 13  [33] ●         ● [34]  GND ←Buttons GND
+ BACK→GPIO 19  [35] ●         ○ [36]  GPIO 16
+ MENU→GPIO 26  [37] ●         ○ [38]  GPIO 20
+         GND   [39] ●         ○ [40]  GPIO 21
+
+Legend: ● = Used    ○ = Available/Unused    (NC) = Not Connected
+
+================================================================================
+                     E-PAPER DISPLAY SPI INTERFACE (J1)
+================================================================================
+
+Waveshare 4.2" E-Paper Module Connector (J1)
+┌─────────────────────────────────────────────────────────────┐
+│ Pin  Name      Description              Pi GPIO   Pi Pin    │
+├─────────────────────────────────────────────────────────────┤
+│  1   VCC       3.3V Power               3.3V      Pin 1     │
+│  2   GND       Ground                   GND       Pin 6     │
+│  3   DIN       SPI MOSI (Data In)       GPIO 10   Pin 19    │
+│  4   CLK       SPI Clock                GPIO 11   Pin 23    │
+│  5   CS        SPI Chip Select          GPIO 8    Pin 24    │
+│  6   DC        Data/Command Control     GPIO 25   Pin 22    │
+│  7   RST       Reset (Active Low)       GPIO 17   Pin 11    │
+│  8   BUSY      Busy Status Output       GPIO 24   Pin 18    │
+└─────────────────────────────────────────────────────────────┘
+
+SPI Configuration:
+  - SPI Bus: SPI0 (/dev/spidev0.0)
+  - Mode: SPI Mode 0 (CPOL=0, CPHA=0)
+  - Clock: 4MHz typical, 10MHz max
+  - Bit Order: MSB first
+
+Display Power Consumption:
+  - Refresh: 26mA @ 3.3V (85.8mW)
+  - Standby: <0.01mA (virtually zero)
+  - Refresh Time: ~2 seconds (full refresh)
+
+================================================================================
+                    GPIO BUTTON INPUT SYSTEM (SW1-SW5)
+================================================================================
+
+Button Configuration: Active-Low with Internal Pull-Up
+
+                        Individual Button Circuit
+                        (Repeated for each of 5 buttons)
+
+                           3.3V
+                            │
+                        [~50kΩ] ← Internal Pull-Up (enabled in device tree)
+                            │
+            Pi GPIO Pin ────┼──── To RPi Zero W GPIO
+                            │
+                          [SW_X]  ← Tactile Switch (Normally Open)
+                            │
+                           GND
+
+
+Button Connections Table:
+┌────────────────────────────────────────────────────────────────────┐
+│ Button  Function  Pi GPIO  Pi Pin  Switch Side    Ground Side      │
+├────────────────────────────────────────────────────────────────────┤
+│ SW1     UP        GPIO 5   Pin 29  Pin 1 or 2 →   Pin 3 or 4 →GND │
+│ SW2     DOWN      GPIO 6   Pin 31  Pin 1 or 2 →   Pin 3 or 4 →GND │
+│ SW3     SELECT    GPIO 13  Pin 33  Pin 1 or 2 →   Pin 3 or 4 →GND │
+│ SW4     BACK      GPIO 19  Pin 35  Pin 1 or 2 →   Pin 3 or 4 →GND │
+│ SW5     MENU      GPIO 26  Pin 37  Pin 1 or 2 →   Pin 3 or 4 →GND │
+│                                                                     │
+│ Common Ground: Pin 34 or Pin 39 (or both for redundancy)           │
+└────────────────────────────────────────────────────────────────────┘
+
+Button Logic:
+  - Unpressed: GPIO reads HIGH (1) - pulled up to 3.3V
+  - Pressed:   GPIO reads LOW (0)  - connected to GND
+
+Linux Input Event Mapping:
+  SW1 (UP)     → KEY_UP    (event code 103)
+  SW2 (DOWN)   → KEY_DOWN  (event code 108)
+  SW3 (SELECT) → KEY_ENTER (event code 28)
+  SW4 (BACK)   → KEY_ESC   (event code 1)
+  SW5 (MENU)   → KEY_MENU  (event code 139)
+
+Optional Hardware Debouncing (C1-C5):
+  - Add 0.1µF ceramic capacitor between each GPIO pin and GND
+  - Complements software debouncing (20ms in device tree)
+  - Not required but improves reliability in electrically noisy environments
+
+Button Specifications:
+  - Type: Tactile momentary switch, normally open (NO)
+  - Size: 6x6mm or 12x12mm through-hole
+  - Actuation Force: 160-260gf
+  - Contact Bounce: <5ms
+  - Lifetime: 100,000 cycles minimum
+  - Recommended: Omron B3F-1000 (6x6) or B3F-4055 (12x12)
+
+================================================================================
+                        POWER SUPPLY SYSTEM (J2, J3)
+================================================================================
+
+Primary Power Input (J2):
+  - Connector: Micro-USB Type B
+  - Voltage: 5V ± 0.25V
+  - Current: 2A minimum (2.5A recommended)
+  - Power: 10W typical, 12.5W recommended
+  - Source: Official Raspberry Pi power supply recommended
+
+Power Distribution:
+
+  5V Input ──→ Pi Zero W ──→ 3.3V Regulator ──→ Display VCC (3.3V)
+      │            │                                  │
+      │            └─→ SoC, RAM, WiFi                 └─→ E-Paper Module
+      │                                                    (26mA during refresh)
+      └─→ Optional: Battery Management
+
+
+Optional Battery System (J3):
+
+                        Battery Power Schematic
+                        (Using UPS HAT with INA219)
+
+   LiPo Battery ──→ Protection ──→ Boost (3.7V→5V) ──→ Pi Zero W
+   (3.7V, 2-5Ah)    Circuit         Converter             5V
+                                        │
+                                        └─→ Charging Circuit
+                                            (from USB input)
+
+        I2C Bus (Address 0x40):
+        Pi GPIO 2 (SDA) ──→ INA219 ──→ Battery Voltage/Current Monitor
+        Pi GPIO 3 (SCL) ──→ INA219
+
+
+Battery Monitoring I2C (U2 - Optional):
+┌────────────────────────────────────────────────┐
+│ INA219 Power Monitor (U2)                      │
+├────────────────────────────────────────────────┤
+│ Pin  Function    Connection                    │
+├────────────────────────────────────────────────┤
+│ VCC  Power       3.3V (Pi Pin 1)               │
+│ GND  Ground      GND (Pi Pin 9)                │
+│ SDA  I2C Data    GPIO 2 (Pi Pin 3)             │
+│ SCL  I2C Clock   GPIO 3 (Pi Pin 5)             │
+│ VIN+ Sense+      Battery/Supply Positive       │
+│ VIN- Sense-      Battery/Supply Negative       │
+└────────────────────────────────────────────────┘
+
+I2C Configuration:
+  - Bus: I2C1 (/dev/i2c-1)
+  - Address: 0x40 (default), also supports 0x41, 0x44, 0x45
+  - Pull-up Resistors: 1.8kΩ on Pi Zero W (built-in)
+  - Clock Speed: 100kHz standard mode
+
+Battery Specifications (if used):
+  - Type: Single-cell Li-Po or Li-ion
+  - Nominal Voltage: 3.7V
+  - Capacity: 2000-5000mAh recommended
+  - Full Voltage: 4.2V (100% charge)
+  - Empty Voltage: 3.2V (0% charge - DO NOT discharge below this)
+  - Critical Voltage: 3.3V (initiate shutdown)
+
+Power Consumption Estimates:
+┌────────────────────────────────────────────────┐
+│ Mode              Current   Power   Notes      │
+├────────────────────────────────────────────────┤
+│ Idle (no WiFi)    120mA     0.6W   Display off│
+│ Reading (avg)     175mA     0.9W   Occasional  │
+│ Display Refresh   225mA     1.1W   2s duration│
+│ WiFi Active       275mA     1.4W   Downloading │
+│ Sleep (future)    30mA      0.15W  Deep sleep  │
+└────────────────────────────────────────────────┘
+
+Estimated Battery Life:
+  2000mAh battery: ~10 hours reading (175mA avg)
+  3000mAh battery: ~15 hours reading
+  5000mAh battery: ~25 hours reading
+
+================================================================================
+                          SIGNAL DESCRIPTIONS
+================================================================================
+
+SPI Signals (Display Interface):
+  MOSI (GPIO 10):  Master Out Slave In - Data from Pi to display
+  SCLK (GPIO 11):  Serial Clock - Clock signal for SPI bus
+  CS   (GPIO 8):   Chip Select - Active low, selects display
+  DC   (GPIO 25):  Data/Command - Low=Command, High=Data
+  RST  (GPIO 17):  Reset - Active low reset signal
+  BUSY (GPIO 24):  Busy Status - High=Busy, Low=Ready (input to Pi)
+
+I2C Signals (Battery Monitor - Optional):
+  SDA  (GPIO 2):   Serial Data - Bidirectional data line
+  SCL  (GPIO 3):   Serial Clock - Clock signal for I2C bus
+
+Button GPIO Signals (Active-Low Inputs):
+  GPIO 5:   UP button input
+  GPIO 6:   DOWN button input
+  GPIO 13:  SELECT button input
+  GPIO 19:  BACK button input
+  GPIO 26:  MENU button input
+
+Power Rails:
+  5V:      Main power input from micro-USB
+  3.3V:    Regulated output from Pi Zero W, max 50mA available
+  GND:     Ground reference (multiple pins for low impedance)
+
+================================================================================
+                          DESIGN NOTES & SPECS
+================================================================================
+
+1. SPI Bus Timing:
+   - Maximum clock frequency: 10MHz
+   - Recommended clock: 4MHz for reliability
+   - Setup/hold times: Per BCM2835 SPI controller specs
+   - Cable length: Keep wires <15cm for signal integrity
+
+2. GPIO Electrical Characteristics:
+   - Input voltage: 3.3V CMOS logic levels
+     - VIH (high): >2.0V
+     - VIL (low):  <0.8V
+   - Output voltage: 3.3V nominal
+   - Maximum current per pin: 16mA
+   - Internal pull-up: ~50kΩ typical (range: 50-65kΩ)
+
+3. Display Interface Requirements:
+   - DC signal must be stable before CS goes low
+   - BUSY signal must be monitored before sending updates
+   - RST pulse: minimum 10ms low, then high
+   - Power-on delay: 100ms before initialization
+
+4. Button Debouncing:
+   - Hardware: Optional 0.1µF capacitors
+   - Device tree: 20ms debounce interval configured
+   - Software: Additional 50ms filter in application
+   - Total effective debounce: ~70ms
+
+5. Power Supply Requirements:
+   - Input ripple: <100mVpp maximum
+   - Voltage droop: <200mV during load transients
+   - Ground impedance: <100mΩ (short, wide traces)
+   - Decoupling: 10µF + 0.1µF near Pi power input
+
+6. ESD Protection (Recommended for Production):
+   - SPI signals: TVS diodes on long external connections
+   - Button inputs: 1kΩ series resistors + TVS diodes
+   - Not required for development/prototype builds
+
+7. PCB Design Guidelines (if creating custom board):
+   - SPI traces: Keep matched length, <10cm, 50Ω impedance
+   - Ground plane: Solid ground pour on bottom layer
+   - Power traces: Minimum 20mil width for 500mA
+   - Via stitching: Ground vias every 0.5" for RF performance
+   - Clearance: 10mil minimum between traces
+
+8. Thermal Considerations:
+   - Pi Zero W: Max ambient temp 85°C (industrial)
+   - Display: Max operating temp 50°C (see DISPLAY_SPECS.md)
+   - No heatsink required for normal operation
+   - Enclosure ventilation recommended for battery charging
+
+================================================================================
+                        CONNECTOR PINOUTS SUMMARY
+================================================================================
+
+J1 - Waveshare 4.2" E-Paper Display (8-pin header):
+  1:VCC  2:GND  3:DIN  4:CLK  5:CS  6:DC  7:RST  8:BUSY
+
+J2 - Power Input (Micro-USB Type B):
+  Standard USB pinout: 1:VCC(5V) 2:D- 3:D+ 4:NC 5:GND
+  (Data lines not used for power-only connection)
+
+J3 - Battery Connector (Optional, JST PH 2-pin):
+  1:BAT+  2:BAT-
+
+U1 - Raspberry Pi Zero W GPIO Header:
+  See full pinout diagram above (40-pin, 2x20 header)
+
+U2 - INA219 I2C Power Monitor (Optional, via HAT or breakout):
+  Standard breakout: VCC, GND, SDA, SCL, VIN+, VIN-
+
+================================================================================
+                          REVISION HISTORY
+================================================================================
+
+Rev 1.0 - 2026-01-17:
+  - Initial release schematic for Phase 07
+  - Complete system with display, buttons, and optional battery
+  - Tested and verified with Phase 01-06 development
+  - Documented all component values and connections
+
+================================================================================
+                           RELATED DOCUMENTS
+================================================================================
+
+- docs/hardware/SCHEMATIC.md     - Detailed schematic documentation
+- docs/hardware/WIRING_GUIDE.md  - Physical wiring and assembly guide
+- docs/hardware/BOM.md           - Bill of materials with part numbers
+- docs/hardware/DISPLAY_SPECS.md - E-paper display specifications
+- docs/hardware/BUTTON_LAYOUT.md - Button assignments and layout
+- docs/hardware/POWER_SUPPLY.md  - Power and battery system details
+- docs/BUILD_GUIDE.md            - Complete build instructions
+
+================================================================================
+                                  LICENSE
+================================================================================
+
+This schematic is part of the Open Source E-Reader project.
+Released under CERN Open Hardware License v2 - Permissive (CERN-OHL-P-2.0)
+
+You are free to:
+  - Use this design commercially
+  - Modify and redistribute
+  - Use in closed-source products
+
+See LICENSE file in project root for full terms.
+
+================================================================================
+                                END OF SCHEMATIC
+================================================================================
