@@ -47,7 +47,7 @@ This phase prepares the project for public release as an open-source hardware/so
   - Note tools required (soldering iron, wire cutters, etc.)
   - **Completed:** Completely rewrote BOM.md (788 lines, version 2.0) with verified manufacturer part numbers, direct supplier links, and comprehensive pricing. Includes 6 core components ($66.07), multiple button options ($1.40-$3.85), 4 power supply configurations ($7.99-$47.20), 4 enclosure options ($3-$42.98), development tools ($36.93), and assembly tools ($54-$92). Documented 4 complete build configurations: Minimum Viable ($82.65), Complete Portable ($136.11), Budget Portable ($110.93), and Premium Build ($158.36). Added detailed component specifications (Pi Zero W, Waveshare 4.2" Rev 2.2, Omron B3F-4055 buttons, Samsung 18650 batteries), comprehensive supplier information (Adafruit, DigiKey, Mouser, Waveshare, Amazon with pros/cons/shipping/returns), alternative components, procurement strategy with order timelines, money-saving tips, quality vs. cost decisions, battery runtime estimates (6-20 hours depending on configuration), and safety notes. Total project cost ranges from $73 (breadboard prototype) to $266 (first-time builder, premium build with tools).
 
-- [ ] Write software architecture documentation:
+- [x] Write software architecture documentation:
   - Create `docs/architecture/SYSTEM_OVERVIEW.md` with:
     - High-level architecture diagram (boot → kernel → application)
     - Component diagram (UI, rendering, formats, network, power)
@@ -55,6 +55,7 @@ This phase prepares the project for public release as an open-source hardware/so
     - File system layout (/books/, /etc/ereader/, /usr/bin/)
   - Link to all existing architecture docs (`[[Input-System]]`, `[[Format-Support]]`, etc.)
   - Explain design decisions and trade-offs
+  - **Completed:** Created comprehensive SYSTEM_OVERVIEW.md (970+ lines) documenting complete system architecture from hardware to application layer. Includes detailed boot sequence (0-15s timeline with optimization breakdown), high-level architecture diagram showing all layers (hardware → kernel → drivers → services → UI → application), component architecture covering all 12 core subsystems (Book Manager, Format Support, Text Renderer, Input System, Display Driver, Settings Manager, Search Engine, Power Manager, Battery Monitor, WiFi Manager, Download Manager, OTA Updates), complete data flow diagrams for button press → screen update (with latency breakdown), book opening flow, and WiFi connection flow. Documents complete file system layout showing all critical paths (/books/, /etc/ereader/, /usr/bin/ereader, /var/log/), 10 major design decisions with rationale and trade-offs (Linux vs bare metal, full loading vs streaming, bitmap fonts, SPI interface, polling input, external PDF tools, HTML stripping for EPUB, on-demand WiFi, minimal init, pre-built images), performance characteristics (boot: 12-15s actual vs 8s target, runtime operations, memory usage: 4-7MB typical with 200-300MB available, power consumption: 16h active reading), and extensive cross-references to all related documentation using wiki-link format. Structured with YAML front matter, comprehensive table of contents, ASCII diagrams for architecture visualization, and revision history.
 
 - [ ] Create developer documentation:
   - Write `docs/CONTRIBUTING.md` with:
