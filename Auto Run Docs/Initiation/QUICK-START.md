@@ -136,9 +136,9 @@ Before moving to Phase 2, verify:
 
 - [ ] Buildroot compiles successfully (output in `buildroot/output/images/`)
 - [ ] `sdcard.img` file exists and is ~100-500MB
-- [ ] All documentation files created (WIRING_GUIDE, DISPLAY_SPECS, etc.)
+- [x] All documentation files created (WIRING_GUIDE, DISPLAY_SPECS, etc.)
 - [ ] Display driver code compiles without errors
-- [ ] You understand the SPI wiring (even if not physically wired yet)
+- [x] You understand the SPI wiring (even if not physically wired yet)
 
 ### Hardware Testing (Do This!)
 
