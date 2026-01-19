@@ -240,11 +240,20 @@ Create a device you can't buy in stores:
 
 This project is released under open-source licenses:
 
-- **Software** - [GPL v3](LICENSE) (or specify your chosen license)
-- **Hardware** - CERN Open Hardware License (or specify)
-- **Documentation** - Creative Commons BY-SA 4.0 (or specify)
+- **Software** (C source code) - [GNU General Public License v3.0](LICENSE)
+- **Hardware** (schematics, PCB designs) - [CERN Open Hardware License v2 - Permissive](https://ohwr.org/cern_ohl_p_v2.txt)
+- **Documentation** (guides, docs) - [Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
-See [docs/LEGAL.md](docs/LEGAL.md) for complete licensing information and third-party attributions.
+**What this means for you:**
+- ✅ **Free to use** - Personal, educational, or commercial use at no cost
+- ✅ **Free to modify** - Customize and extend for your needs
+- ✅ **Free to share** - Distribute copies and modifications
+- ✅ **Free to manufacture** - Build and sell devices based on this design
+- ⚠️ **Software derivatives must stay open source** - GPL v3 requires sharing source code
+- ⚠️ **Hardware can be proprietary** - CERN OHL-P allows closed modifications (sharing encouraged)
+- ⚠️ **Provide attribution** - Credit the original project when using or adapting
+
+See [docs/LEGAL.md](docs/LEGAL.md) for complete licensing information, third-party attributions, compliance guide, and FAQ.
 
 ---
 

@@ -1,0 +1,95 @@
+Open Source E-Reader Project - Multi-License
+==============================================
+
+This project uses multiple licenses for different components:
+
+1. SOFTWARE (source code in src/): GNU General Public License v3.0
+2. HARDWARE (schematics, PCB designs): CERN Open Hardware License v2 - Permissive
+3. DOCUMENTATION (docs/, README.md): Creative Commons Attribution-ShareAlike 4.0
+
+See docs/LEGAL.md for detailed license information and third-party attributions.
+
+================================================================================
+SOFTWARE LICENSE - GNU GENERAL PUBLIC LICENSE Version 3
+================================================================================
+
+Copyright (C) 2024-2026 Open Source E-Reader Project Contributors
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+Full GPL v3 license text: https://www.gnu.org/licenses/gpl-3.0.txt
+
+================================================================================
+HARDWARE LICENSE - CERN Open Hardware License v2 - Permissive
+================================================================================
+
+Copyright (C) 2024-2026 Open Source E-Reader Project Contributors
+
+Hardware designs in this project (schematics, PCB layouts, mechanical designs)
+are licensed under CERN Open Hardware Licence Version 2 - Permissive.
+
+You may redistribute and modify this documentation and make products using it
+under the terms of the CERN-OHL-P v2 (https://ohwr.org/cern_ohl_p_v2.txt).
+
+This documentation is distributed WITHOUT ANY EXPRESS OR IMPLIED WARRANTY,
+INCLUDING OF MERCHANTABILITY, SATISFACTORY QUALITY AND FITNESS FOR A
+PARTICULAR PURPOSE. Please see the CERN-OHL-P v2 for applicable conditions.
+
+Full CERN-OHL-P v2 license text: https://ohwr.org/cern_ohl_p_v2.txt
+
+================================================================================
+DOCUMENTATION LICENSE - Creative Commons Attribution-ShareAlike 4.0
+================================================================================
+
+Copyright (C) 2024-2026 Open Source E-Reader Project Contributors
+
+Documentation in this project is licensed under a Creative Commons
+Attribution-ShareAlike 4.0 International License.
+
+You are free to:
+- Share: copy and redistribute the material in any medium or format
+- Adapt: remix, transform, and build upon the material for any purpose
+
+Under the following terms:
+- Attribution: You must give appropriate credit, provide a link to the
+  license, and indicate if changes were made.
+- ShareAlike: If you remix, transform, or build upon the material, you
+  must distribute your contributions under the same license.
+
+Full CC BY-SA 4.0 license text: https://creativecommons.org/licenses/by-sa/4.0/
+
+================================================================================
+THIRD-PARTY LICENSES
+================================================================================
+
+This project incorporates or depends on third-party software and hardware:
+
+1. Linux Kernel - GPL v2
+2. Buildroot - GPL v2 (build system)
+3. libzip - BSD 3-Clause License
+4. libxml2 - MIT License
+5. Poppler (PDF library) - GPL v2/v3
+6. wpa_supplicant - BSD/GPL dual license
+7. Raspberry Pi firmware - Broadcom/Raspberry Pi Foundation license
+8. Waveshare e-paper display modules - Hardware from Waveshare
+
+See docs/LEGAL.md for complete third-party license information.
+
+================================================================================
+CONTACT
+================================================================================
+
+For licensing questions: https://github.com/cmclark00/open-source-ereader/issues
+
+Project homepage: https://github.com/cmclark00/open-source-ereader

@@ -4,6 +4,25 @@
  * Driver for Waveshare 4.2" e-paper display (400x300, B/W)
  * Controller: UC8176/IL0398
  * Interface: SPI
+ *
+ * Copyright (C) 2024-2026 Open Source E-Reader Project Contributors
+ *
+ * This file is part of the Open Source E-Reader project.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Author: E-Reader Project
  */
 
 #ifndef EPD_DRIVER_H
