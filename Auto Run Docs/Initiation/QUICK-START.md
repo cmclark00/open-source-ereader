@@ -135,9 +135,15 @@ open-source-ereader/
 Before moving to Phase 2, verify:
 
 - [ ] Buildroot compiles successfully (output in `buildroot/output/images/`)
+  - **Environment Requirement**: Requires WSL2 or native Linux environment (detected: MINGW64/Git Bash on Windows)
+  - **Build Infrastructure Status**: ✅ Ready (all configs, source code, scripts, and documentation complete)
+  - **Action Required**: User must execute build in WSL2/Linux using `make config && make build` or `./scripts/build.sh`
+  - **Expected Duration**: 1-2 hours for first build
 - [ ] `sdcard.img` file exists and is ~100-500MB
+  - **Status**: Will be generated after Buildroot compilation completes in `buildroot/output/images/sdcard.img`
 - [x] All documentation files created (WIRING_GUIDE, DISPLAY_SPECS, etc.)
 - [ ] Display driver code compiles without errors
+  - **Status**: Source code ready in `src/display-test/` - cross-compilation will occur during Buildroot build
 - [x] You understand the SPI wiring (even if not physically wired yet)
 
 ### Hardware Testing (Do This!)
