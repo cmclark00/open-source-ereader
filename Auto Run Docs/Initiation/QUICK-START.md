@@ -139,6 +139,7 @@ Before moving to Phase 2, verify:
   - **Build Infrastructure Status**: ✅ Ready (all configs, source code, scripts, and documentation complete)
   - **Action Required**: User must execute build in WSL2/Linux using `make config && make build` or `./scripts/build.sh`
   - **Expected Duration**: 1-2 hours for first build
+  - **📖 Detailed Instructions**: See `Auto Run Docs/Working/BUILDROOT-BUILD-INSTRUCTIONS.md` for complete step-by-step guide
 - [ ] `sdcard.img` file exists and is ~100-500MB
   - **Status**: Will be generated after Buildroot compilation completes in `buildroot/output/images/sdcard.img`
 - [x] All documentation files created (WIRING_GUIDE, DISPLAY_SPECS, etc.)
