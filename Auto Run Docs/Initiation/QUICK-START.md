@@ -142,6 +142,7 @@ Before moving to Phase 2, verify:
   - **Action Required**: User must execute build in WSL2/Linux using `make config && make build` or `./scripts/build.sh`
   - **Expected Duration**: 1-2 hours for first build
   - **📖 Detailed Instructions**: See `Auto Run Docs/Working/BUILDROOT-BUILD-INSTRUCTIONS.md` for complete step-by-step guide
+  - **📊 Complete Status Report**: See `docs/progress/PHASE-01-STATUS-SUMMARY.md` for full inventory of completed work
   - **Why Not Automated**: Buildroot requires Linux environment; cannot be compiled in Git Bash/Windows
 - [ ] **USER ACTION REQUIRED**: `sdcard.img` file exists and is ~100-500MB
   - **Status**: Will be generated after Buildroot compilation completes in `buildroot/output/images/sdcard.img`
