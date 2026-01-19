@@ -127,6 +127,7 @@ typedef struct {
     void *reader_state;     /* reader_state_t* from reader.h */
     void *settings_menu_state; /* settings_menu_state_t* from settings_menu.h */
     void *library_browser_state; /* library_browser_menu_t* from library_browser.h */
+    void *loading_screen;   /* loading_screen_t* from ui/loading_screen.h */
 
     /* Settings */
     void *settings;         /* settings_t* from settings_manager.h */

@@ -45,6 +45,7 @@
 #include "ui/menu.h"
 #include "ui/reader.h"
 #include "ui/settings_menu.h"
+#include "ui/loading_screen.h"
 #include "settings/settings_manager.h"
 
 /* Include Phase 1 and Phase 2 components */
@@ -250,6 +251,22 @@ app_context_t* app_init(void) {
         return NULL;
     }
 
+    /* Initialize loading screen */
+    printf("Initializing loading screen...\n");
+    ctx->loading_screen = malloc(sizeof(loading_screen_t));
+    if (ctx->loading_screen == NULL) {
+        fprintf(stderr, "Failed to allocate loading screen\n");
+        menu_free(ctx->menu_state);
+        bookmark_list_free(ctx->bookmarks);
+        book_list_free(ctx->book_list);
+        button_input_cleanup(ctx->button_ctx);
+        fb_free(ctx->framebuffer);
+        epd_cleanup();
+        free(ctx);
+        return NULL;
+    }
+    loading_screen_init((loading_screen_t*)ctx->loading_screen);
+
     printf("Initialization complete\n");
     return ctx;
 }
@@ -286,6 +303,12 @@ void app_cleanup(app_context_t *ctx) {
         settings_menu_free(ctx->settings_menu_state);
         ctx->settings_menu_state = NULL;
     }
+    /* Cleanup loading screen */
+    if (ctx->loading_screen != NULL) {
+        free(ctx->loading_screen);
+        ctx->loading_screen = NULL;
+    }
+
 
     /* Save and cleanup settings */
     if (ctx->settings != NULL) {
@@ -444,9 +467,16 @@ int app_handle_button_event(app_context_t *ctx, void *button_event_ptr) {
                     }
 
                     /* Load book */
+                    /* Show loading screen */
+                    loading_screen_t *loading = (loading_screen_t*)ctx->loading_screen;
+                    loading_screen_show_opening_book(loading, metadata->filename);
+                    loading_screen_render(loading, (framebuffer_t*)ctx->framebuffer);
+                    app_refresh_display(ctx);
+
                     printf("Loading book: %s\n", metadata->filename);
                     ctx->current_book = book_create();
                     if (ctx->current_book == NULL) {
+                        loading_screen_reset(loading);
                         app_set_error(ctx, ERROR_OUT_OF_MEMORY, "Failed to create book");
                         break;
                     }
@@ -457,6 +487,7 @@ int app_handle_button_event(app_context_t *ctx, void *button_event_ptr) {
                         book_free(ctx->current_book);
                         ctx->current_book = NULL;
                         app_set_error(ctx, ERROR_LOAD_BOOK, "Failed to load book");
+                        loading_screen_reset(loading);
                         break;
                     }
 
@@ -473,9 +504,14 @@ int app_handle_button_event(app_context_t *ctx, void *button_event_ptr) {
                     if (ctx->reader_state == NULL) {
                         book_free(ctx->current_book);
                         ctx->current_book = NULL;
+                        loading_screen_reset(loading);
                         app_set_error(ctx, ERROR_INVALID_STATE, "Failed to create reader");
                         break;
                     }
+
+                    /* Complete loading screen */
+                    loading_screen_complete(loading);
+                    loading_screen_reset(loading);
 
                     /* Transition to reading state */
                     app_change_state(ctx, STATE_READING);
