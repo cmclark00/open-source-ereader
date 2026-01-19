@@ -44,6 +44,8 @@
 #include "formats/format_interface.h"
 #include "ui/menu.h"
 #include "ui/reader.h"
+#include "ui/settings_menu.h"
+#include "settings/settings_manager.h"
 
 /* Include Phase 1 and Phase 2 components */
 #include "../display-test/epd_driver.h"
@@ -212,6 +214,28 @@ app_context_t* app_init(void) {
 
     bookmark_list_load(ctx->bookmarks, EREADER_BOOKMARKS_FILE);
 
+    /* Load settings */
+    printf("Loading settings...\n");
+    ctx->settings = malloc(sizeof(settings_t));
+    if (ctx->settings == NULL) {
+        fprintf(stderr, "Failed to allocate settings\n");
+        bookmark_list_free(ctx->bookmarks);
+        book_list_free(ctx->book_list);
+        button_input_cleanup(ctx->button_ctx);
+        fb_free(ctx->framebuffer);
+        epd_cleanup();
+        free(ctx);
+        return NULL;
+    }
+
+    /* Initialize with defaults and load from file */
+    settings_init_defaults((settings_t*)ctx->settings);
+    settings_error_t settings_err = settings_load((settings_t*)ctx->settings, SETTINGS_FILE);
+    if (settings_err != SETTINGS_SUCCESS && settings_err != SETTINGS_ERROR_FILE_NOT_FOUND) {
+        fprintf(stderr, "Warning: Failed to load settings: %s\n",
+                settings_error_to_string(settings_err));
+    }
+
     /* Initialize menu state */
     printf("Initializing menu...\n");
     ctx->menu_state = menu_create(ctx->book_list, ctx->bookmarks);
@@ -255,6 +279,19 @@ void app_cleanup(app_context_t *ctx) {
     if (ctx->menu_state != NULL) {
         menu_free(ctx->menu_state);
         ctx->menu_state = NULL;
+    }
+
+    /* Cleanup settings menu state */
+    if (ctx->settings_menu_state != NULL) {
+        settings_menu_free(ctx->settings_menu_state);
+        ctx->settings_menu_state = NULL;
+    }
+
+    /* Save and cleanup settings */
+    if (ctx->settings != NULL) {
+        settings_save((settings_t*)ctx->settings, SETTINGS_FILE);
+        free(ctx->settings);
+        ctx->settings = NULL;
     }
 
     /* Cleanup current book */
@@ -335,6 +372,19 @@ int app_change_state(app_context_t *ctx, app_state_t new_state) {
             }
             break;
 
+        case STATE_SETTINGS:
+            /* Initialize or reset settings menu */
+            if (ctx->settings_menu_state == NULL) {
+                ctx->settings_menu_state = settings_menu_create((settings_t*)ctx->settings);
+                if (ctx->settings_menu_state == NULL) {
+                    app_set_error(ctx, ERROR_INVALID_STATE, "Failed to create settings menu");
+                    return -1;
+                }
+            } else {
+                settings_menu_reset(ctx->settings_menu_state);
+            }
+            break;
+
         case STATE_EMPTY:
             /* No initialization needed for empty state */
             break;
@@ -377,6 +427,12 @@ int app_handle_button_event(app_context_t *ctx, void *button_event_ptr) {
             break;
 
         case STATE_MENU_LIBRARY: {
+            /* Check for MENU button to open settings */
+            if (event->button == BUTTON_MENU && event->event_type == BUTTON_EVENT_PRESS) {
+                app_change_state(ctx, STATE_SETTINGS);
+                break;
+            }
+
             menu_action_t action = menu_handle_event(ctx->menu_state, event);
 
             switch (action) {
@@ -468,6 +524,35 @@ int app_handle_button_event(app_context_t *ctx, void *button_event_ptr) {
                     break;
 
                 case READER_ACTION_NONE:
+                default:
+                    /* No action needed */
+                    break;
+            }
+            break;
+        }
+
+        case STATE_SETTINGS: {
+            settings_menu_action_t action = settings_menu_handle_event(ctx->settings_menu_state, event);
+
+            switch (action) {
+                case SETTINGS_MENU_ACTION_SAVE_EXIT:
+                    /* Save settings and return to library menu */
+                    if (settings_menu_settings_changed(ctx->settings_menu_state)) {
+                        int save_result = settings_menu_save_settings(ctx->settings_menu_state);
+                        if (save_result != SETTINGS_MENU_SUCCESS) {
+                            fprintf(stderr, "Warning: Failed to save settings\n");
+                        }
+                        printf("Settings saved\n");
+                    }
+                    app_change_state(ctx, STATE_MENU_LIBRARY);
+                    break;
+
+                case SETTINGS_MENU_ACTION_VALUE_CHANGED:
+                case SETTINGS_MENU_ACTION_REDRAW:
+                    ctx->needs_redraw = true;
+                    break;
+
+                case SETTINGS_MENU_ACTION_NONE:
                 default:
                     /* No action needed */
                     break;
@@ -612,6 +697,12 @@ int app_render(app_context_t *ctx) {
             }
             break;
 
+        case STATE_SETTINGS:
+            if (ctx->settings_menu_state != NULL) {
+                return settings_menu_render(ctx->settings_menu_state, fb);
+            }
+            break;
+
         case STATE_EMPTY:
             return app_render_empty(ctx);
 
@@ -751,6 +842,7 @@ const char* app_state_to_string(app_state_t state) {
         case STATE_STARTUP:      return "STARTUP";
         case STATE_MENU_LIBRARY: return "MENU_LIBRARY";
         case STATE_READING:      return "READING";
+        case STATE_SETTINGS:     return "SETTINGS";
         case STATE_EMPTY:        return "EMPTY";
         case STATE_ERROR:        return "ERROR";
         case STATE_SHUTDOWN:     return "SHUTDOWN";
