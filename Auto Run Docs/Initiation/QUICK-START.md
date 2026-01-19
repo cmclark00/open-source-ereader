@@ -134,15 +134,18 @@ open-source-ereader/
 
 Before moving to Phase 2, verify:
 
-- [ ] Buildroot compiles successfully (output in `buildroot/output/images/`)
+- [ ] **USER ACTION REQUIRED**: Buildroot compiles successfully (output in `buildroot/output/images/`)
+  - **Current Status**: ⏸️ **READY TO BUILD** - All infrastructure complete, awaiting user execution
   - **Environment Requirement**: Requires WSL2 or native Linux environment (detected: MINGW64/Git Bash on Windows)
   - **Build Infrastructure Status**: ✅ Ready (all configs, source code, scripts, and documentation complete)
   - **Verification Status**: ✅ All build prerequisites verified (2026-01-19) - configs, source code, scripts, and documentation confirmed ready
   - **Action Required**: User must execute build in WSL2/Linux using `make config && make build` or `./scripts/build.sh`
   - **Expected Duration**: 1-2 hours for first build
   - **📖 Detailed Instructions**: See `Auto Run Docs/Working/BUILDROOT-BUILD-INSTRUCTIONS.md` for complete step-by-step guide
-- [ ] `sdcard.img` file exists and is ~100-500MB
+  - **Why Not Automated**: Buildroot requires Linux environment; cannot be compiled in Git Bash/Windows
+- [ ] **USER ACTION REQUIRED**: `sdcard.img` file exists and is ~100-500MB
   - **Status**: Will be generated after Buildroot compilation completes in `buildroot/output/images/sdcard.img`
+  - **Verification Command**: `ls -lh buildroot/output/images/sdcard.img` (run in WSL2/Linux after build)
 - [x] All documentation files created (WIRING_GUIDE, DISPLAY_SPECS, etc.)
 - [x] Display driver code compiles without errors
   - **Status**: ✅ Verified (2026-01-19) - All source files complete (epd_driver.c, main.c, epd_driver.h, font.h), Makefile configured for cross-compilation, all functions implemented, no syntax errors. Ready for Buildroot build.
