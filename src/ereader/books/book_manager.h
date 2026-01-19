@@ -131,8 +131,12 @@ book_list_t* book_list_create(void);
 /* Free a book list */
 void book_list_free(book_list_t *list);
 
-/* Scan the books directory and populate the list */
-int book_list_scan(book_list_t *list, const char *books_dir);
+/* Scan the books directory and populate the list
+ * @param list: Book list to populate
+ * @param books_dir: Directory to scan
+ * @param fb: Optional framebuffer for progress display (can be NULL)
+ */
+int book_list_scan(book_list_t *list, const char *books_dir, void *fb);
 
 /* Sort books alphabetically by filename */
 void book_list_sort(book_list_t *list);

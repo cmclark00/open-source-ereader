@@ -187,7 +187,7 @@ app_context_t* app_init(void) {
     }
 
     /* Scan for books */
-    book_error_t book_err = book_list_scan(ctx->book_list, EREADER_BOOKS_DIR);
+    book_error_t book_err = book_list_scan(ctx->book_list, EREADER_BOOKS_DIR, ctx->framebuffer);
     if (book_err != BOOK_ERROR_NONE && book_err != BOOK_ERROR_NO_BOOKS) {
         fprintf(stderr, "Failed to scan books: %s\n", book_error_string(book_err));
         book_list_free(ctx->book_list);
@@ -601,7 +601,7 @@ int app_handle_button_event(app_context_t *ctx, void *button_event_ptr) {
             if (event->button == BUTTON_BACK &&
                 event->event_type == BUTTON_EVENT_PRESS) {
                 /* Rescan books */
-                book_list_scan(ctx->book_list, EREADER_BOOKS_DIR);
+                book_list_scan(ctx->book_list, EREADER_BOOKS_DIR, ctx->framebuffer);
                 if (book_list_get_count(ctx->book_list) > 0) {
                     app_change_state(ctx, STATE_MENU_LIBRARY);
                 }

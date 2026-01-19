@@ -27,6 +27,9 @@
 
 #include "book_manager.h"
 #include "../formats/format_interface.h"
+#include "../ui/ui_components.h"
+#include "../rendering/text_renderer.h"
+#include "../rendering/framebuffer.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -107,11 +110,16 @@ void book_list_free(book_list_t *list) {
     }
 }
 
-int book_list_scan(book_list_t *list, const char *books_dir) {
+int book_list_scan(book_list_t *list, const char *books_dir, void *fb_ptr) {
     DIR *dir;
     struct dirent *entry;
     struct stat st;
     char filepath[MAX_BOOK_PATH];
+    framebuffer_t *fb = (framebuffer_t *)fb_ptr;
+    progress_bar_t progress;
+    int total_files = 0;
+    int processed_files = 0;
+    bool show_progress = (fb != NULL);
 
     /* Reset the list */
     list->count = 0;
@@ -122,6 +130,31 @@ int book_list_scan(book_list_t *list, const char *books_dir) {
         fprintf(stderr, "book_list_scan: Failed to open directory %s: %s\n",
                 books_dir, strerror(errno));
         return BOOK_ERROR_INVALID_PATH;
+    }
+
+    /* First pass: Count total potential book files */
+    if (show_progress) {
+        while ((entry = readdir(dir)) != NULL) {
+            /* Skip hidden files and directories */
+            if (entry->d_name[0] == '.') {
+                continue;
+            }
+
+            /* Check if file is a supported format */
+            book_format_type_t format = format_detect_type(entry->d_name);
+            if (format != BOOK_FORMAT_UNKNOWN) {
+                total_files++;
+            }
+        }
+
+        /* Rewind directory for second pass */
+        rewinddir(dir);
+
+        /* Initialize progress bar if we have files to scan */
+        if (total_files > 0) {
+            progress_bar_init(&progress, 60, 140, 280, true);
+            progress_bar_set_value(&progress, 0, total_files);
+        }
     }
 
     /* Scan for supported book files (.txt, .epub, .pdf) */
@@ -146,17 +179,20 @@ int book_list_scan(book_list_t *list, const char *books_dir) {
         if (stat(filepath, &st) != 0) {
             fprintf(stderr, "book_list_scan: stat failed for %s: %s\n",
                     filepath, strerror(errno));
+            if (show_progress) processed_files++;
             continue;
         }
 
         /* Skip directories */
         if (S_ISDIR(st.st_mode)) {
+            if (show_progress) processed_files++;
             continue;
         }
 
         /* Skip empty files */
         if (st.st_size == 0) {
             fprintf(stderr, "book_list_scan: Skipping empty file %s\n", filepath);
+            if (show_progress) processed_files++;
             continue;
         }
 
@@ -218,6 +254,18 @@ int book_list_scan(book_list_t *list, const char *books_dir) {
         }
 
         list->count++;
+
+        /* Update progress bar (only every 3 files to reduce e-paper refreshes) */
+        if (show_progress && total_files > 0) {
+            processed_files++;
+            if (processed_files % 3 == 0 || processed_files == total_files) {
+                progress_bar_set_value(&progress, processed_files, total_files);
+                fb_clear(fb, COLOR_WHITE);
+                text_render_string(fb, 100, 100, "Scanning library...", COLOR_BLACK);
+                progress_bar_render(&progress, fb);
+                /* Note: Caller should handle display refresh */
+            }
+        }
     }
 
     closedir(dir);
