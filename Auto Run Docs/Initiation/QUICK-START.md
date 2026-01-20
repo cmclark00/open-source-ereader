@@ -135,15 +135,16 @@ open-source-ereader/
 Before moving to Phase 2, verify:
 
 - [ ] **USER ACTION REQUIRED**: Buildroot compiles successfully (output in `buildroot/output/images/`)
-  - **Current Status**: ⏸️ **READY TO BUILD** - All infrastructure complete, awaiting user execution
-  - **Environment Requirement**: Requires WSL2 or native Linux environment (detected: MINGW64/Git Bash on Windows)
+  - **Current Status**: ⏸️ **READY TO BUILD** - All infrastructure complete, WSL2 verified (2026-01-19)
+  - **Environment Status**: ✅ WSL2 Ubuntu detected and accessible, ❌ Dependencies not installed
   - **Build Infrastructure Status**: ✅ Ready (all configs, source code, scripts, and documentation complete)
-  - **Verification Status**: ✅ All build prerequisites verified (2026-01-19) - configs, source code, scripts, and documentation confirmed ready
-  - **Action Required**: User must execute build in WSL2/Linux using `make config && make build` or `./scripts/build.sh`
-  - **Expected Duration**: 1-2 hours for first build
+  - **Verification Status**: ✅ All build prerequisites verified (2026-01-19) - WSL2 operational, project accessible
+  - **Action Required**: User must execute build in WSL2 using provided commands
+  - **Expected Duration**: 2-5 min (dependencies) + 60-120 min (build compilation)
+  - **🚨 START HERE**: See `Auto Run Docs/Working/USER-ACTION-REQUIRED.md` for quick copy-paste commands
   - **📖 Detailed Instructions**: See `Auto Run Docs/Working/BUILDROOT-BUILD-INSTRUCTIONS.md` for complete step-by-step guide
   - **📊 Complete Status Report**: See `docs/progress/PHASE-01-STATUS-SUMMARY.md` for full inventory of completed work
-  - **Why Not Automated**: Buildroot requires Linux environment; cannot be compiled in Git Bash/Windows
+  - **Why Not Automated**: Requires sudo password for dependency installation (cannot be automated securely)
 - [ ] **USER ACTION REQUIRED**: `sdcard.img` file exists and is ~100-500MB
   - **Status**: Will be generated after Buildroot compilation completes in `buildroot/output/images/sdcard.img`
   - **Verification Command**: `ls -lh buildroot/output/images/sdcard.img` (run in WSL2/Linux after build)
