@@ -74,7 +74,8 @@ BR2_PACKAGE_GDB_SERVER=y
 
 # WiFi and networking packages (Phase 6)
 # Broadcom WiFi firmware for Pi Zero W (brcmfmac43430)
-BR2_PACKAGE_RPI_WIFI_FIRMWARE=y
+BR2_PACKAGE_BRCMFMAC_SDIO_FIRMWARE_RPI=y
+BR2_PACKAGE_BRCMFMAC_SDIO_FIRMWARE_RPI_WIFI=y
 
 # WPA supplicant for WPA/WPA2 authentication
 BR2_PACKAGE_WPA_SUPPLICANT=y
